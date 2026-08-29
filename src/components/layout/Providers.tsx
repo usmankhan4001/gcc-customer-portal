@@ -2,7 +2,12 @@
 
 import React from 'react';
 import { PortalProvider } from '@/lib/store';
+import { ToastProvider } from '@/components/ui/Toast';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
-  return <PortalProvider>{children}</PortalProvider>;
+  return (
+    <ToastProvider>
+      <PortalProvider>{children}</PortalProvider>
+    </ToastProvider>
+  );
 }

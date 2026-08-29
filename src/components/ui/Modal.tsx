@@ -1,176 +1,97 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 
-export interface ModalProps {
+interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   title?: string;
-  badge?: string;
-  badgeVariant?: 'orange' | 'blue' | 'navy';
-  maxWidth?: 'sm' | 'md' | 'lg' | 'xl';
+  showHandle?: boolean;
   children: React.ReactNode;
 }
 
-export default function Modal({
-  isOpen,
-  onClose,
-  title,
-  badge,
-  badgeVariant = 'navy',
-  maxWidth = 'md',
-  children,
-}: ModalProps) {
+const FOCUSABLE =
+  'a[href], button:not([disabled]), textarea, input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+export default function Modal({ isOpen, onClose, title, showHandle = true, children }: ModalProps) {
+  const contentRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
+    if (!isOpen) return;
+    document.body.style.overflow = 'hidden';
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') {
+        onClose();
+        return;
+      }
+      if (e.key === 'Tab' && contentRef.current) {
+        const els = contentRef.current.querySelectorAll<HTMLElement>(FOCUSABLE);
+        if (els.length === 0) return;
+        const first = els[0];
+        const last = els[els.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
     };
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-      window.addEventListener('keydown', handleKeyDown);
-    }
+
+    window.addEventListener('keydown', handleKeyDown);
+    requestAnimationFrame(() => {
+      const first = contentRef.current?.querySelector<HTMLElement>(FOCUSABLE);
+      first?.focus();
+    });
+
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = '';
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
-  const getMaxWidthClass = () => {
-    switch (maxWidth) {
-      case 'sm':
-        return 'max-w-sm';
-      case 'lg':
-        return 'max-w-lg';
-      case 'xl':
-        return 'max-w-xl';
-      default:
-        return 'max-w-md';
-    }
-  };
-
   return (
-    <div className="modal-backdrop" onClick={onClose}>
+    <div
+      className="modal-backdrop"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={title ? 'modal-title' : undefined}
+    >
       <div
-        className={`modal-container card ${getMaxWidthClass()}`}
+        ref={contentRef}
+        className="modal-content"
         onClick={(e) => e.stopPropagation()}
       >
-        {(title || badge) && (
-          <div className="modal-top">
-            <div>
-              {badge && (
-                <span className={`badge badge-${badgeVariant} mb-1`}>{badge}</span>
-              )}
-              {title && <h3 className="modal-title display-font">{title}</h3>}
-            </div>
-            <button onClick={onClose} className="modal-close-btn" aria-label="Close Modal">
-              <X className="w-4 h-4 text-navy" />
+        {showHandle && <div className="modal-handle" aria-hidden="true" />}
+        {title && (
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <h2 id="modal-title" style={{ fontFamily: 'var(--font-heading)', fontSize: '1.15rem', fontWeight: 700, color: 'var(--color-text)', margin: 0 }}>
+              {title}
+            </h2>
+            <button
+              onClick={onClose}
+              aria-label="Close dialog"
+              style={{
+                width: 32, height: 32, borderRadius: 'var(--radius-sm)',
+                background: 'var(--color-surface-alt)', border: '1px solid var(--color-border)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', color: 'var(--color-text-secondary)', flexShrink: 0,
+              }}
+            >
+              <X size={16} />
             </button>
           </div>
         )}
-
-        <div className="modal-body">{children}</div>
+        {children}
       </div>
-
-      <style jsx>{`
-        .modal-backdrop {
-          position: fixed;
-          inset: 0;
-          z-index: 250;
-          background: rgba(20, 32, 74, 0.65);
-          backdrop-filter: blur(8px);
-          -webkit-backdrop-filter: blur(8px);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 20px;
-          animation: fadeIn 0.2s ease-out;
-        }
-
-        .modal-container {
-          width: 100%;
-          padding: 32px;
-          display: flex;
-          flex-direction: column;
-          gap: 20px;
-          box-shadow: 0 24px 64px rgba(20, 32, 74, 0.25);
-          max-height: 90vh;
-          overflow-y: auto;
-          animation: slideUp 0.25s ease-out;
-        }
-
-        .max-w-sm {
-          max-width: 440px;
-        }
-        .max-w-md {
-          max-width: 580px;
-        }
-        .max-w-lg {
-          max-width: 760px;
-        }
-        .max-w-xl {
-          max-width: 960px;
-        }
-
-        .modal-top {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          gap: 16px;
-        }
-
-        .modal-title {
-          font-size: 1.4rem;
-          font-weight: 700;
-          color: var(--navy);
-          margin-top: 4px;
-        }
-
-        .modal-close-btn {
-          width: 32px;
-          height: 32px;
-          border-radius: var(--radius-pill);
-          background: var(--sand);
-          border: 1px solid var(--sand-dk);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          transition: all 0.2s;
-        }
-
-        .modal-close-btn:hover {
-          background: #E5E7EB;
-        }
-
-        .modal-body {
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-        }
-
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
-        }
-
-        @keyframes slideUp {
-          from {
-            transform: translateY(20px);
-            opacity: 0;
-          }
-          to {
-            transform: translateY(0);
-            opacity: 1;
-          }
-        }
-      `}</style>
     </div>
   );
 }
+
+export { Modal };

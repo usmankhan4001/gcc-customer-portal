@@ -2,96 +2,74 @@
 
 import React from 'react';
 
-export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
   label?: string;
-  helperText?: string;
+  placeholder: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   error?: string;
-  leftIcon?: React.ReactNode;
-  rightIcon?: React.ReactNode;
+  helper?: string;
+  icon?: React.ReactNode;
+  type?: string;
+  className?: string;
 }
 
 export default function Input({
   label,
-  helperText,
+  placeholder,
+  value,
+  onChange,
   error,
-  leftIcon,
-  rightIcon,
+  helper,
+  icon,
+  type = 'text',
   className = '',
   id,
   ...props
 }: InputProps) {
   const inputId = id || (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined);
+  const errorId = inputId ? `${inputId}-error` : undefined;
+  const helperId = inputId ? `${inputId}-helper` : undefined;
+  const describedBy = error ? errorId : helper ? helperId : undefined;
 
   return (
-    <div className="input-field-wrapper">
+    <div className={className} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
       {label && (
-        <label htmlFor={inputId} className="input-label">
-          {label}
-        </label>
+        <label htmlFor={inputId} className="input-label">{label}</label>
       )}
-
-      <div className="input-box">
-        {leftIcon && <div className="input-icon-left">{leftIcon}</div>}
+      <div style={{ position: 'relative' }}>
+        {icon && (
+          <span
+            style={{
+              position: 'absolute',
+              left: 14,
+              top: '50%',
+              transform: 'translateY(-50%)',
+              color: 'var(--color-text-muted)',
+              display: 'flex',
+              pointerEvents: 'none',
+            }}
+          >
+            {icon}
+          </span>
+        )}
         <input
           id={inputId}
-          className={`input-field ${leftIcon ? 'pl-icon' : ''} ${rightIcon ? 'pr-icon' : ''} ${error ? 'input-error' : ''} ${className}`}
+          type={type}
+          placeholder={placeholder}
+          value={value}
+          onChange={onChange}
+          aria-invalid={!!error || undefined}
+          aria-describedby={describedBy}
+          className={`input-field ${error ? 'input-error' : ''}`}
+          style={icon ? { paddingLeft: 42 } : undefined}
           {...props}
         />
-        {rightIcon && <div className="input-icon-right">{rightIcon}</div>}
       </div>
-
-      {error && <span className="input-error-msg">{error}</span>}
-      {helperText && !error && <span className="input-helper-msg">{helperText}</span>}
-
-      <style jsx>{`
-        .input-field-wrapper {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-          width: 100%;
-        }
-        .input-box {
-          position: relative;
-          display: flex;
-          align-items: center;
-          width: 100%;
-        }
-        .input-icon-left {
-          position: absolute;
-          left: 16px;
-          color: var(--text-tertiary);
-          display: flex;
-          align-items: center;
-          pointer-events: none;
-        }
-        .input-icon-right {
-          position: absolute;
-          right: 16px;
-          color: var(--text-tertiary);
-          display: flex;
-          align-items: center;
-        }
-        .pl-icon {
-          padding-left: 44px;
-        }
-        .pr-icon {
-          padding-right: 44px;
-        }
-        .input-error {
-          border-color: var(--error) !important;
-        }
-        .input-error-msg {
-          font-size: 12px;
-          color: var(--error);
-          font-weight: 600;
-          margin-top: 2px;
-        }
-        .input-helper-msg {
-          font-size: 12px;
-          color: var(--text-tertiary);
-          margin-top: 2px;
-        }
-      `}</style>
+      {error && <span id={errorId} className="input-error" role="alert">{error}</span>}
+      {helper && !error && <span id={helperId} className="input-helper">{helper}</span>}
     </div>
   );
 }
+
+export { Input };

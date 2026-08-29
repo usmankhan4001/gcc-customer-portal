@@ -17,13 +17,13 @@ interface ProgressStepsProps {
 export default function ProgressSteps({ steps, currentStep, orientation = 'horizontal' }: ProgressStepsProps) {
   if (orientation === 'vertical') {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+      <ol style={{ display: 'flex', flexDirection: 'column', gap: 0, margin: 0, padding: 0, listStyle: 'none' }}>
         {steps.map((step, i) => {
           const isCompleted = i < currentStep;
           const isCurrent = i === currentStep;
 
           return (
-            <div key={i} style={{ display: 'flex', gap: 12 }}>
+            <li key={i} style={{ display: 'flex', gap: 12 }}>
               {/* Line + dot */}
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 24 }}>
                 <div
@@ -65,23 +65,23 @@ export default function ProgressSteps({ steps, currentStep, orientation = 'horiz
                   </div>
                 )}
               </div>
-            </div>
+            </li>
           );
         })}
-      </div>
+      </ol>
     );
   }
 
   // Horizontal
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 0, width: '100%' }}>
+    <ol style={{ display: 'flex', alignItems: 'center', gap: 0, width: '100%', margin: 0, padding: 0, listStyle: 'none' }}>
       {steps.map((step, i) => {
         const isCompleted = i < currentStep;
         const isCurrent = i === currentStep;
 
         return (
           <React.Fragment key={i}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, flex: 1 }}>
+            <li style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, flex: 1 }}>
               <div className={isCompleted ? 'step-dot completed' : isCurrent ? 'step-dot active' : 'step-dot'} />
               <span
                 style={{
@@ -98,7 +98,7 @@ export default function ProgressSteps({ steps, currentStep, orientation = 'horiz
               >
                 {step.label}
               </span>
-            </div>
+            </li>
             {i < steps.length - 1 && (
               <div
                 style={{
@@ -113,6 +113,6 @@ export default function ProgressSteps({ steps, currentStep, orientation = 'horiz
           </React.Fragment>
         );
       })}
-    </div>
+    </ol>
   );
 }

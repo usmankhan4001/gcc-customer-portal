@@ -20,6 +20,9 @@ export default function Select({
   ...props
 }: SelectProps) {
   const selectId = id || (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined);
+  const errorId = selectId ? `${selectId}-error` : undefined;
+  const helperId = selectId ? `${selectId}-helper` : undefined;
+  const describedBy = error ? errorId : helperText ? helperId : undefined;
 
   return (
     <div className="select-field-wrapper">
@@ -31,6 +34,8 @@ export default function Select({
 
       <select
         id={selectId}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={describedBy}
         className={`input-field ${error ? 'select-error' : ''} ${className}`}
         {...props}
       >
@@ -43,8 +48,8 @@ export default function Select({
           : children}
       </select>
 
-      {error && <span className="select-error-msg">{error}</span>}
-      {helperText && !error && <span className="select-helper-msg">{helperText}</span>}
+      {error && <span id={errorId} className="select-error-msg" role="alert">{error}</span>}
+      {helperText && !error && <span id={helperId} className="select-helper-msg">{helperText}</span>}
 
       <style jsx>{`
         .select-field-wrapper {

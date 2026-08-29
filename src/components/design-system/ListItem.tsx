@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 
 interface ListItemProps {
@@ -30,6 +31,14 @@ export default function ListItem({
     <div
       className={`list-item ${interactive ? 'list-item-interactive' : ''}`}
       onClick={onClick}
+      role={onClick && !href ? 'button' : undefined}
+      tabIndex={onClick && !href ? 0 : undefined}
+      onKeyDown={onClick && !href ? (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick();
+        }
+      } : undefined}
       style={{ cursor: onClick || href ? 'pointer' : 'default' }}
     >
       {icon && (
@@ -52,9 +61,9 @@ export default function ListItem({
 
   if (href) {
     return (
-      <a href={href} style={{ textDecoration: 'none', color: 'inherit' }}>
+      <Link href={href} style={{ textDecoration: 'none', color: 'inherit' }}>
         {content}
-      </a>
+      </Link>
     );
   }
 

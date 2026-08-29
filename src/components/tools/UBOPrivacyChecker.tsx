@@ -43,6 +43,22 @@ export default function UBOPrivacyChecker() {
         ))}
       </div>
 
+      {/* Registry Specifications for Selected Jurisdiction */}
+      <div className="registry-info card-sand">
+        <div className="registry-title">{registrySpecs[jurisdiction].name}</div>
+        <div className="registry-specs">
+          <span className={`spec-item ${registrySpecs[jurisdiction].publicSearch ? 'spec-yes' : 'spec-no'}`}>
+            Public Search: <strong>{registrySpecs[jurisdiction].publicSearch ? 'Yes' : 'No'}</strong>
+          </span>
+          <span className={`spec-item ${registrySpecs[jurisdiction].directorPublic ? 'spec-yes' : 'spec-no'}`}>
+            Director Public: <strong>{registrySpecs[jurisdiction].directorPublic ? 'Yes' : 'No'}</strong>
+          </span>
+          <span className={`spec-item ${registrySpecs[jurisdiction].uboPublic ? 'spec-yes' : 'spec-no'}`}>
+            UBO Public: <strong>{registrySpecs[jurisdiction].uboPublic ? 'Yes' : 'No'}</strong>
+          </span>
+        </div>
+      </div>
+
       {/* Comparison Grid: Tier 1 vs Tier 2 */}
       <div className="comparison-grid">
         {/* Tier 1 Card */}
@@ -170,7 +186,38 @@ export default function UBOPrivacyChecker() {
         }
 
         @media (max-width: 768px) {
-          .comparison-grid {
+        .registry-info {
+          padding: 16px 20px;
+          border-radius: var(--radius);
+        }
+
+        .registry-title {
+          font-size: 14px;
+          font-weight: 700;
+          color: var(--navy);
+          margin-bottom: 8px;
+        }
+
+        .registry-specs {
+          display: flex;
+          gap: 16px;
+          flex-wrap: wrap;
+        }
+
+        .spec-item {
+          font-size: 13px;
+          color: var(--text-secondary);
+        }
+
+        .spec-yes strong {
+          color: var(--success, #16a34a);
+        }
+
+        .spec-no strong {
+          color: var(--orange);
+        }
+
+        .comparison-grid {
             grid-template-columns: 1fr;
           }
         }

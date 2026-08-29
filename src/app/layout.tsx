@@ -3,7 +3,7 @@ import '@/styles/globals.css';
 import AppChrome from '@/components/layout/AppChrome';
 
 export const metadata: Metadata = {
-  title: 'GCCStartup — Global Company Formation & Tax Optimization',
+  title: 'GCCStartup',
   description:
     'Form companies in UAE, Hong Kong, Singapore & Bahrain with guaranteed banking, 0% tax structures, and complete nominee privacy.',
   manifest: '/manifest.json',
@@ -17,9 +17,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
-  themeColor: '#14204A',
+  themeColor: '#F26522',
   viewportFit: 'cover',
 };
 
@@ -29,13 +27,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       </head>
-      <body>
+      <body suppressHydrationWarning>
+        <a href="#main-content" className="skip-link">
+          Skip to main content
+        </a>
         <AppChrome>{children}</AppChrome>
       </body>
     </html>

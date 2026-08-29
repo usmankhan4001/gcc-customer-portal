@@ -23,13 +23,15 @@ export default function TabGroup({
   className = '',
 }: TabGroupProps) {
   return (
-    <div className={`tab-group-container ${className}`}>
+    <div className={`tab-group-container ${className}`} role="tablist">
       {tabs.map((tab) => {
         const isActive = activeTab === tab.id;
         return (
           <button
             key={tab.id}
             type="button"
+            role="tab"
+            aria-selected={isActive}
             onClick={() => onChange(tab.id)}
             className={`tab-btn ${isActive ? 'active' : ''}`}
           >

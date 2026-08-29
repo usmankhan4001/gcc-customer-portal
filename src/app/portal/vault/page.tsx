@@ -1,497 +1,290 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
 import { usePortalStore } from '@/lib/store';
-import Card from '@/components/ui/Card';
-import Badge from '@/components/ui/Badge';
-import Button from '@/components/ui/Button';
-import Modal from '@/components/ui/Modal';
-import Input from '@/components/ui/Input';
+import { Modal } from '@/components/ui/Modal';
+import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
+import { Input } from '@/components/ui/Input';
+import { useToast } from '@/components/ui/Toast';
 import {
-  ShieldCheck,
   FileText,
-  ExternalLink,
-  CheckCircle2,
-  Lock,
   Download,
   Share2,
   Copy,
   Check,
+  Lock,
   ArrowRight,
-  Sparkles,
+  ShieldCheck,
+  CheckCircle2,
+  FolderOpen,
 } from 'lucide-react';
 
-export default function VaultKYCPage() {
-  const { entities, activeEntityId, submitKycHandshake } = usePortalStore();
-  const activeCompany = entities.find((e) => e.id === activeEntityId) || entities[0];
+function EntitySelector({
+  entities,
+  activeId,
+  onSelect,
+}: {
+  entities: { id: string; name: string; flag: string }[];
+  activeId: string;
+  onSelect: (id: string) => void;
+}) {
+  if (entities.length <= 1) return null;
+  return (
+    <div className="h-scroll" style={{ gap: 8, marginBottom: 20 }}>
+      {entities.map((ent) => (
+        <button
+          key={ent.id}
+          onClick={() => onSelect(ent.id)}
+          className={`chip ${ent.id === activeId ? 'active' : ''}`}
+          style={{ flexShrink: 0 }}
+        >
+          <span>{ent.flag}</span>
+          <span className="truncate" style={{ maxWidth: 110 }}>
+            {ent.name}
+          </span>
+        </button>
+      ))}
+    </div>
+  );
+}
 
-  const [referenceNumber, setReferenceNumber] = useState(activeCompany?.kycReferenceNumber || '');
+export default function VaultPage() {
+  const { entities, activeEntityId, setActiveEntityId, submitKycHandshake } = usePortalStore();
+  const { showToast } = useToast();
+  const activeEntity = entities.find((e) => e.id === activeEntityId) || entities[0];
+
+  const [referenceNumber, setReferenceNumber] = useState(activeEntity?.kycReferenceNumber || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submissionSuccess, setSubmissionSuccess] = useState(Boolean(activeCompany?.kycReferenceNumber));
+  const [handshakeDone, setHandshakeDone] = useState(Boolean(activeEntity?.kycReferenceNumber));
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
 
-  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-  const [copiedLink, setCopiedLink] = useState(false);
-
-  const handleKycHandshakeSubmit = (e: React.FormEvent) => {
+  const handleKycSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!referenceNumber.trim()) {
-      alert('Please enter your official application / reference number.');
-      return;
-    }
-
+    if (!referenceNumber.trim()) return;
     setIsSubmitting(true);
     setTimeout(() => {
       setIsSubmitting(false);
-      setSubmissionSuccess(true);
-      if (activeCompany) {
-        submitKycHandshake(activeCompany.id, referenceNumber);
-      }
+      setHandshakeDone(true);
+      if (activeEntity) submitKycHandshake(activeEntity.id, referenceNumber);
+      showToast('success', 'KYC handshake verified — Stage 3 activated');
     }, 800);
   };
 
-  const handleCopyShareLink = () => {
-    navigator.clipboard.writeText(`https://gccstartup.com/v/${activeCompany?.id || 'doc'}-vault?token=sec_9842f`);
-    setCopiedLink(true);
-    setTimeout(() => setCopiedLink(false), 2000);
+  const handleCopy = () => {
+    navigator.clipboard.writeText(`https://gccstartup.com/v/${activeEntity?.id || 'doc'}-vault?token=sec_9842f`);
+    setCopied(true);
+    showToast('success', 'Share link copied to clipboard');
+    setTimeout(() => setCopied(false), 2000);
   };
 
-  if (!activeCompany) {
-    return <div className="text-center py-20">No active entity found.</div>;
+  if (!activeEntity) {
+    return (
+      <div className="empty-state">
+        <div className="empty-state-icon"><FolderOpen size={32} /></div>
+        <h3 className="empty-state-title">No Active Entity</h3>
+        <p className="empty-state-desc">Set up a company to access your document vault.</p>
+      </div>
+    );
   }
 
   return (
-    <div className="vault-container">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       {/* Page Header */}
-      <Card variant="sand" padding="md" className="vault-header">
-        <div className="badge-row">
-          <Badge variant="navy" icon={<ShieldCheck className="w-3.5 h-3.5" />}>
-            OFFICIAL REGISTRY KYC & CORPORATE KIT LOCKER
-          </Badge>
-          <Badge variant="blue">{activeCompany.name}</Badge>
+      <div className="animate-fade-in">
+        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-text-muted)', letterSpacing: '0.08em', marginBottom: 4 }}>
+          SECURE CORPORATE KIT LOCKER
         </div>
-        <h1 className="title display-font">
-          Client Document & <span className="text-orange">Official KYC Hub</span>
+        <h1
+          className="font-heading"
+          style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--color-text)', lineHeight: 1.2 }}
+        >
+          Document <span style={{ color: 'var(--color-orange)' }}>Vault</span>
         </h1>
-        <p className="subtitle">
-          Complete official government registry verification, submit your reference handshake, and access your Cloudflare R2 corporate documents.
+        <p style={{ fontSize: 14, color: 'var(--color-text-secondary)', marginTop: 4 }}>
+          Secure corporate kit locker — download official documents and manage KYC.
         </p>
-      </Card>
+      </div>
 
-      {/* SECTION 1: OFFICIAL GOVERNMENT KYC GUIDANCE & HANDSHAKE */}
-      <Card variant="surface" padding="lg" className="section-card">
-        <div className="section-top">
-          <div className="badge badge-navy mb-1">STEP 1: OFFICIAL PORTAL VERIFICATION</div>
-          <h2 className="section-title display-font">Official Authority Identity Verification</h2>
-          <p className="section-desc">
-            In accordance with international regulatory frameworks, identity and passport biometric verification is completed directly on the official government registry portal.
-          </p>
+      {/* Entity Selector */}
+      <EntitySelector
+        entities={entities}
+        activeId={activeEntity.id}
+        onSelect={setActiveEntityId}
+      />
+
+      {/* Document Grid */}
+      <div className="section-gap animate-slide-up" style={{ animationDelay: '40ms' }}>
+        <div className="section-header">
+          <span className="section-title">Issued Documents</span>
+          <Badge variant="info" size="sm">{activeEntity.documents.length} files</Badge>
         </div>
 
-        {/* 3-Step Guided Process */}
-        <div className="kyc-steps-grid">
-          <div className="kyc-step-box card-sand">
-            <div className="step-num-badge">1</div>
-            <strong className="block text-navy text-sm mb-1">Pre-Flight Prep</strong>
-            <p className="text-xs text-secondary">
-              Have your valid international passport and phone camera ready for facial biometrics.
+        {activeEntity.documents.length === 0 ? (
+          <div className="empty-state" style={{ padding: 32 }}>
+            <div className="empty-state-icon"><FolderOpen size={28} /></div>
+            <h3 className="empty-state-title" style={{ fontSize: '1rem' }}>No Documents Yet</h3>
+            <p className="empty-state-desc" style={{ fontSize: 13 }}>
+              Documents will appear here once your entity is issued.
             </p>
           </div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 14 }}>
+            {activeEntity.documents.map((doc) => (
+              <div key={doc.id} className="card card-padded" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <FileText size={20} style={{ color: 'var(--color-orange)' }} />
+                  <Badge variant={doc.isReady ? 'success' : 'warning'} size="sm">
+                    {doc.isReady ? 'Ready' : 'Pending'}
+                  </Badge>
+                </div>
+                <div>
+                  <h4
+                    className="font-heading truncate"
+                    style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-text)' }}
+                  >
+                    {doc.title}
+                  </h4>
+                  <p style={{ fontSize: 12, color: 'var(--color-text-tertiary)', marginTop: 2 }}>
+                    {doc.type} — {doc.size}
+                  </p>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 'auto', paddingTop: 10, borderTop: '1px solid var(--color-border)' }}>
+                  {doc.isReady ? (
+                    <span className="status-dot status-dot-active" />
+                  ) : (
+                    <span className="status-dot status-dot-pending" />
+                  )}
+                  <span style={{ fontSize: 12, color: doc.isReady ? 'var(--color-success)' : 'var(--color-warning)', fontWeight: 600 }}>
+                    {doc.isReady ? 'Ready to download' : 'Pending issuance'}
+                  </span>
+                </div>
+                {doc.isReady ? (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    fullWidth
+                    leftIcon={<Download size={14} />}
+                    onClick={() => showToast('info', 'Download will be available after backend integration')}
+                  >
+                    Download
+                  </Button>
+                ) : (
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '8px 0' }}>
+                    <Badge variant="warning" size="sm">Pending</Badge>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
-          <div className="kyc-step-box card-sand">
-            <div className="step-num-badge">2</div>
-            <strong className="block text-navy text-sm mb-1">Open Official Portal</strong>
-            <p className="text-xs text-secondary">
-              Use the direct secure authority link below to perform your biometric scan.
-            </p>
-          </div>
-
-          <div className="kyc-step-box card-sand">
-            <div className="step-num-badge">3</div>
-            <strong className="block text-navy text-sm mb-1">Submit Confirmation Ref</strong>
-            <p className="text-xs text-secondary">
-              Enter the reference number given by the portal to start incorporation filing.
-            </p>
-          </div>
+      {/* KYC Handshake Section */}
+      <div className="section-gap animate-slide-up" style={{ animationDelay: '80ms' }}>
+        <div className="section-header">
+          <span className="section-title">KYC Handshake</span>
         </div>
-
-        {/* Direct Official Link Card */}
-        <Card variant="blue-lt" padding="md" className="official-portal-banner">
-          <div className="banner-left">
-            <span className="text-xs font-bold text-blue">ASSIGNED AUTHORITY PORTAL</span>
-            <h3 className="portal-name display-font text-navy">
-              {activeCompany.countryCode === 'hk'
-                ? 'Hong Kong Companies Registry Cyber Search Centre'
-                : 'UAE Freezone Authority Electronic Registry Portal'}
-            </h3>
-            <span className="text-xs text-secondary">
-              Official URL: {activeCompany.countryCode === 'hk' ? 'https://www.cr.gov.hk/identity' : 'https://portal.authority.ae/identity/v2'}
-            </span>
+        <div className="card card-padded">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+            <div style={{
+              width: 36, height: 36, borderRadius: 'var(--radius-sm)',
+              background: handshakeDone ? 'var(--color-success-light)' : 'var(--color-orange-light)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: handshakeDone ? 'var(--color-success)' : 'var(--color-orange)',
+            }}>
+              {handshakeDone ? <CheckCircle2 size={18} /> : <ShieldCheck size={18} />}
+            </div>
+            <div>
+              <h3 className="font-heading" style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-text)' }}>
+                {handshakeDone ? 'KYC Verified' : 'Submit Official Portal Reference'}
+              </h3>
+              <p style={{ fontSize: 12, color: 'var(--color-text-tertiary)' }}>
+                {handshakeDone
+                  ? `Ref: ${referenceNumber || activeEntity.kycReferenceNumber}`
+                  : 'Enter your government portal reference number after completing identity verification'}
+              </p>
+            </div>
           </div>
 
-          <a
-            href={activeCompany.countryCode === 'hk' ? 'https://www.cr.gov.hk' : 'https://portal.authority.ae'}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn btn-primary"
-          >
-            <span>Open Official Government Portal</span>
-            <ExternalLink className="w-4 h-4" />
-          </a>
-        </Card>
-
-        {/* Post-KYC Handshake Form */}
-        <div className="handshake-box card-sand">
-          <h3 className="handshake-title display-font">
-            {submissionSuccess ? '✅ Official KYC Handshake Verified' : 'Submit Post-KYC Reference Confirmation'}
-          </h3>
-          <p className="handshake-desc">
-            {submissionSuccess
-              ? `Your official reference number (${referenceNumber || activeCompany.kycReferenceNumber}) is matched with the registry queue. Stage 3 (Government Registry Filing) is active!`
-              : 'Once you complete your verification on the government portal, submit your official application/reference number below:'}
-          </p>
-
-          {!submissionSuccess ? (
-            <form onSubmit={handleKycHandshakeSubmit} className="handshake-form">
-              <div className="form-row">
-                <input
-                  type="text"
-                  required
+          {!handshakeDone ? (
+            <form onSubmit={handleKycSubmit} style={{ display: 'flex', gap: 10 }}>
+              <div style={{ flex: 2 }}>
+                <Input
                   placeholder="e.g. IFZA-KYC-2026-849201"
                   value={referenceNumber}
                   onChange={(e) => setReferenceNumber(e.target.value)}
-                  className="input-field flex-2"
+                  icon={<Lock size={16} />}
                 />
-                <Button variant="primary" size="md" isLoading={isSubmitting} className="flex-1">
-                  <span>Confirm KYC & Start Filing</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Button>
               </div>
+              <Button variant="primary" isLoading={isSubmitting} style={{ flexShrink: 0 }}>
+                <span>Verify & Activate</span>
+                <ArrowRight size={14} />
+              </Button>
             </form>
           ) : (
-            <div className="success-badge-box card-blue-lt">
-              <CheckCircle2 className="w-5 h-5 text-success" />
-              <span className="text-navy text-sm">
-                Confirmed Reference: <strong>{referenceNumber || activeCompany.kycReferenceNumber}</strong> • Assigned Specialist Notified via Meta WhatsApp API
+            <div
+              className="card card-flat"
+              style={{
+                display: 'flex', alignItems: 'center', gap: 10,
+                padding: '12px 16px', borderLeft: '3px solid var(--color-success)',
+              }}
+            >
+              <CheckCircle2 size={18} style={{ color: 'var(--color-success)', flexShrink: 0 }} />
+              <span style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>
+                Confirmed Reference: <strong style={{ color: 'var(--color-text)' }}>{referenceNumber || activeEntity.kycReferenceNumber}</strong> — Stage 3 is active
               </span>
             </div>
           )}
         </div>
-      </Card>
+      </div>
 
-      {/* SECTION 2: CLOUDFLARE R2 CORPORATE KIT LOCKER */}
-      <Card variant="surface" padding="lg" className="section-card">
-        <div className="section-top-between">
-          <div>
-            <div className="badge badge-navy mb-1">STEP 2: PERMANENT STORAGE</div>
-            <h2 className="section-title display-font">Issued Corporate Kit Locker</h2>
-            <p className="section-desc">
-              All official government-issued company certificates and legal packs are securely archived in Cloudflare R2.
-            </p>
-          </div>
+      {/* Share Section */}
+      <div className="animate-slide-up" style={{ animationDelay: '120ms' }}>
+        <Button
+          variant="secondary"
+          fullWidth
+          leftIcon={<Share2 size={16} style={{ color: 'var(--color-orange)' }} />}
+          onClick={() => setShareModalOpen(true)}
+        >
+          Share Documents
+        </Button>
+      </div>
 
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => setIsShareModalOpen(true)}
-            leftIcon={<Share2 className="w-4 h-4 text-orange" />}
-          >
-            <span>Generate 1-Click Share Link</span>
-          </Button>
-        </div>
-
-        {/* Documents Grid */}
-        <div className="docs-vault-grid">
-          {activeCompany.documents.map((doc) => (
-            <Card key={doc.id} variant="sand" padding="md" className="vault-doc-card card-hover">
-              <div className="doc-top">
-                <FileText className="w-6 h-6 text-orange" />
-                <Badge variant={doc.isReady ? 'success' : 'sand'}>
-                  {doc.isReady ? 'Ready in Locker' : 'Under Registry Review'}
-                </Badge>
-              </div>
-              <h4 className="doc-card-title display-font text-navy">{doc.title}</h4>
-              <div className="doc-meta">
-                <span>{doc.type}</span>
-                <span>{doc.size}</span>
-              </div>
-              <div className="doc-footer">
-                {doc.isReady ? (
-                  <Button variant="secondary" size="sm" className="w-full" leftIcon={<Download className="w-3.5 h-3.5" />}>
-                    <span>Download PDF</span>
-                  </Button>
-                ) : (
-                  <span className="text-xs text-tertiary">Auto-delivers upon registry issue</span>
-                )}
-              </div>
-            </Card>
-          ))}
-        </div>
-      </Card>
-
-      {/* 1-CLICK SHARE MODAL */}
-      <Modal
-        isOpen={isShareModalOpen}
-        onClose={() => setIsShareModalOpen(false)}
-        title="Share Corporate Kit with Banks"
-        badge="PASSWORD-PROTECTED SHARING"
-        badgeVariant="navy"
-      >
-        <div className="modal-share-body">
-          <p className="text-sm text-secondary">
-            Generate a temporary, encrypted link to securely send your trade license, MoA, and nominee pack to bankers and payment processors.
+      {/* Share Modal */}
+      <Modal isOpen={shareModalOpen} onClose={() => setShareModalOpen(false)} title="Share Corporate Kit">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <p style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>
+            Generate a temporary, encrypted link to securely share your trade license, MoA, and nominee pack.
           </p>
-
-          <div className="share-link-box card-sand">
-            <span className="link-url">
-              https://gccstartup.com/v/{activeCompany.id}-vault?token=sec_9842f
+          <div
+            className="card card-flat"
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              padding: '12px 16px', borderRadius: 'var(--radius-pill)', gap: 10,
+            }}
+          >
+            <span style={{ fontSize: 12, color: 'var(--color-text-secondary)', fontFamily: 'monospace', wordBreak: 'break-all', flex: 1 }}>
+              https://gccstartup.com/v/{activeEntity.id}-vault?token=sec_9842f
             </span>
-            <Button variant="primary" size="sm" onClick={handleCopyShareLink}>
-              {copiedLink ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-              <span>{copiedLink ? 'Copied!' : 'Copy Link'}</span>
+            <Button variant="primary" size="sm" onClick={handleCopy}>
+              {copied ? <Check size={14} /> : <Copy size={14} />}
+              <span>{copied ? 'Copied!' : 'Copy'}</span>
             </Button>
           </div>
-
-          <div className="share-options">
-            <div className="option-row">
-              <span className="text-sm">Link Expiry:</span>
-              <strong className="text-sm text-navy">7 Days (Auto-Revokes)</strong>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, paddingTop: 10, borderTop: '1px solid var(--color-border)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
+              <span style={{ color: 'var(--color-text-secondary)' }}>Link Expiry</span>
+              <strong style={{ color: 'var(--color-text)' }}>7 Days (Auto-Revokes)</strong>
             </div>
-            <div className="option-row">
-              <span className="text-sm">Access Protection:</span>
-              <strong className="text-sm text-success">256-Bit Encrypted + Audit Logged</strong>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
+              <span style={{ color: 'var(--color-text-secondary)' }}>Access Protection</span>
+              <strong style={{ color: 'var(--color-success)' }}>256-Bit Encrypted + Audit Logged</strong>
             </div>
           </div>
         </div>
       </Modal>
-
-      <style jsx>{`
-        .vault-container {
-          display: flex;
-          flex-direction: column;
-          gap: 28px;
-          width: 100%;
-        }
-
-        .vault-header {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-
-        .badge-row {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-
-        .title {
-          font-size: 2.2rem;
-          font-weight: 700;
-          color: var(--navy);
-        }
-
-        .subtitle {
-          color: var(--text-secondary);
-          font-size: 15px;
-        }
-
-        .section-card {
-          display: flex;
-          flex-direction: column;
-          gap: 24px;
-        }
-
-        .section-title {
-          font-size: 1.6rem;
-          font-weight: 700;
-          margin: 6px 0 2px 0;
-          color: var(--navy);
-        }
-
-        .section-desc {
-          color: var(--text-secondary);
-          font-size: 15px;
-        }
-
-        .section-top-between {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          gap: 16px;
-        }
-
-        @media (max-width: 768px) {
-          .section-top-between {
-            flex-direction: column;
-          }
-        }
-
-        .kyc-steps-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-          gap: 14px;
-        }
-
-        .kyc-step-box {
-          padding: 20px;
-          border-radius: var(--radius);
-        }
-
-        .step-num-badge {
-          width: 26px;
-          height: 26px;
-          border-radius: 50%;
-          background: var(--navy);
-          color: #FFFFFF;
-          font-size: 12px;
-          font-weight: 700;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin-bottom: 10px;
-        }
-
-        .official-portal-banner {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 20px;
-        }
-
-        @media (max-width: 768px) {
-          .official-portal-banner {
-            flex-direction: column;
-            text-align: center;
-          }
-        }
-
-        .portal-name {
-          font-size: 1.35rem;
-          margin: 4px 0;
-        }
-
-        .handshake-box {
-          padding: 24px;
-          border-radius: var(--radius);
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-        }
-
-        .handshake-title {
-          font-size: 1.25rem;
-          color: var(--navy);
-        }
-
-        .handshake-desc {
-          font-size: 14px;
-          color: var(--text-secondary);
-        }
-
-        .handshake-form {
-          margin-top: 6px;
-        }
-
-        .form-row {
-          display: flex;
-          gap: 10px;
-        }
-
-        @media (max-width: 640px) {
-          .form-row {
-            flex-direction: column;
-          }
-        }
-
-        .flex-2 {
-          flex: 2;
-        }
-
-        .flex-1 {
-          flex: 1;
-        }
-
-        .success-badge-box {
-          padding: 14px 18px;
-          border-radius: var(--radius);
-          display: flex;
-          align-items: center;
-          gap: 10px;
-        }
-
-        .docs-vault-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-          gap: 16px;
-        }
-
-        .vault-doc-card {
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-        }
-
-        .doc-top {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-
-        .doc-card-title {
-          font-size: 15px;
-          min-height: 40px;
-        }
-
-        .doc-meta {
-          display: flex;
-          justify-content: space-between;
-          font-size: 12px;
-          color: var(--text-tertiary);
-        }
-
-        .doc-footer {
-          margin-top: auto;
-          padding-top: 10px;
-          border-top: 1px solid var(--border);
-        }
-
-        .modal-share-body {
-          display: flex;
-          flex-direction: column;
-          gap: 14px;
-        }
-
-        .share-link-box {
-          padding: 14px 18px;
-          border-radius: var(--radius-pill);
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 10px;
-        }
-
-        .link-url {
-          font-size: 13px;
-          color: var(--navy);
-          font-family: monospace;
-          word-break: break-all;
-        }
-
-        .share-options {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-          padding-top: 10px;
-          border-top: 1px solid var(--border);
-        }
-
-        .option-row {
-          display: flex;
-          justify-content: space-between;
-          color: var(--text-secondary);
-        }
-      `}</style>
     </div>
   );
 }

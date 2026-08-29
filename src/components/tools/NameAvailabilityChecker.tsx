@@ -1,23 +1,36 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { Search, CheckCircle2, AlertTriangle, ArrowRight, Globe } from 'lucide-react';
 
 export default function NameAvailabilityChecker() {
   const [query, setQuery] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
   const [jurisdiction, setJurisdiction] = useState('uae');
   const [analyzed, setAnalyzed] = useState(false);
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    debounceTimer.current = setTimeout(() => {
+      setDebouncedQuery(query);
+      setAnalyzed(false);
+    }, 400);
+    return () => { if (debounceTimer.current) clearTimeout(debounceTimer.current); };
+  }, [query]);
 
   const handleCheck = (e: React.FormEvent) => {
     e.preventDefault();
-    if (query.trim()) {
+    if (debouncedQuery.trim()) {
+      setDebouncedQuery(query);
       setAnalyzed(true);
     }
   };
 
-  const hasRestrictedWords = /bank|trust|insurance|royal|emirates|dubai|global/i.test(query);
-  const isAvailable = query.length >= 3 && !hasRestrictedWords;
+  const restrictedRegex = /\b(bank|banking|trust|insurance|royal|emirates|dubai|abu\s*dhabi|sharjah|qatar|saudi|bahrain|kuwait|oman|government|minister|national|federal|authority|reserve|currency|exchange)\b/i;
+  const hasRestrictedWords = restrictedRegex.test(debouncedQuery);
+  const isAvailable = debouncedQuery.length >= 3 && !hasRestrictedWords;
 
   return (
     <div className="card name-card">
@@ -41,10 +54,7 @@ export default function NameAvailabilityChecker() {
             type="text"
             placeholder="e.g. Apex Cloud Solutions"
             value={query}
-            onChange={(e) => {
-              setQuery(e.target.value);
-              setAnalyzed(false);
-            }}
+            onChange={(e) => setQuery(e.target.value)}
             className="input-field query-input"
           />
           <select
@@ -76,7 +86,7 @@ export default function NameAvailabilityChecker() {
           </div>
           <div className="result-text-box">
             <span className="result-title display-font text-navy">
-              {isAvailable ? `"${query}" Looks Preliminary Available!` : `"${query}" Triggers Restricted Terms`}
+              {isAvailable ? `"${debouncedQuery}" Looks Preliminary Available!` : `"${debouncedQuery}" Triggers Restricted Terms`}
             </span>
             <p className="result-desc">
               {isAvailable
@@ -85,7 +95,7 @@ export default function NameAvailabilityChecker() {
             </p>
           </div>
 
-          <Link href={`/setup?name=${encodeURIComponent(query)}&country=${jurisdiction}`} className="btn btn-primary">
+          <Link href={`/setup?name=${encodeURIComponent(debouncedQuery)}&country=${jurisdiction}`} className="btn btn-primary">
             <span>Reserve in Setup</span>
             <ArrowRight className="w-4 h-4" />
           </Link>

@@ -3,337 +3,545 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import {
-  ArrowRight,
+  Bell,
+  Search,
   Calculator,
-  Shield,
-  Building2,
-  Clock,
-  TrendingDown,
-  Sparkles,
-  ChevronRight,
-  Globe,
+  Rocket,
   Landmark,
-  FileText,
+  LayoutGrid,
+  Shield,
+  Clock,
+  Sparkles,
+  CreditCard,
+  MessageSquare,
 } from 'lucide-react';
-import TopBar from '@/components/design-system/TopBar';
-import StatusCard from '@/components/design-system/StatusCard';
-import ListItem from '@/components/design-system/ListItem';
-import MasterDiagnosticModal from '@/components/tools/MasterDiagnosticModal';
+import { usePortalStore } from '@/lib/store';
+
+const JURISDICTIONS = [
+  {
+    id: 'uae',
+    name: 'UAE Freezone',
+    flag: '🇦🇪',
+    taxRate: '0% Tax',
+    taxBadge: 'badge-success',
+    price: '$2,499',
+    turnaround: '48h Setup',
+    href: '/setup?country=uae',
+  },
+  {
+    id: 'hk',
+    name: 'Hong Kong',
+    flag: '🇭🇰',
+    taxRate: '0% Foreign',
+    taxBadge: 'badge-info',
+    price: '$1,850',
+    turnaround: '3-5 Days',
+    href: '/setup?country=hk',
+  },
+  {
+    id: 'singapore',
+    name: 'Singapore',
+    flag: '🇸🇬',
+    taxRate: '5% Effective',
+    taxBadge: 'badge-navy',
+    price: '$2,800',
+    turnaround: '2-3 Days',
+    href: '/setup?country=singapore',
+  },
+  {
+    id: 'bahrain',
+    name: 'Bahrain',
+    flag: '🇧🇭',
+    taxRate: '0% Corp Tax',
+    taxBadge: 'badge-success',
+    price: '$2,200',
+    turnaround: '4-6 Days',
+    href: '/setup?country=bahrain',
+  },
+  {
+    id: 'ireland',
+    name: 'Ireland',
+    flag: '🇮🇪',
+    taxRate: '12.5% EU',
+    taxBadge: 'badge-info',
+    price: '$2,650',
+    turnaround: '5-7 Days',
+    href: '/setup?country=ireland',
+  },
+  {
+    id: 'oman',
+    name: 'Oman',
+    flag: '🇴🇲',
+    taxRate: '0% Freezone',
+    taxBadge: 'badge-success',
+    price: '$2,400',
+    turnaround: '5-8 Days',
+    href: '/setup?country=oman',
+  },
+];
+
+const TOOLS = [
+  {
+    id: 'tax-calc',
+    icon: Calculator,
+    name: 'Tax Calculator',
+    desc: 'Compare savings across jurisdictions',
+    href: '/tools',
+    bg: 'var(--color-orange-light)',
+    color: 'var(--color-orange)',
+  },
+  {
+    id: 'diagnostic',
+    icon: Sparkles,
+    name: 'AI Diagnostic',
+    desc: '3-min tax & entity blueprint',
+    href: '/tools',
+    bg: 'var(--color-info-light)',
+    color: 'var(--color-info)',
+  },
+  {
+    id: 'banking-check',
+    icon: Landmark,
+    name: 'Banking Odds',
+    desc: 'Approval probability checker',
+    href: '/tools',
+    bg: 'var(--color-navy-subtle)',
+    color: 'var(--color-navy)',
+  },
+  {
+    id: 'compliance',
+    icon: Shield,
+    name: 'Compliance Score',
+    desc: 'Entity health & readiness audit',
+    href: '/portal/tax-compliance',
+    bg: 'var(--color-success-light)',
+    color: 'var(--color-success)',
+  },
+  {
+    id: 'renewal',
+    icon: Clock,
+    name: 'Renewal Tracker',
+    desc: 'License expiry & renewal dates',
+    href: '/portal/renewals',
+    bg: 'var(--color-warning-light)',
+    color: 'var(--color-warning)',
+  },
+  {
+    id: 'expense',
+    icon: CreditCard,
+    name: 'Expense Log',
+    desc: 'Track & categorize business costs',
+    href: '/portal/dashboard',
+    bg: 'var(--color-orange-light)',
+    color: 'var(--color-orange)',
+  },
+];
+
+function getFirstName(fullName: string): string {
+  return fullName.split(' ')[0] || 'there';
+}
+
+function getNotificationCount(whatsappLogs: { status: string }[]): number {
+  return whatsappLogs.filter((n) => n.status !== 'read').length;
+}
+
+function getStageProgress(stage: number): number {
+  return Math.round((stage / 6) * 100);
+}
+
+function getStatusColor(status: string): string {
+  switch (status) {
+    case 'active':
+    case 'license_issued':
+    case 'banking_setup':
+      return 'var(--color-success)';
+    case 'filing':
+      return 'var(--color-info)';
+    case 'official_kyc_pending':
+    case 'paid':
+      return 'var(--color-warning)';
+    default:
+      return 'var(--color-text-muted)';
+  }
+}
 
 export default function HomePage() {
-  const [isDiagnosticOpen, setIsDiagnosticOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const { userProfile, entities, whatsappLogs } = usePortalStore();
+
+  const unreadCount = getNotificationCount(whatsappLogs);
+  const firstName = getFirstName(userProfile.name);
+
+  const filteredJurisdictions = JURISDICTIONS.filter((j) =>
+    j.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    j.taxRate.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-      {/* Greeting + Quick Stats */}
-      <div className="animate-slide-up">
-        <div style={{ fontSize: 13, color: 'var(--color-text-muted)', fontWeight: 600, marginBottom: 2 }}>
-          WELCOME TO
-        </div>
-        <h1
-          style={{
-            fontFamily: 'var(--font-heading)',
-            fontSize: '1.6rem',
-            fontWeight: 700,
-            color: 'var(--color-brand-navy)',
-            letterSpacing: '-0.02em',
-            lineHeight: 1.2,
-          }}
+    <>
+      {/* Section 1: Brand Header */}
+      <div className="brand-header animate-fade-in">
+        <div
+          className="brand-header-inner"
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
         >
-          Global Company <br />
-          <span style={{ color: 'var(--color-brand-orange)' }}>Formation Studio</span>
-        </h1>
-        <p style={{ fontSize: 14, color: 'var(--color-text-tertiary)', marginTop: 4, lineHeight: 1.4 }}>
-          Form entities in 15+ jurisdictions with 0% tax, guaranteed banking & full privacy.
-        </p>
+          <Link href="/" style={{ textDecoration: 'none' }}>
+            <span
+              className="font-heading"
+              style={{
+                fontSize: '1.25rem',
+                fontWeight: 800,
+                color: 'var(--color-navy)',
+                letterSpacing: '-0.02em',
+              }}
+            >
+              GCCStartup
+            </span>
+          </Link>
+
+          <Link href="/portal/settings" style={{ textDecoration: 'none' }}>
+            <button className="header-icon-btn" aria-label="Notifications">
+              <Bell size={20} />
+              {unreadCount > 0 && (
+                <span className="header-badge">{unreadCount}</span>
+              )}
+            </button>
+          </Link>
+        </div>
       </div>
 
-      {/* Hero CTA */}
-      <div
-        className="app-card app-card-navy animate-slide-up"
-        style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 14 }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div
+      {/* Section 2: Greeting + Search */}
+      <div className="section-gap animate-slide-up" style={{ paddingTop: 20 }}>
+        <div style={{ marginBottom: 16 }}>
+          <h1
+            className="font-heading"
             style={{
-              width: 36,
-              height: 36,
-              borderRadius: 10,
-              background: 'rgba(242,101,34,0.2)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              fontSize: '1.65rem',
+              fontWeight: 800,
+              color: 'var(--color-navy)',
+              lineHeight: 1.15,
+              letterSpacing: '-0.02em',
             }}
           >
-            <Sparkles size={18} color="var(--color-brand-orange)" />
-          </div>
-          <div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.1em' }}>
-              AI-POWERED
-            </div>
-            <div style={{ fontSize: 15, fontWeight: 700, color: 'white' }}>3-Minute Diagnostic</div>
-          </div>
+            Hello, {firstName} 👋
+          </h1>
+          <p
+            style={{
+              fontSize: 14,
+              color: 'var(--color-text-tertiary)',
+              marginTop: 4,
+            }}
+          >
+            Find your perfect tax structure
+          </p>
         </div>
-        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', lineHeight: 1.4 }}>
-          Answer 4 questions. Get your optimal jurisdiction, tax savings estimate, and banking approval odds.
-        </p>
-        <button
-          onClick={() => setIsDiagnosticOpen(true)}
-          className="pill pill-primary"
-          style={{ width: '100%', height: 44, fontSize: 14, borderRadius: 12 }}
-        >
-          <Sparkles size={16} />
-          Launch Diagnostic
-        </button>
+
+        <div className="search-bar">
+          <Search size={18} className="search-bar-icon" />
+          <input
+            type="text"
+            placeholder="Search jurisdictions, tools, tax rates..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
       </div>
 
-      {/* Quick Actions Grid */}
-      <div className="animate-slide-up">
-        <div className="section-title">Quick Actions</div>
+      {/* Section 3: Quick Action Grid */}
+      <div className="section-gap animate-slide-up">
+        <div className="section-header">
+          <h2 className="section-title">Quick Actions</h2>
+          <Link href="/tools" className="section-link">
+            See All
+          </Link>
+        </div>
+
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-          <Link href="/tools" style={{ textDecoration: 'none' }}>
+          <Link href="/tools" style={{ textDecoration: 'none' }} className="quick-action">
             <div
-              className="app-card app-card-interactive"
+              className="quick-action-icon"
+              style={{ background: 'var(--color-orange-light)' }}
+            >
+              <Calculator size={22} color="var(--color-orange)" />
+            </div>
+            <span className="quick-action-label">Tax Calculator</span>
+          </Link>
+
+          <Link href="/setup" style={{ textDecoration: 'none' }} className="quick-action">
+            <div
+              className="quick-action-icon"
+              style={{ background: 'var(--color-navy-subtle)' }}
+            >
+              <Rocket size={22} color="var(--color-navy)" />
+            </div>
+            <span className="quick-action-label">Start Setup</span>
+          </Link>
+
+          <Link href="/portal/banking" style={{ textDecoration: 'none' }} className="quick-action">
+            <div
+              className="quick-action-icon"
+              style={{ background: 'var(--color-info-light)' }}
+            >
+              <Landmark size={22} color="var(--color-info)" />
+            </div>
+            <span className="quick-action-label">Banking</span>
+          </Link>
+
+          <Link href="/tools" style={{ textDecoration: 'none' }} className="quick-action">
+            <div
+              className="quick-action-icon"
+              style={{ background: 'var(--color-success-light)' }}
+            >
+              <LayoutGrid size={22} color="var(--color-success)" />
+            </div>
+            <span className="quick-action-label">All Tools</span>
+          </Link>
+        </div>
+      </div>
+
+      {/* Section 4: Featured Jurisdictions */}
+      <div className="section-gap animate-slide-up">
+        <div className="section-header">
+          <h2 className="section-title">Popular Jurisdictions</h2>
+          <Link href="/setup" className="section-link">
+            View All →
+          </Link>
+        </div>
+
+        <div className="h-scroll" style={{ margin: '0 calc(-1 * var(--spacing-page))', padding: '0 var(--spacing-page) 8px' }}>
+          {filteredJurisdictions.map((j) => (
+            <Link
+              key={j.id}
+              href={j.href}
+              style={{ textDecoration: 'none', minWidth: 200, maxWidth: 220 }}
+              className="card card-interactive card-padded"
+            >
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: 32 }}>{j.flag}</span>
+                  <span className={`badge badge-sm ${j.taxBadge}`}>{j.taxRate}</span>
+                </div>
+
+                <div>
+                  <h3
+                    className="font-heading"
+                    style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-text)' }}
+                  >
+                    {j.name}
+                  </h3>
+                  <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)', marginTop: 2 }}>
+                    {j.turnaround}
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    paddingTop: 8,
+                    borderTop: '1px solid var(--color-border)',
+                  }}
+                >
+                  <span style={{ fontSize: 15, fontWeight: 800, color: 'var(--color-orange)' }}>
+                    {j.price}
+                  </span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-orange)' }}>
+                    Learn More →
+                  </span>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* Section 5: Your Entities */}
+      {entities.length > 0 && (
+        <div className="section-gap animate-slide-up">
+          <div className="section-header">
+            <h2 className="section-title">Your Entities</h2>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {entities.map((entity) => {
+              const progress = getStageProgress(entity.currentStage);
+              const dotColor = getStatusColor(entity.status);
+
+              return (
+                <Link
+                  key={entity.id}
+                  href="/portal/dashboard"
+                  style={{ textDecoration: 'none' }}
+                  className="card card-interactive card-padded"
+                >
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <span style={{ fontSize: 24 }}>{entity.flag}</span>
+                        <div>
+                          <h3
+                            className="font-heading"
+                            style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-text)' }}
+                          >
+                            {entity.name}
+                          </h3>
+                          <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)' }}>
+                            {entity.jurisdiction}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="status-row" style={{ gap: 8 }}>
+                      <span className="status-dot" style={{ background: dotColor }} />
+                      <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-text-secondary)' }}>
+                        {entity.stageName}
+                      </span>
+                      <span style={{ marginLeft: 'auto', fontSize: 12, fontWeight: 700, color: 'var(--color-orange)' }}>
+                        {progress}%
+                      </span>
+                    </div>
+
+                    <div className="progress-track">
+                      <div className="progress-fill" style={{ width: `${progress}%` }} />
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Section 6: Featured Tools */}
+      <div className="section-gap animate-slide-up">
+        <div className="section-header">
+          <h2 className="section-title">Popular Tools</h2>
+          <Link href="/tools" className="section-link">
+            See All
+          </Link>
+        </div>
+
+        <div className="h-scroll" style={{ margin: '0 calc(-1 * var(--spacing-page))', padding: '0 var(--spacing-page) 8px' }}>
+          {TOOLS.map((tool) => {
+            const Icon = tool.icon;
+            return (
+              <Link
+                key={tool.id}
+                href={tool.href}
+                style={{ textDecoration: 'none', minWidth: 180 }}
+                className="card card-interactive card-padded"
+              >
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  <div
+                    style={{
+                      width: 42,
+                      height: 42,
+                      borderRadius: 'var(--radius-md)',
+                      background: tool.bg,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Icon size={20} color={tool.color} />
+                  </div>
+
+                  <div>
+                    <h3
+                      className="font-heading"
+                      style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-text)' }}
+                    >
+                      {tool.name}
+                    </h3>
+                    <p style={{ fontSize: 11, color: 'var(--color-text-tertiary)', lineHeight: 1.4, marginTop: 2 }}>
+                      {tool.desc}
+                    </p>
+                  </div>
+
+                  <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-orange)' }}>
+                    Try Now →
+                  </span>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Section 7: Concierge Card */}
+      <div className="section-gap animate-slide-up">
+        <div className="card card-orange card-padded" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div
               style={{
-                padding: 16,
+                width: 48,
+                height: 48,
+                borderRadius: '50%',
+                background: 'var(--color-navy)',
+                color: '#FFFFFF',
                 display: 'flex',
-                flexDirection: 'column',
-                gap: 10,
-                cursor: 'pointer',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: 800,
+                fontSize: 16,
+                fontFamily: 'var(--font-heading)',
+                flexShrink: 0,
               }}
             >
-              <div
-                style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: 10,
-                  background: 'var(--color-brand-orange-lt)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <Calculator size={18} color="var(--color-brand-orange)" />
+              AK
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                <strong
+                  className="font-heading"
+                  style={{ fontSize: 14, color: 'var(--color-navy)' }}
+                >
+                  Abdullah K.
+                </strong>
+                <span className="badge badge-sm badge-success">Available</span>
               </div>
-              <div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-brand-navy)' }}>Tax Calculator</div>
-                <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)' }}>Compare savings</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginTop: 2 }}>
+                Senior Structuring Lead
               </div>
             </div>
-          </Link>
+          </div>
 
-          <Link href="/setup" style={{ textDecoration: 'none' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <div
-              className="app-card app-card-interactive"
               style={{
-                padding: 16,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 10,
-                cursor: 'pointer',
+                width: 8,
+                height: 8,
+                borderRadius: '50%',
+                background: 'var(--color-whatsapp)',
               }}
-            >
-              <div
-                style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: 10,
-                  background: 'var(--color-brand-blue-lt)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <Building2 size={18} color="var(--color-brand-blue)" />
-              </div>
-              <div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-brand-navy)' }}>Setup Wizard</div>
-                <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)' }}>Form a company</div>
-              </div>
-            </div>
-          </Link>
+            />
+            <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-text-secondary)' }}>
+              Available on WhatsApp
+            </span>
+          </div>
 
-          <Link href="/portal/vault" style={{ textDecoration: 'none' }}>
-            <div
-              className="app-card app-card-interactive"
-              style={{
-                padding: 16,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 10,
-                cursor: 'pointer',
-              }}
-            >
-              <div
-                style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: 10,
-                  background: 'var(--color-success-lt)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <Shield size={18} color="var(--color-success)" />
-              </div>
-              <div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-brand-navy)' }}>Document Vault</div>
-                <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)' }}>KYC & licenses</div>
-              </div>
-            </div>
-          </Link>
-
-          <Link href="/portal/renewals" style={{ textDecoration: 'none' }}>
-            <div
-              className="app-card app-card-interactive"
-              style={{
-                padding: 16,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 10,
-                cursor: 'pointer',
-              }}
-            >
-              <div
-                style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: 10,
-                  background: 'var(--color-warning-lt)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <Clock size={18} color="var(--color-warning)" />
-              </div>
-              <div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-brand-navy)' }}>Renewals</div>
-                <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)' }}>License tracker</div>
-              </div>
-            </div>
-          </Link>
+          <a
+            href="https://wa.me/971501234567?text=Hello%20Abdullah,%20I%20need%20guidance%20on%20my%20GCCStartup%20setup."
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-full"
+            style={{
+              background: 'var(--color-whatsapp)',
+              color: '#FFFFFF',
+              height: 44,
+              fontSize: 13,
+              fontWeight: 700,
+              borderRadius: 'var(--radius-md)',
+              gap: 8,
+            }}
+          >
+            <MessageSquare size={16} />
+            Chat on WhatsApp
+          </a>
         </div>
       </div>
-
-      {/* Stats Row */}
-      <div className="animate-slide-up" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
-        <StatusCard title="Jurisdictions" value="15+" variant="orange" />
-        <StatusCard title="Companies" value="500+" variant="blue" />
-        <StatusCard title="Setup Time" value="48h" variant="success" />
-      </div>
-
-      {/* Popular Jurisdictions */}
-      <div className="animate-slide-up">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-          <div className="section-title" style={{ marginBottom: 0 }}>Popular Jurisdictions</div>
-          <Link href="/tools" style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-brand-orange)', textDecoration: 'none' }}>
-            View All
-          </Link>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <ListItem
-            icon={<span style={{ fontSize: 20 }}>🇦🇪</span>}
-            iconBg="var(--color-brand-orange-lt)"
-            title="UAE Freezone"
-            description="0% foreign income • Emirates ID residency"
-            badge={<span className="chip chip-orange">POPULAR</span>}
-            href="/setup?country=uae"
-          />
-          <ListItem
-            icon={<span style={{ fontSize: 20 }}>🇭🇰</span>}
-            iconBg="var(--color-brand-blue-lt)"
-            title="Hong Kong"
-            description="0% foreign-sourced • 100% remote setup"
-            badge={<span className="chip chip-blue">REMOTE</span>}
-            href="/setup?country=hk"
-          />
-          <ListItem
-            icon={<span style={{ fontSize: 20 }}>🇧🇭</span>}
-            iconBg="var(--color-success-lt)"
-            title="Bahrain"
-            description="0% corporate tax • Local banking"
-            badge={<span className="chip chip-success">0% TAX</span>}
-            href="/setup?country=bahrain"
-          />
-          <ListItem
-            icon={<span style={{ fontSize: 20 }}>🇸🇬</span>}
-            iconBg="var(--color-brand-sand)"
-            title="Singapore"
-            description="5% corporate tax • ASEAN credibility"
-            href="/setup?country=singapore"
-          />
-        </div>
-      </div>
-
-      {/* Tax Savings Teaser */}
-      <div
-        className="app-card animate-slide-up"
-        style={{
-          padding: 20,
-          background: 'linear-gradient(135deg, var(--color-brand-navy) 0%, #1e3a6e 100%)',
-          border: 'none',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-          <TrendingDown size={20} color="var(--color-brand-orange)" />
-          <span style={{ fontSize: 15, fontWeight: 700, color: 'white' }}>How Much Can You Save?</span>
-        </div>
-        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', lineHeight: 1.4, marginBottom: 14 }}>
-          European entrepreneurs save $12K–$80K/year on corporate tax with the right structure.
-        </p>
-        <Link
-          href="/tools"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 6,
-            padding: '10px 0',
-            background: 'var(--color-brand-orange)',
-            color: 'white',
-            borderRadius: 12,
-            fontSize: 14,
-            fontWeight: 700,
-            textDecoration: 'none',
-            transition: 'all 0.15s ease',
-          }}
-        >
-          Calculate Your Savings
-          <ArrowRight size={16} />
-        </Link>
-      </div>
-
-      {/* Trust Indicators */}
-      <div className="animate-slide-up">
-        <div className="section-title">Why GCCStartup</div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <ListItem
-            icon={<Shield size={18} color="var(--color-success)" />}
-            iconBg="var(--color-success-lt)"
-            title="Legal Compliance First"
-            description="OECD/FATF compliant • Double tax treaties"
-            interactive={false}
-          />
-          <ListItem
-            icon={<Landmark size={18} color="var(--color-brand-orange)" />}
-            iconBg="var(--color-brand-orange-lt)"
-            title="Money-Back Bank Guarantee"
-            description="Guaranteed banking or 100% fee refund"
-            interactive={false}
-          />
-          <ListItem
-            icon={<Globe size={18} color="var(--color-brand-blue)" />}
-            iconBg="var(--color-brand-blue-lt)"
-            title="100% Nominee Privacy"
-            description="Shield identity from public registries"
-            interactive={false}
-          />
-        </div>
-      </div>
-
-      <MasterDiagnosticModal isOpen={isDiagnosticOpen} onClose={() => setIsDiagnosticOpen(false)} />
-    </div>
+    </>
   );
 }

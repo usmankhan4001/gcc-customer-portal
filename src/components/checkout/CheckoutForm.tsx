@@ -8,47 +8,105 @@ import {
   CreditCard,
   ShieldCheck,
   Lock,
-  ArrowRight,
   CheckCircle2,
   Building,
   Mail,
   User,
+  Phone,
+  MapPin,
+  ChevronDown,
+  ArrowRight,
+  Shield,
+  Landmark,
 } from 'lucide-react';
+
+const COUNTRY_CODES = [
+  { code: '+971', label: 'UAE', flag: '🇦🇪' },
+  { code: '+973', label: 'Bahrain', flag: '🇧🇭' },
+  { code: '+968', label: 'Oman', flag: '🇴🇲' },
+  { code: '+44', label: 'UK', flag: '🇬🇧' },
+  { code: '+1', label: 'USA/CA', flag: '🇺🇸' },
+  { code: '+49', label: 'Germany', flag: '🇩🇪' },
+  { code: '+31', label: 'Netherlands', flag: '🇳🇱' },
+  { code: '+33', label: 'France', flag: '🇫🇷' },
+  { code: '+91', label: 'India', flag: '🇮🇳' },
+  { code: '+65', label: 'Singapore', flag: '🇸🇬' },
+];
+
+const BILLING_COUNTRIES = [
+  'United Arab Emirates', 'Bahrain', 'Oman', 'Saudi Arabia',
+  'United Kingdom', 'United States', 'Germany', 'France',
+  'Netherlands', 'Singapore', 'India', 'Canada', 'Australia',
+  'Switzerland', 'Hong Kong', 'Japan', 'Other',
+];
 
 export default function CheckoutForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { createOrderAndEntity } = usePortalStore();
 
-  const country = searchParams.get('country') || 'hk';
+  const jurisdiction = searchParams.get('country') || 'hk';
   const tier = (searchParams.get('tier') as any) || 'tier2';
   const totalAmount = Number(searchParams.get('total')) || 3000;
   const companyName = searchParams.get('name') || 'Apex Global Horizon Ltd';
 
-  const [fullName, setFullName] = useState('Alex Van Der Berg');
-  const [email, setEmail] = useState('alex@horizonventures.com');
-  const [whatsappNumber, setWhatsappNumber] = useState('612345678');
-  const [countryCode, setCountryCode] = useState('+31');
-  const [paymentMethod, setPaymentMethod] = useState<'card' | 'apple_pay' | 'wire'>('card');
-  const [cardNumber, setCardNumber] = useState('4242 •••• •••• 4242');
-  const [expiry, setExpiry] = useState('12/28');
-  const [cvc, setCvc] = useState('982');
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [whatsappNumber, setWhatsappNumber] = useState('');
+  const [countryCode, setCountryCode] = useState('+971');
 
+  const [paymentTab, setPaymentTab] = useState<'card' | 'bank'>('card');
+  const [cardNumber, setCardNumber] = useState('');
+  const [cardExpiry, setCardExpiry] = useState('');
+  const [cardCvc, setCardCvc] = useState('');
+
+  const [billingCountry, setBillingCountry] = useState('');
+  const [address1, setAddress1] = useState('');
+  const [address2, setAddress2] = useState('');
+  const [city, setCity] = useState('');
+  const [state, setState] = useState('');
+  const [postalCode, setPostalCode] = useState('');
+
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [orderId, setOrderId] = useState('');
 
-  const isGulf = country === 'uae' || country === 'bahrain' || country === 'oman';
+  const isGulf = jurisdiction === 'uae' || jurisdiction === 'bahrain' || jurisdiction === 'oman';
   const chargedNow = isGulf ? 1500 : totalAmount;
-  const govFeeSchedule = isGulf ? totalAmount - 1500 : 0;
+  const govFee = isGulf ? totalAmount - 1500 : 0;
 
-  const handlePay = (e: React.FormEvent) => {
+  const tierLabel: Record<string, string> = {
+    tier1: 'Tier 1: Basic Formation',
+    tier2: 'Tier 2: Nominee UBO & Director',
+    tier3: 'Tier 3: Full Corporate Suite',
+  };
+
+  const jurisdictionLabel: Record<string, string> = {
+    hk: 'Hong Kong',
+    uae: 'UAE Freezone',
+    bahrain: 'Bahrain',
+    oman: 'Oman',
+    sg: 'Singapore',
+    uk: 'United Kingdom',
+    us: 'United States',
+  };
+
+  const formatCardNumber = (val: string) => {
+    const digits = val.replace(/\D/g, '').slice(0, 16);
+    return digits.replace(/(\d{4})(?=\d)/g, '$1 ');
+  };
+
+  const formatExpiry = (val: string) => {
+    const digits = val.replace(/\D/g, '').slice(0, 4);
+    if (digits.length > 2) return digits.slice(0, 2) + ' / ' + digits.slice(2);
+    return digits;
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!fullName || !email || !whatsappNumber) {
-      alert('Please fill in your name, email, and WhatsApp number.');
-      return;
-    }
+    if (!fullName || !email || !whatsappNumber) return;
+    if (!agreedToTerms) return;
 
     setIsProcessing(true);
 
@@ -58,386 +116,704 @@ export default function CheckoutForm() {
 
       const generatedOrderId = createOrderAndEntity({
         companyName,
-        country,
+        country: jurisdiction,
         tier,
         totalAmount,
         chargedNow,
         clientName: fullName,
         clientEmail: email,
         clientWhatsApp: `${countryCode} ${whatsappNumber}`,
-        paymentMethod: paymentMethod === 'card' ? 'Visa / MasterCard' : paymentMethod,
+        paymentMethod: paymentTab === 'card' ? 'Visa / MasterCard' : 'Bank Transfer',
       });
 
       setOrderId(generatedOrderId);
 
       try {
         confetti({
-          particleCount: 120,
-          spread: 70,
+          particleCount: 150,
+          spread: 80,
           origin: { y: 0.6 },
+          colors: ['#F26522', '#14204A', '#16A34A', '#2563EB'],
         });
-      } catch (err) {
-        console.error('Confetti error:', err);
-      }
-    }, 1200);
-  };
-
-  const handleGoToPortal = () => {
-    router.push('/portal/dashboard');
+      } catch (_) {}
+    }, 1500);
   };
 
   return (
-    <div className="checkout-container">
-      {/* SUCCESS MODAL */}
+    <div className="checkout-root">
+      {/* ─── SUCCESS MODAL ─── */}
       {isSuccess && (
-        <div className="modal-backdrop">
-          <div className="success-card card">
-            <div className="success-icon-box">
-              <CheckCircle2 className="w-12 h-12 text-success" />
+        <div className="modal-backdrop" style={{ zIndex: 500 }}>
+          <div className="success-modal animate-scale-in">
+            <div className="success-icon-circle">
+              <CheckCircle2 size={40} strokeWidth={2.5} />
             </div>
-            <h2 className="success-title display-font text-navy">Payment Confirmed!</h2>
-            <p className="success-subtitle">
-              Order <strong>#{orderId}</strong> is officially registered in the GCCStartup legal filing queue.
+            <h2 className="success-heading">Order Confirmed!</h2>
+            <p className="success-order-id">Order #{orderId}</p>
+            <p className="success-message">
+              Your assigned specialist will contact you within 2 hours to begin your entity formation.
             </p>
-
-            <div className="success-info-box card-sand">
-              <div className="success-row">
-                <span>Entity Name:</span>
-                <strong className="text-navy">{companyName}</strong>
-              </div>
-              <div className="success-row">
-                <span>Amount Paid:</span>
-                <strong className="text-orange">${chargedNow.toLocaleString()} USD</strong>
-              </div>
-              <div className="success-row">
-                <span>WhatsApp Confirmation:</span>
-                <span>Sent to {countryCode} {whatsappNumber}</span>
-              </div>
-            </div>
-
-            <button onClick={handleGoToPortal} className="btn btn-primary btn-lg w-full">
-              <span>Open Document & Official KYC Hub</span>
-              <ArrowRight className="w-5 h-5" />
+            <button
+              onClick={() => router.push('/portal/dashboard')}
+              className="btn btn-primary btn-lg btn-full"
+              style={{ marginTop: 8 }}
+            >
+              Go to Dashboard
+              <ArrowRight size={18} />
             </button>
           </div>
         </div>
       )}
 
-      {/* Main 2-Column Checkout Layout */}
+      {/* ─── MAIN LAYOUT ─── */}
       <div className="checkout-grid">
-        {/* Left Column: Form */}
-        <form onSubmit={handlePay} className="checkout-form-card card">
-          <div className="form-header">
-            <div className="badge badge-navy">
-              <Lock className="w-3.5 h-3.5" />
-              <span>256-BIT ENCRYPTED CHECKOUT</span>
-            </div>
-            <h2 className="form-title display-font">Finalize Entity Formation</h2>
-            <p className="form-subtitle">Complete your details to allocate your corporate structuring specialist.</p>
-          </div>
-
-          {/* Section 1: Contact Info */}
-          <div className="form-section">
-            <h3 className="section-title display-font">1. Authorized Contact Information</h3>
-            <div className="input-group">
+        {/* ─── LEFT: FORM ─── */}
+        <form onSubmit={handleSubmit} className="checkout-form animate-slide-up">
+          {/* Contact Information */}
+          <div className="checkout-section">
+            <div className="checkout-section-header">
+              <div className="checkout-section-number">1</div>
               <div>
-                <label className="input-label">Full Legal Name (as per Passport):</label>
+                <h2 className="checkout-section-title">Contact Information</h2>
+                <p className="checkout-section-desc">We'll use this to assign your specialist and send updates.</p>
+              </div>
+            </div>
+
+            <div className="checkout-field-stack">
+              <div className="checkout-field">
+                <label className="input-label">Full Name</label>
                 <div className="input-with-icon">
-                  <User className="w-4 h-4 input-icon" />
+                  <User size={16} className="input-icon-left" />
                   <input
                     type="text"
                     required
-                    placeholder="e.g. Alex Van Der Berg"
+                    placeholder="As it appears on your passport"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    className="input-field pl-10"
+                    className="input-field input-icon-input"
                   />
                 </div>
               </div>
 
-              <div>
-                <label className="input-label">Primary Business Email:</label>
+              <div className="checkout-field">
+                <label className="input-label">Email Address</label>
                 <div className="input-with-icon">
-                  <Mail className="w-4 h-4 input-icon" />
+                  <Mail size={16} className="input-icon-left" />
                   <input
                     type="email"
                     required
-                    placeholder="alex@horizonventures.com"
+                    placeholder="you@company.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="input-field pl-10"
+                    className="input-field input-icon-input"
                   />
                 </div>
               </div>
 
-              <div>
-                <label className="input-label">Official WhatsApp Number (For Direct Live Updates):</label>
-                <div className="phone-input-row">
-                  <select
-                    value={countryCode}
-                    onChange={(e) => setCountryCode(e.target.value)}
-                    className="input-field country-code-select"
-                  >
-                    <option value="+31">🇳🇱 +31 (Netherlands)</option>
-                    <option value="+49">🇩🇪 +49 (Germany)</option>
-                    <option value="+44">🇬🇧 +44 (United Kingdom)</option>
-                    <option value="+33">🇫🇷 +33 (France)</option>
-                    <option value="+1">🇺🇸 +1 (USA / Canada)</option>
-                    <option value="+971">🇦🇪 +971 (UAE)</option>
-                    <option value="+973">🇧🇭 +973 (Bahrain)</option>
-                    <option value="+968">🇴🇲 +968 (Oman)</option>
-                  </select>
+              <div className="checkout-field">
+                <label className="input-label">WhatsApp Number</label>
+                <div className="phone-row">
+                  <div className="phone-select-wrap">
+                    <select
+                      value={countryCode}
+                      onChange={(e) => setCountryCode(e.target.value)}
+                      className="input-field phone-select"
+                    >
+                      {COUNTRY_CODES.map((c) => (
+                        <option key={c.code} value={c.code}>
+                          {c.flag} {c.code} ({c.label})
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown size={14} className="phone-select-arrow" />
+                  </div>
                   <input
                     type="tel"
                     required
-                    placeholder="6 12345678"
+                    placeholder="50 123 4567"
                     value={whatsappNumber}
                     onChange={(e) => setWhatsappNumber(e.target.value)}
-                    className="input-field flex-1"
+                    className="input-field phone-input"
                   />
                 </div>
+                <p className="input-helper">For real-time filing updates and document delivery.</p>
               </div>
             </div>
           </div>
 
-          {/* Section 2: Payment Method */}
-          <div className="form-section">
-            <h3 className="section-title display-font">2. Payment Method</h3>
-            <div className="payment-options">
+          {/* Company Details */}
+          <div className="checkout-section">
+            <div className="checkout-section-header">
+              <div className="checkout-section-number">2</div>
+              <div>
+                <h2 className="checkout-section-title">Company Details</h2>
+                <p className="checkout-section-desc">Pre-filled from your setup wizard.</p>
+              </div>
+            </div>
+
+            <div className="readonly-grid">
+              <div className="readonly-card">
+                <span className="readonly-label">Company Name</span>
+                <span className="readonly-value">{companyName}</span>
+              </div>
+              <div className="readonly-card">
+                <span className="readonly-label">Jurisdiction</span>
+                <span className="readonly-value">{jurisdictionLabel[jurisdiction] || jurisdiction.toUpperCase()}</span>
+              </div>
+              <div className="readonly-card">
+                <span className="readonly-label">Tier</span>
+                <span className="readonly-value">{tierLabel[tier] || tier}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Payment Method */}
+          <div className="checkout-section">
+            <div className="checkout-section-header">
+              <div className="checkout-section-number">3</div>
+              <div>
+                <h2 className="checkout-section-title">Payment Method</h2>
+                <p className="checkout-section-desc">All transactions are encrypted and PCI-compliant.</p>
+              </div>
+            </div>
+
+            <div className="payment-tabs">
               <button
                 type="button"
-                onClick={() => setPaymentMethod('card')}
-                className={`pay-method-btn ${paymentMethod === 'card' ? 'active' : ''}`}
+                onClick={() => setPaymentTab('card')}
+                className={`payment-tab ${paymentTab === 'card' ? 'active' : ''}`}
               >
-                <CreditCard className="w-4 h-4 text-orange" />
-                <span>Credit / Debit Card</span>
+                <CreditCard size={16} />
+                <span>Card</span>
               </button>
               <button
                 type="button"
-                onClick={() => setPaymentMethod('apple_pay')}
-                className={`pay-method-btn ${paymentMethod === 'apple_pay' ? 'active' : ''}`}
+                onClick={() => setPaymentTab('bank')}
+                className={`payment-tab ${paymentTab === 'bank' ? 'active' : ''}`}
               >
-                <span>🍏 Apple / Google Pay</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setPaymentMethod('wire')}
-                className={`pay-method-btn ${paymentMethod === 'wire' ? 'active' : ''}`}
-              >
-                <span>🏦 Bank Wire / USDT</span>
+                <Landmark size={16} />
+                <span>Bank Transfer</span>
               </button>
             </div>
 
-            {paymentMethod === 'card' && (
-              <div className="card-inputs-box card-sand">
-                <div>
-                  <label className="input-label">Card Number:</label>
+            {paymentTab === 'card' && (
+              <div className="card-form animate-fade-in">
+                <div className="checkout-field">
+                  <label className="input-label">Card Number</label>
+                  <div className="input-with-icon">
+                    <CreditCard size={16} className="input-icon-left" />
+                    <input
+                      type="text"
+                      required
+                      placeholder="1234 5678 9012 3456"
+                      value={cardNumber}
+                      onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
+                      className="input-field input-icon-input"
+                      maxLength={19}
+                    />
+                  </div>
+                </div>
+                <div className="card-row">
+                  <div className="checkout-field">
+                    <label className="input-label">Expiry</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="MM / YY"
+                      value={cardExpiry}
+                      onChange={(e) => setCardExpiry(formatExpiry(e.target.value))}
+                      className="input-field"
+                      maxLength={7}
+                    />
+                  </div>
+                  <div className="checkout-field">
+                    <label className="input-label">CVC</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="123"
+                      value={cardCvc}
+                      onChange={(e) => setCardCvc(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                      className="input-field"
+                      maxLength={4}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {paymentTab === 'bank' && (
+              <div className="bank-details animate-fade-in">
+                <div className="bank-detail-row">
+                  <span className="bank-detail-label">Bank Name</span>
+                  <span className="bank-detail-value">Emirates NBD</span>
+                </div>
+                <div className="bank-detail-row">
+                  <span className="bank-detail-label">Account Name</span>
+                  <span className="bank-detail-value">GCCStartup Ltd</span>
+                </div>
+                <div className="bank-detail-row">
+                  <span className="bank-detail-label">IBAN</span>
+                  <span className="bank-detail-value bank-iban">AE07 0260 0010 1234 5678 901</span>
+                </div>
+                <div className="bank-detail-row">
+                  <span className="bank-detail-label">SWIFT / BIC</span>
+                  <span className="bank-detail-value">EBILAEAD</span>
+                </div>
+                <div className="bank-detail-row">
+                  <span className="bank-detail-label">Reference</span>
+                  <span className="bank-detail-value text-orange" style={{ fontWeight: 700 }}>
+                    {companyName.slice(0, 12).toUpperCase()}
+                  </span>
+                </div>
+                <p className="input-helper" style={{ marginTop: 8 }}>
+                  Transfer processing takes 1–2 business days. Your specialist will confirm once funds are received.
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Billing Address */}
+          <div className="checkout-section">
+            <div className="checkout-section-header">
+              <div className="checkout-section-number">4</div>
+              <div>
+                <h2 className="checkout-section-title">Billing Address</h2>
+                <p className="checkout-section-desc">Optional — for invoicing purposes.</p>
+              </div>
+            </div>
+
+            <div className="checkout-field-stack">
+              <div className="checkout-field">
+                <label className="input-label">Country</label>
+                <div className="input-with-icon">
+                  <MapPin size={16} className="input-icon-left" />
+                  <select
+                    value={billingCountry}
+                    onChange={(e) => setBillingCountry(e.target.value)}
+                    className="input-field input-icon-input"
+                  >
+                    <option value="">Select country</option>
+                    {BILLING_COUNTRIES.map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="checkout-field">
+                <label className="input-label">Address Line 1</label>
+                <input
+                  type="text"
+                  placeholder="Street address, P.O. box"
+                  value={address1}
+                  onChange={(e) => setAddress1(e.target.value)}
+                  className="input-field"
+                />
+              </div>
+
+              <div className="checkout-field">
+                <label className="input-label">Address Line 2</label>
+                <input
+                  type="text"
+                  placeholder="Apartment, suite, unit (optional)"
+                  value={address2}
+                  onChange={(e) => setAddress2(e.target.value)}
+                  className="input-field"
+                />
+              </div>
+
+              <div className="address-row">
+                <div className="checkout-field" style={{ flex: 2 }}>
+                  <label className="input-label">City</label>
                   <input
                     type="text"
-                    value={cardNumber}
-                    onChange={(e) => setCardNumber(e.target.value)}
+                    placeholder="Dubai"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
                     className="input-field"
                   />
                 </div>
-                <div className="card-row">
-                  <div>
-                    <label className="input-label">Expiry Date:</label>
-                    <input
-                      type="text"
-                      value={expiry}
-                      onChange={(e) => setExpiry(e.target.value)}
-                      className="input-field"
-                    />
-                  </div>
-                  <div>
-                    <label className="input-label">CVC / CVV:</label>
-                    <input
-                      type="text"
-                      value={cvc}
-                      onChange={(e) => setCvc(e.target.value)}
-                      className="input-field"
-                    />
-                  </div>
+                <div className="checkout-field" style={{ flex: 1 }}>
+                  <label className="input-label">State</label>
+                  <input
+                    type="text"
+                    placeholder="—"
+                    value={state}
+                    onChange={(e) => setState(e.target.value)}
+                    className="input-field"
+                  />
+                </div>
+                <div className="checkout-field" style={{ flex: 1 }}>
+                  <label className="input-label">Postal Code</label>
+                  <input
+                    type="text"
+                    placeholder="00000"
+                    value={postalCode}
+                    onChange={(e) => setPostalCode(e.target.value)}
+                    className="input-field"
+                  />
                 </div>
               </div>
-            )}
+            </div>
           </div>
 
-          {/* Submit Button */}
-          <button type="submit" disabled={isProcessing} className="btn btn-primary btn-lg w-full mt-4">
-            {isProcessing ? (
-              <span>Securing Transaction...</span>
-            ) : (
-              <span>Pay ${chargedNow.toLocaleString()} USD & Start Formation</span>
-            )}
-            <ArrowRight className="w-5 h-5" />
-          </button>
+          {/* Terms & Submit (mobile: inside form) */}
+          <div className="checkout-submit-section mobile-only">
+            <label className="terms-check">
+              <input
+                type="checkbox"
+                checked={agreedToTerms}
+                onChange={(e) => setAgreedToTerms(e.target.checked)}
+              />
+              <span className="terms-text">
+                I agree to the{' '}
+                <a href="/terms" target="_blank" className="terms-link">Terms of Service</a>
+                {' '}and{' '}
+                <a href="/privacy" target="_blank" className="terms-link">Privacy Policy</a>
+              </span>
+            </label>
+
+            <button
+              type="submit"
+              disabled={isProcessing || !agreedToTerms || !fullName || !email || !whatsappNumber}
+              className="btn btn-primary btn-lg btn-full submit-btn"
+            >
+              {isProcessing ? (
+                <span className="submit-processing">
+                  <span className="btn-spinner" />
+                  Processing…
+                </span>
+              ) : (
+                <>
+                  Complete Order — ${chargedNow.toLocaleString()} USD
+                  <Lock size={16} />
+                </>
+              )}
+            </button>
+
+            <div className="secure-badge">
+              <Shield size={14} />
+              <span>256-bit SSL Encrypted · PCI DSS Compliant</span>
+            </div>
+          </div>
         </form>
 
-        {/* Right Column: Summary */}
-        <div className="order-summary-sidebar">
+        {/* ─── RIGHT: ORDER SUMMARY ─── */}
+        <aside className="checkout-summary">
           <div className="summary-card card">
-            <h3 className="summary-title display-font">Order Specification</h3>
-            
-            <div className="entity-target-box card-sand">
-              <Building className="w-5 h-5 text-orange" />
+            <h3 className="summary-title">Order Summary</h3>
+
+            <div className="summary-entity">
+              <Building size={18} className="text-orange" />
               <div>
-                <strong className="block text-navy">{companyName}</strong>
-                <span className="text-xs text-secondary">Target: {country.toUpperCase()} ({tier.toUpperCase()})</span>
+                <p className="summary-entity-name">{companyName}</p>
+                <p className="summary-entity-meta">
+                  {jurisdictionLabel[jurisdiction] || jurisdiction.toUpperCase()} · {tierLabel[tier] || tier}
+                </p>
               </div>
             </div>
 
-            <div className="summary-breakdown">
-              <div className="sum-row">
-                <span>Formation Service & Nominee</span>
-                <strong className="text-navy">${chargedNow.toLocaleString()}</strong>
-              </div>
+            <div className="summary-divider" />
 
-              {isGulf && govFeeSchedule > 0 && (
-                <div className="sum-row text-tertiary">
-                  <span>Gov License & Visa (Scheduled Direct)</span>
-                  <span>${govFeeSchedule.toLocaleString()}</span>
-                </div>
-              )}
-
-              <div className="sum-divider" />
-
-              <div className="sum-total-row">
-                <span className="text-navy">Amount Due Now</span>
-                <span className="total-val display-font text-orange">
-                  ${chargedNow.toLocaleString()}
-                </span>
-              </div>
+            <div className="summary-line">
+              <span>Formation Service & Nominee</span>
+              <span className="summary-line-amount">${chargedNow.toLocaleString()}</span>
             </div>
 
-            <div className="guarantee-box card-blue-lt">
-              <ShieldCheck className="w-5 h-5 text-blue shrink-0" />
-              <p className="text-xs text-navy">
-                <strong>Money-Back Bank Guarantee:</strong> If corporate banking onboarding is not approved, 100% of your banking fee is refunded.
-              </p>
+            {isGulf && govFee > 0 && (
+              <div className="summary-line summary-line-muted">
+                <span>Gov License & Visa (Scheduled)</span>
+                <span>${govFee.toLocaleString()}</span>
+              </div>
+            )}
+
+            <div className="summary-divider" />
+
+            <div className="summary-total">
+              <span>Total Due Now</span>
+              <span className="summary-total-amount">${chargedNow.toLocaleString()}</span>
             </div>
           </div>
-        </div>
+
+          <div className="summary-trust">
+            <div className="trust-badge">
+              <ShieldCheck size={16} className="text-success" />
+              <span className="trust-badge-text">Secure Checkout</span>
+            </div>
+            <p className="trust-guarantee">
+              <strong>Money-back guarantee:</strong> If corporate banking onboarding is not approved, 100% of your banking fee is refunded.
+            </p>
+          </div>
+
+          {/* Terms & Submit (desktop: inside sidebar) */}
+          <div className="checkout-submit-section desktop-only">
+            <label className="terms-check">
+              <input
+                type="checkbox"
+                checked={agreedToTerms}
+                onChange={(e) => setAgreedToTerms(e.target.checked)}
+              />
+              <span className="terms-text">
+                I agree to the{' '}
+                <a href="/terms" target="_blank" className="terms-link">Terms of Service</a>
+                {' '}and{' '}
+                <a href="/privacy" target="_blank" className="terms-link">Privacy Policy</a>
+              </span>
+            </label>
+
+            <button
+              type="submit"
+              disabled={isProcessing || !agreedToTerms || !fullName || !email || !whatsappNumber}
+              className="btn btn-primary btn-lg btn-full submit-btn"
+              onClick={handleSubmit}
+            >
+              {isProcessing ? (
+                <span className="submit-processing">
+                  <span className="btn-spinner" />
+                  Processing…
+                </span>
+              ) : (
+                <>
+                  Complete Order — ${chargedNow.toLocaleString()} USD
+                  <Lock size={16} />
+                </>
+              )}
+            </button>
+
+            <div className="secure-badge">
+              <Shield size={14} />
+              <span>256-bit SSL Encrypted · PCI DSS Compliant</span>
+            </div>
+          </div>
+        </aside>
       </div>
 
       <style jsx>{`
-        .checkout-container {
-          max-width: 1040px;
-          margin: 0 auto;
-          width: 100%;
+        .checkout-root {
+          min-height: 100dvh;
+          background: var(--color-canvas);
+          padding: 0;
         }
 
         .checkout-grid {
           display: grid;
-          grid-template-columns: 1fr 360px;
-          gap: 28px;
+          grid-template-columns: 1fr 380px;
+          gap: 0;
+          max-width: 1120px;
+          margin: 0 auto;
+          min-height: 100dvh;
         }
 
-        @media (max-width: 860px) {
+        @media (max-width: 920px) {
           .checkout-grid {
             grid-template-columns: 1fr;
           }
         }
 
-        .checkout-form-card {
-          padding: 36px 32px;
+        /* ─── FORM COLUMN ─── */
+        .checkout-form {
+          padding: 32px 40px 48px;
           display: flex;
           flex-direction: column;
-          gap: 24px;
+          gap: 0;
         }
 
-        .form-title {
-          font-size: 2rem;
-          font-weight: 700;
-          margin: 8px 0 4px 0;
-          color: var(--navy);
+        @media (max-width: 920px) {
+          .checkout-form {
+            padding: 20px var(--spacing-page) 32px;
+          }
         }
 
-        .form-subtitle {
-          color: var(--text-secondary);
-          font-size: 15px;
+        /* ─── SECTIONS ─── */
+        .checkout-section {
+          padding: 28px 0;
+          border-bottom: 1px solid var(--color-border);
+        }
+        .checkout-section:first-child {
+          padding-top: 0;
+        }
+        .checkout-section:last-of-type {
+          border-bottom: none;
         }
 
-        .form-section {
+        .checkout-section-header {
           display: flex;
-          flex-direction: column;
           gap: 14px;
-          border-top: 1px solid var(--border);
-          padding-top: 20px;
+          align-items: flex-start;
+          margin-bottom: 20px;
         }
 
-        .section-title {
-          font-size: 1.15rem;
+        .checkout-section-number {
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+          background: var(--color-navy);
+          color: #FFFFFF;
+          font-size: 13px;
           font-weight: 700;
-          color: var(--navy);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+          margin-top: 1px;
         }
 
-        .input-group {
+        .checkout-section-title {
+          font-family: var(--font-heading);
+          font-size: 1.05rem;
+          font-weight: 700;
+          color: var(--color-text);
+          line-height: 1.3;
+        }
+
+        .checkout-section-desc {
+          font-size: 13px;
+          color: var(--color-text-tertiary);
+          margin-top: 2px;
+        }
+
+        .checkout-field-stack {
           display: flex;
           flex-direction: column;
-          gap: 14px;
+          gap: 16px;
+        }
+
+        .checkout-field {
+          display: flex;
+          flex-direction: column;
         }
 
         .input-with-icon {
           position: relative;
         }
 
-        .input-icon {
+        .input-icon-left {
           position: absolute;
-          left: 16px;
+          left: 14px;
           top: 50%;
           transform: translateY(-50%);
-          color: var(--text-tertiary);
+          color: var(--color-text-muted);
+          pointer-events: none;
         }
 
-        .pl-10 {
-          padding-left: 44px;
+        .input-icon-input {
+          padding-left: 40px;
         }
 
-        .phone-input-row {
+        /* ─── PHONE ROW ─── */
+        .phone-row {
           display: flex;
           gap: 8px;
         }
 
-        .country-code-select {
-          width: 190px;
+        .phone-select-wrap {
+          position: relative;
+          flex-shrink: 0;
         }
 
-        .payment-options {
+        .phone-select {
+          width: 160px;
+          padding-right: 28px;
+          appearance: none;
+          cursor: pointer;
+        }
+
+        .phone-select-arrow {
+          position: absolute;
+          right: 12px;
+          top: 50%;
+          transform: translateY(-50%);
+          color: var(--color-text-muted);
+          pointer-events: none;
+        }
+
+        .phone-input {
+          flex: 1;
+        }
+
+        /* ─── READONLY GRID ─── */
+        .readonly-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+          grid-template-columns: repeat(3, 1fr);
           gap: 10px;
         }
 
-        .pay-method-btn {
+        @media (max-width: 600px) {
+          .readonly-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        .readonly-card {
+          background: var(--color-surface-alt);
+          border: 1px solid var(--color-border);
+          border-radius: var(--radius-md);
+          padding: 14px 16px;
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+
+        .readonly-label {
+          font-size: 11px;
+          font-weight: 600;
+          color: var(--color-text-tertiary);
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+        }
+
+        .readonly-value {
+          font-size: 14px;
+          font-weight: 600;
+          color: var(--color-text);
+        }
+
+        /* ─── PAYMENT TABS ─── */
+        .payment-tabs {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 8px;
+          margin-bottom: 16px;
+        }
+
+        .payment-tab {
           display: flex;
           align-items: center;
           justify-content: center;
           gap: 8px;
-          padding: 13px;
-          background: var(--surface);
-          border: 1px solid var(--border);
-          border-radius: var(--radius-pill);
-          color: var(--text-secondary);
-          font-weight: 700;
-          font-size: 13px;
+          padding: 12px;
+          border-radius: var(--radius-md);
+          border: 1.5px solid var(--color-border);
+          background: var(--color-surface);
+          color: var(--color-text-secondary);
+          font-size: 14px;
+          font-weight: 600;
+          font-family: var(--font-sans);
           cursor: pointer;
-          transition: all 0.2s;
+          transition: all 0.15s ease;
         }
 
-        .pay-method-btn.active {
-          background: var(--orange-lt);
-          border-color: var(--orange);
-          color: var(--navy);
+        .payment-tab:hover {
+          border-color: var(--color-border-hover);
+          background: var(--color-surface-alt);
         }
 
-        .card-inputs-box {
-          padding: 20px;
-          border-radius: var(--radius);
+        .payment-tab.active {
+          border-color: var(--color-orange);
+          background: var(--color-orange-light);
+          color: var(--color-navy);
+        }
+
+        /* ─── CARD FORM ─── */
+        .card-form {
           display: flex;
           flex-direction: column;
-          gap: 12px;
-          margin-top: 8px;
+          gap: 14px;
+          padding: 20px;
+          background: var(--color-surface-alt);
+          border: 1px solid var(--color-border);
+          border-radius: var(--radius-md);
         }
 
         .card-row {
@@ -446,130 +822,336 @@ export default function CheckoutForm() {
           gap: 12px;
         }
 
-        .order-summary-sidebar {
+        /* ─── BANK DETAILS ─── */
+        .bank-details {
+          padding: 20px;
+          background: var(--color-surface-alt);
+          border: 1px solid var(--color-border);
+          border-radius: var(--radius-md);
           display: flex;
           flex-direction: column;
-          gap: 16px;
+          gap: 10px;
         }
 
-        .summary-card {
-          padding: 28px;
+        .bank-detail-row {
           display: flex;
-          flex-direction: column;
-          gap: 16px;
-        }
-
-        .summary-title {
-          font-size: 1.25rem;
-          font-weight: 700;
-          color: var(--navy);
-        }
-
-        .entity-target-box {
-          padding: 14px;
-          border-radius: var(--radius);
-          display: flex;
+          justify-content: space-between;
           align-items: center;
+          gap: 12px;
+          font-size: 13px;
+        }
+
+        .bank-detail-label {
+          color: var(--color-text-tertiary);
+          font-weight: 500;
+          flex-shrink: 0;
+        }
+
+        .bank-detail-value {
+          color: var(--color-text);
+          font-weight: 600;
+          text-align: right;
+          word-break: break-all;
+        }
+
+        .bank-iban {
+          font-family: 'SF Mono', 'Fira Code', monospace;
+          font-size: 12px;
+          letter-spacing: 0.03em;
+        }
+
+        /* ─── ADDRESS ROW ─── */
+        .address-row {
+          display: grid;
+          grid-template-columns: 2fr 1fr 1fr;
           gap: 12px;
         }
 
-        .summary-breakdown {
+        @media (max-width: 600px) {
+          .address-row {
+            grid-template-columns: 1fr 1fr;
+          }
+        }
+
+        /* ─── SUBMIT SECTION ─── */
+        .checkout-submit-section {
           display: flex;
           flex-direction: column;
-          gap: 10px;
-          font-size: 14px;
+          gap: 14px;
+          padding-top: 24px;
+          border-top: 1px solid var(--color-border);
         }
 
-        .sum-row {
+        .mobile-only {
+          display: none;
+        }
+
+        .desktop-only {
+          display: flex;
+        }
+
+        @media (max-width: 920px) {
+          .mobile-only {
+            display: flex;
+          }
+          .desktop-only {
+            display: none;
+          }
+        }
+
+        .terms-check {
+          display: flex;
+          align-items: flex-start;
+          gap: 10px;
+          cursor: pointer;
+          font-size: 13px;
+          color: var(--color-text-secondary);
+          line-height: 1.5;
+        }
+
+        .terms-check input[type='checkbox'] {
+          width: 18px;
+          height: 18px;
+          border-radius: 4px;
+          border: 1.5px solid var(--color-border-hover);
+          accent-color: var(--color-orange);
+          cursor: pointer;
+          flex-shrink: 0;
+          margin-top: 1px;
+        }
+
+        .terms-text {
+          flex: 1;
+        }
+
+        .terms-link {
+          color: var(--color-orange);
+          text-decoration: none;
+          font-weight: 600;
+        }
+        .terms-link:hover {
+          text-decoration: underline;
+        }
+
+        .submit-btn {
+          height: 52px;
+          font-size: 15px;
+          border-radius: var(--radius-md);
+        }
+
+        .submit-processing {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+
+        .btn-spinner {
+          width: 18px;
+          height: 18px;
+          border: 2px solid rgba(255,255,255,0.3);
+          border-top-color: #FFFFFF;
+          border-radius: 50%;
+          animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+
+        .secure-badge {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          font-size: 12px;
+          color: var(--color-text-tertiary);
+          font-weight: 500;
+        }
+
+        /* ─── SUMMARY SIDEBAR ─── */
+        .checkout-summary {
+          background: var(--color-surface);
+          border-left: 1px solid var(--color-border);
+          padding: 32px 28px;
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+          position: sticky;
+          top: 0;
+          height: 100dvh;
+          overflow-y: auto;
+        }
+
+        @media (max-width: 920px) {
+          .checkout-summary {
+            border-left: none;
+            border-top: 1px solid var(--color-border);
+            height: auto;
+            position: static;
+            padding: 24px var(--spacing-page) 40px;
+            background: var(--color-surface-alt);
+          }
+        }
+
+        .summary-card {
+          padding: 24px;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+          background: var(--color-surface);
+        }
+
+        @media (max-width: 920px) {
+          .summary-card {
+            box-shadow: var(--shadow-md);
+          }
+        }
+
+        .summary-title {
+          font-family: var(--font-heading);
+          font-size: 1.1rem;
+          font-weight: 700;
+          color: var(--color-text);
+        }
+
+        .summary-entity {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 14px;
+          background: var(--color-orange-light);
+          border-radius: var(--radius-md);
+        }
+
+        .summary-entity-name {
+          font-size: 14px;
+          font-weight: 700;
+          color: var(--color-navy);
+          line-height: 1.3;
+        }
+
+        .summary-entity-meta {
+          font-size: 12px;
+          color: var(--color-text-secondary);
+          margin-top: 2px;
+        }
+
+        .summary-divider {
+          height: 1px;
+          background: var(--color-border);
+        }
+
+        .summary-line {
           display: flex;
           justify-content: space-between;
-          color: var(--text-secondary);
+          font-size: 14px;
+          color: var(--color-text-secondary);
         }
 
-        .sum-divider {
-          height: 1px;
-          background: var(--border);
-          margin: 6px 0;
+        .summary-line-amount {
+          font-weight: 600;
+          color: var(--color-text);
         }
 
-        .sum-total-row {
+        .summary-line-muted {
+          color: var(--color-text-tertiary);
+          font-size: 13px;
+        }
+
+        .summary-total {
           display: flex;
           justify-content: space-between;
           align-items: center;
           font-weight: 700;
-          font-size: 16px;
+          font-size: 15px;
+          color: var(--color-text);
         }
 
-        .total-val {
-          font-size: 1.8rem;
+        .summary-total-amount {
+          font-family: var(--font-heading);
+          font-size: 1.6rem;
+          font-weight: 800;
+          color: var(--color-orange);
         }
 
-        .guarantee-box {
-          padding: 14px;
-          border-radius: var(--radius);
+        /* ─── TRUST ─── */
+        .summary-trust {
           display: flex;
+          flex-direction: column;
           gap: 10px;
-          align-items: center;
+          padding: 16px;
+          background: var(--color-surface-alt);
+          border-radius: var(--radius-md);
+          border: 1px solid var(--color-border);
         }
 
-        .modal-backdrop {
-          position: fixed;
-          inset: 0;
-          z-index: 300;
-          background: rgba(20, 32, 74, 0.7);
-          backdrop-filter: blur(10px);
+        .trust-badge {
           display: flex;
           align-items: center;
-          justify-content: center;
-          padding: 20px;
+          gap: 8px;
         }
 
-        .success-card {
-          max-width: 520px;
+        .trust-badge-text {
+          font-size: 13px;
+          font-weight: 700;
+          color: var(--color-text);
+        }
+
+        .trust-guarantee {
+          font-size: 12px;
+          color: var(--color-text-tertiary);
+          line-height: 1.5;
+        }
+        .trust-guarantee strong {
+          color: var(--color-text-secondary);
+        }
+
+        /* ─── SUCCESS MODAL ─── */
+        .success-modal {
+          background: var(--color-surface);
+          border-radius: var(--radius-2xl);
           width: 100%;
-          padding: 36px 32px;
+          max-width: 440px;
+          padding: 40px 32px;
           text-align: center;
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 16px;
+          gap: 12px;
+          box-shadow: var(--shadow-xl);
         }
 
-        .success-icon-box {
-          width: 64px;
-          height: 64px;
-          background: var(--success-lt);
+        .success-icon-circle {
+          width: 72px;
+          height: 72px;
           border-radius: 50%;
+          background: var(--color-success-light);
+          color: var(--color-success);
           display: flex;
           align-items: center;
           justify-content: center;
+          margin-bottom: 4px;
         }
 
-        .success-title {
-          font-size: 2.2rem;
-          font-weight: 700;
+        .success-heading {
+          font-family: var(--font-heading);
+          font-size: 1.6rem;
+          font-weight: 800;
+          color: var(--color-text);
         }
 
-        .success-subtitle {
-          color: var(--text-secondary);
-          font-size: 15px;
-        }
-
-        .success-info-box {
-          padding: 18px;
-          border-radius: var(--radius);
-          width: 100%;
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
+        .success-order-id {
           font-size: 14px;
-          text-align: left;
+          color: var(--color-text-tertiary);
+          font-weight: 500;
         }
 
-        .success-row {
-          display: flex;
-          justify-content: space-between;
-          color: var(--text-secondary);
+        .success-message {
+          font-size: 14px;
+          color: var(--color-text-secondary);
+          line-height: 1.6;
+          max-width: 320px;
+          margin-bottom: 8px;
         }
       `}</style>
     </div>

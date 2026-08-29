@@ -10,19 +10,42 @@ export default function BankingFeasibilityScorer() {
   const [monthlyVolume, setMonthlyVolume] = useState('50k_200k');
 
   const getFeasibilityResults = () => {
+    const volumeBonus =
+      monthlyVolume === '1m_plus' ? 3 :
+      monthlyVolume === '200k_1m' ? 1 :
+      monthlyVolume === 'sub_50k' ? -4 : 0;
+
+    const businessModifier =
+      businessType === 'crypto' ? -8 :
+      businessType === 'trading' ? -3 :
+      businessType === 'saas' ? 2 :
+      businessType === 'consulting' ? 1 : 0;
+
+    const clamp = (v: number) => Math.min(99, Math.max(10, v));
+
+    const adjust = (baseOdds: number) => clamp(baseOdds + volumeBonus + businessModifier);
+
     if (targetEntity === 'hk' || targetEntity === 'singapore') {
+      const hk = targetEntity === 'hk';
       return [
-        { bank: 'Airwallex (Multi-Currency)', odds: 98, status: 'Pre-Approved', time: '5-7 Days', type: 'Fintech / Global ACH' },
-        { bank: 'Wise Business', odds: 95, status: 'Pre-Approved', time: '3-5 Days', type: 'Cross-Border IBAN' },
-        { bank: 'Statrys / Payoneer', odds: 92, status: 'Eligible', time: '7-10 Days', type: 'E-Commerce Merchant' },
-        { bank: 'HSBC / Standard Chartered', odds: 65, status: 'Requires In-Person Visit', time: '30-45 Days', type: 'Tier 1 Physical' },
+        { bank: 'Airwallex (Multi-Currency)', odds: adjust(hk ? 96 : 95), status: 'Pre-Approved', time: '5-7 Days', type: 'Fintech / Global ACH' },
+        { bank: 'Wise Business', odds: adjust(hk ? 94 : 93), status: 'Pre-Approved', time: '3-5 Days', type: 'Cross-Border IBAN' },
+        { bank: 'Statrys / Payoneer', odds: adjust(90), status: 'Eligible', time: '7-10 Days', type: 'E-Commerce Merchant' },
+        { bank: hk ? 'HSBC / Standard Chartered' : 'DBS / OCBC', odds: adjust(hk ? 62 : 70), status: hk ? 'Requires In-Person Visit' : 'Requires ACRA Filing', time: '30-45 Days', type: 'Tier 1 Physical' },
+      ];
+    } else if (targetEntity === 'uae') {
+      return [
+        { bank: 'Wio Bank (UAE Digital)', odds: adjust(96), status: 'Fast-Track', time: '3-5 Days', type: 'Instant Corporate AED/USD' },
+        { bank: 'Emirates NBD Business', odds: adjust(86), status: 'Physical Banker Interview', time: '15-20 Days', type: 'Tier 1 UAE National' },
+        { bank: 'FAB / RAK Bank', odds: adjust(82), status: 'Eligible', time: '20-25 Days', type: 'GCC Regional' },
+        { bank: 'Airwallex International', odds: adjust(94), status: 'Pre-Approved', time: '5-7 Days', type: 'Global Collections' },
       ];
     } else {
       return [
-        { bank: 'Wio Bank (UAE Digital)', odds: 96, status: 'Fast-Track', time: '3-5 Days', type: 'Instant Corporate AED/USD' },
-        { bank: 'Emirates NBD Business', odds: 88, status: 'Physical Banker Interview', time: '15-20 Days', type: 'Tier 1 UAE National' },
-        { bank: 'FAB / RAK Bank', odds: 84, status: 'Eligible', time: '20-25 Days', type: 'GCC Regional' },
-        { bank: 'Airwallex International', odds: 95, status: 'Pre-Approved', time: '5-7 Days', type: 'Global Collections' },
+        { bank: 'Beyon Money (Bahrain Digital)', odds: adjust(93), status: 'Fast-Track', time: '3-5 Days', type: 'Instant Corporate BHD/USD' },
+        { bank: 'Ahli United Bank', odds: adjust(78), status: 'Eligible', time: '15-20 Days', type: 'GCC Regional' },
+        { bank: 'BISB / Bahrain Finance', odds: adjust(75), status: 'Requires Local Sponsor', time: '20-25 Days', type: 'Local Bahrain' },
+        { bank: 'Airwallex International', odds: adjust(94), status: 'Pre-Approved', time: '5-7 Days', type: 'Global Collections' },
       ];
     }
   };

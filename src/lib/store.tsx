@@ -17,6 +17,7 @@ export interface CompanyEntity {
   incorporationDate: string;
   licenseExpiryDate: string;
   renewalDaysLeft: number;
+  annualRevenue?: number;
   assignedSpecialist: string;
   specialistPhone: string;
   kycReferenceNumber?: string;
@@ -90,6 +91,18 @@ export interface WhatsAppNotification {
   status: 'delivered' | 'read' | 'sent';
 }
 
+export interface UserProfile {
+  name: string;
+  email: string;
+  phone: string;
+  country: string;
+  role: string;
+  whatsappAlerts: boolean;
+  emailAlerts: boolean;
+  twoFactorEnabled: boolean;
+  activeSessions: number;
+}
+
 interface PortalState {
   entities: CompanyEntity[];
   activeEntityId: string;
@@ -98,7 +111,11 @@ interface PortalState {
   expenses: ExpenseItem[];
   bankingApps: BankingApplication[];
   whatsappLogs: WhatsAppNotification[];
+  userProfile: UserProfile;
   setActiveEntityId: (id: string) => void;
+  updateUserProfile: (updates: Partial<UserProfile>) => void;
+  markNotificationRead: (id: string) => void;
+  markAllNotificationsRead: () => void;
   createOrderAndEntity: (data: {
     companyName: string;
     country: string;
@@ -264,7 +281,7 @@ const INITIAL_WHATSAPP_LOGS: WhatsAppNotification[] = [
     recipientPhone: '+31 6 12345678',
     templateName: 'order_confirmed_template',
     sentAt: '2026-08-28 14:20',
-    messageText: '🎉 Congratulations Alex! Your order for Horizon Digital FZE is confirmed. Your assigned specialist is Abdullah K. Complete your official KYC at: https://gccstartup.com/portal/vault',
+    messageText: '🎉 Congratulations Alex! Your order for Horizon Digital FZE is confirmed. Your assigned specialist is Abdullah K. Complete your official KYC at the Document Vault.',
     status: 'read',
   },
   {
@@ -275,7 +292,27 @@ const INITIAL_WHATSAPP_LOGS: WhatsAppNotification[] = [
     messageText: '📋 Action Required: Please complete your identity scan on the UAE Freezone Electronic Authority Portal to start Stage 3 Government Filing.',
     status: 'delivered',
   },
+  {
+    id: 'wa_03',
+    recipientPhone: '+31 6 12345678',
+    templateName: 'banking_pre_approved',
+    sentAt: '2026-08-30 01:15',
+    messageText: '🏦 Banking Update: Pre-approval secured for Wio Bank (96% odds) and Airwallex Multi-Currency.',
+    status: 'delivered',
+  },
 ];
+
+const INITIAL_USER_PROFILE: UserProfile = {
+  name: 'Alex Van Der Berg',
+  email: 'alex@vanderberg-holdings.eu',
+  phone: '+31 6 12345678',
+  country: 'Netherlands',
+  role: 'Founder & Ultimate Beneficial Owner',
+  whatsappAlerts: true,
+  emailAlerts: true,
+  twoFactorEnabled: true,
+  activeSessions: 2,
+};
 
 const PortalContext = createContext<PortalState | null>(null);
 
@@ -287,6 +324,7 @@ export function PortalProvider({ children }: { children: React.ReactNode }) {
   const [expenses, setExpenses] = useState<ExpenseItem[]>(INITIAL_EXPENSES);
   const [bankingApps, setBankingApps] = useState<BankingApplication[]>(INITIAL_BANKING_APPS);
   const [whatsappLogs, setWhatsappLogs] = useState<WhatsAppNotification[]>(INITIAL_WHATSAPP_LOGS);
+  const [userProfile, setUserProfile] = useState<UserProfile>(INITIAL_USER_PROFILE);
 
   // Load from local storage on mount
   useEffect(() => {
@@ -305,6 +343,8 @@ export function PortalProvider({ children }: { children: React.ReactNode }) {
       if (savedBanking) setBankingApps(JSON.parse(savedBanking));
       const savedWa = localStorage.getItem('gcc_wa_logs');
       if (savedWa) setWhatsappLogs(JSON.parse(savedWa));
+      const savedProfile = localStorage.getItem('gcc_user_profile');
+      if (savedProfile) setUserProfile(JSON.parse(savedProfile));
     } catch (err) {
       console.warn('LocalStorage error:', err);
     }
@@ -320,10 +360,25 @@ export function PortalProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem('gcc_expenses', JSON.stringify(expenses));
       localStorage.setItem('gcc_banking_apps', JSON.stringify(bankingApps));
       localStorage.setItem('gcc_wa_logs', JSON.stringify(whatsappLogs));
+      localStorage.setItem('gcc_user_profile', JSON.stringify(userProfile));
     } catch (err) {
       console.warn('LocalStorage save error:', err);
     }
-  }, [entities, activeEntityId, orders, taxRecords, expenses, bankingApps, whatsappLogs]);
+  }, [entities, activeEntityId, orders, taxRecords, expenses, bankingApps, whatsappLogs, userProfile]);
+
+  const updateUserProfile = (updates: Partial<UserProfile>) => {
+    setUserProfile((prev) => ({ ...prev, ...updates }));
+  };
+
+  const markNotificationRead = (id: string) => {
+    setWhatsappLogs((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, status: 'read' } : item))
+    );
+  };
+
+  const markAllNotificationsRead = () => {
+    setWhatsappLogs((prev) => prev.map((item) => ({ ...item, status: 'read' })));
+  };
 
   const createOrderAndEntity = (data: {
     companyName: string;
@@ -406,7 +461,7 @@ export function PortalProvider({ children }: { children: React.ReactNode }) {
     sendWhatsAppAlert(
       data.clientWhatsApp,
       'order_confirmed_template',
-      `🎉 Welcome to GCCStartup! Order #${newOrderId} for ${data.companyName} is confirmed. View your workspace & KYC vault: http://localhost:3005/portal/vault`
+      `🎉 Welcome to GCCStartup! Order #${newOrderId} for ${data.companyName} is confirmed. View your workspace & KYC vault in the client portal.`
     );
 
     return newOrderId;
@@ -433,7 +488,7 @@ export function PortalProvider({ children }: { children: React.ReactNode }) {
     const entity = entities.find((e) => e.id === entityId);
     if (entity) {
       sendWhatsAppAlert(
-        '+31 6 12345678',
+        userProfile.phone || '+31 6 12345678',
         'kyc_verified_template',
         `✅ Official Portal Reference (${referenceNumber}) received for ${entity.name}. Stage 3 (Government Registry Filing) is now active!`
       );
@@ -535,7 +590,11 @@ export function PortalProvider({ children }: { children: React.ReactNode }) {
         expenses,
         bankingApps,
         whatsappLogs,
+        userProfile,
         setActiveEntityId,
+        updateUserProfile,
+        markNotificationRead,
+        markAllNotificationsRead,
         createOrderAndEntity,
         submitKycHandshake,
         advanceEntityStage,

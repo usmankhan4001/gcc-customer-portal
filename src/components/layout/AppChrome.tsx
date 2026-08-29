@@ -7,32 +7,26 @@ import BottomTabBar from '@/components/design-system/BottomTabBar';
 import ServiceWorkerRegistration from './ServiceWorkerRegistration';
 import Providers from './Providers';
 
-const hideTopBarPages = ['/'];
+const FULL_SCREEN_ROUTES = ['/setup', '/checkout'];
 
 export default function AppChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const isFullScreen = FULL_SCREEN_ROUTES.some((r) => pathname.startsWith(r));
   const isHome = pathname === '/';
-
-  // Pages that hide top bar (full-bleed home)
-  const showTopBar = !hideTopBarPages.includes(pathname);
-
-  // Pages that hide bottom nav (setup wizard, checkout, admin)
-  const showBottomNav = !pathname.startsWith('/setup') && !pathname.startsWith('/checkout') && !pathname.startsWith('/admin');
 
   return (
     <Providers>
       <ServiceWorkerRegistration />
       <div className="app-shell">
-        {showTopBar && <TopBar showBack={!isHome && !pathname.startsWith('/tools') && !pathname.startsWith('/portal')} />}
+        {!isFullScreen && <TopBar isHome={isHome} pathname={pathname} />}
         <main
+          id="main-content"
           className="app-page-content"
-          style={{
-            paddingTop: showTopBar ? 16 : 0,
-          }}
+          style={{ paddingTop: isFullScreen ? 0 : undefined }}
         >
           {children}
         </main>
-        {showBottomNav && <BottomTabBar />}
+        {!isFullScreen && <BottomTabBar />}
       </div>
     </Providers>
   );

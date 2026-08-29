@@ -2,70 +2,47 @@
 
 import React from 'react';
 
-export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: 'surface' | 'sand' | 'navy' | 'blue-lt' | 'orange-lt';
-  hoverable?: boolean;
-  padding?: 'none' | 'sm' | 'md' | 'lg';
+type CardVariant = 'default' | 'flat' | 'orange' | 'navy' | 'bordered';
+type CardPadded = 'none' | 'sm' | 'md' | 'lg';
+
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?: CardVariant;
+  padded?: CardPadded;
+  interactive?: boolean;
   children: React.ReactNode;
 }
 
+const VARIANT_CLASSES: Record<CardVariant, string> = {
+  default: '',
+  flat: 'card-flat',
+  orange: 'card-orange',
+  navy: 'card-navy',
+  bordered: 'card-bordered',
+};
+
+const PADDED_CLASSES: Record<CardPadded, string> = {
+  none: '',
+  sm: 'card-padded-sm',
+  md: 'card-padded',
+  lg: 'card-padded-lg',
+};
+
 export default function Card({
-  variant = 'surface',
-  hoverable = false,
-  padding = 'md',
-  children,
+  variant = 'default',
+  padded = 'md',
+  interactive = false,
   className = '',
+  children,
   ...props
 }: CardProps) {
-  const getVariantClass = () => {
-    switch (variant) {
-      case 'sand':
-        return 'card-sand';
-      case 'navy':
-        return 'card-navy';
-      case 'blue-lt':
-        return 'card-blue-lt';
-      case 'orange-lt':
-        return 'card-orange-lt';
-      default:
-        return '';
-    }
-  };
-
-  const getPaddingClass = () => {
-    switch (padding) {
-      case 'none':
-        return 'p-0';
-      case 'sm':
-        return 'p-sm';
-      case 'lg':
-        return 'p-lg';
-      default:
-        return 'p-md';
-    }
-  };
-
   return (
     <div
-      className={`card ${getVariantClass()} ${hoverable ? 'card-hover' : ''} ${getPaddingClass()} ${className}`}
+      className={`card ${VARIANT_CLASSES[variant]} ${PADDED_CLASSES[padded]} ${interactive ? 'card-interactive' : ''} ${className}`}
       {...props}
     >
       {children}
-
-      <style jsx>{`
-        .p-0 {
-          padding: 0;
-        }
-        .p-sm {
-          padding: 16px;
-        }
-        .p-md {
-          padding: 24px 28px;
-        }
-        .p-lg {
-          padding: 36px 32px;
-        }
-      `}</style>
     </div>
   );
 }
+
+export { Card };

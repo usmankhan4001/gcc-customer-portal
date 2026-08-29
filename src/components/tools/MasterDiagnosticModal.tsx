@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Sparkles, ArrowRight, X, ArrowLeft } from 'lucide-react';
 
@@ -19,6 +19,34 @@ export default function MasterDiagnosticModal({ isOpen, onClose }: MasterDiagnos
     relocationInterest: 'no_remote_only',
   });
 
+  const countryTaxRates: Record<string, number> = {
+    NL: 0.48,
+    DE: 0.45,
+    FR: 0.45,
+    UK: 0.40,
+    IE: 0.375,
+    US: 0.37,
+    CA: 0.33,
+    ES: 0.47,
+    IT: 0.43,
+    PT: 0.48,
+    BE: 0.44,
+    SG: 0.17,
+    AE: 0.09,
+    HK: 0.165,
+  };
+
+  const handleEscape = useCallback((e: KeyboardEvent) => {
+    if (e.key === 'Escape') onClose();
+  }, [onClose]);
+
+  useEffect(() => {
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape);
+      return () => document.removeEventListener('keydown', handleEscape);
+    }
+  }, [isOpen, handleEscape]);
+
   if (!isOpen) return null;
 
   const handleNext = () => {
@@ -35,7 +63,8 @@ export default function MasterDiagnosticModal({ isOpen, onClose }: MasterDiagnos
   const optimalTier = answers.privacyNeed === 'high' ? 'Tier 2 (Nominee UBO & Director)' : 'Tier 1 (Self as UBO)';
   const optimalTierCode = answers.privacyNeed === 'high' ? 'tier2' : 'tier1';
   
-  const estimatedHomeTax = answers.annualProfit * 0.48;
+  const homeTaxRate = countryTaxRates[answers.currentTaxCountry] ?? 0.40;
+  const estimatedHomeTax = Math.round(answers.annualProfit * homeTaxRate);
   const optimizedTax = isGulfMatch ? answers.annualProfit * 0.09 : 0;
   const netSavings = Math.round(estimatedHomeTax - optimizedTax);
 
@@ -105,6 +134,24 @@ export default function MasterDiagnosticModal({ isOpen, onClose }: MasterDiagnos
                 <span>€1,000,000+</span>
               </div>
             </div>
+            <label className="input-label">Current Tax Residence:</label>
+            <select
+              value={answers.currentTaxCountry}
+              onChange={(e) => setAnswers({ ...answers, currentTaxCountry: e.target.value })}
+              className="input-field"
+            >
+              <option value="NL">Netherlands (48%)</option>
+              <option value="DE">Germany (45%)</option>
+              <option value="FR">France (45%)</option>
+              <option value="UK">United Kingdom (40%)</option>
+              <option value="IE">Ireland (37.5%)</option>
+              <option value="US">United States (37%)</option>
+              <option value="CA">Canada (33%)</option>
+              <option value="ES">Spain (47%)</option>
+              <option value="IT">Italy (43%)</option>
+              <option value="PT">Portugal (48%)</option>
+              <option value="BE">Belgium (44%)</option>
+            </select>
           </div>
         )}
 
@@ -176,7 +223,7 @@ export default function MasterDiagnosticModal({ isOpen, onClose }: MasterDiagnos
             <div className="summary-roi-banner card-navy">
               <span className="roi-label text-orange">ESTIMATED NET ANNUAL CASH SAVINGS</span>
               <div className="roi-val display-font text-white">+€{netSavings.toLocaleString()} / year</div>
-              <p className="roi-desc">Based on €{answers.annualProfit.toLocaleString()} profit compared to European baseline rates.</p>
+              <p className="roi-desc">Based on €{answers.annualProfit.toLocaleString()} profit vs {answers.currentTaxCountry} {Math.round(homeTaxRate * 100)}% tax rate.</p>
             </div>
           </div>
         )}

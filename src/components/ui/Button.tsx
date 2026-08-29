@@ -2,111 +2,82 @@
 
 import React from 'react';
 
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'outline' | 'danger' | 'navy';
-  size?: 'sm' | 'md' | 'lg';
-  shimmer?: boolean;
+type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'navy';
+type ButtonSize = 'sm' | 'md' | 'lg';
+
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+  fullWidth?: boolean;
   isLoading?: boolean;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
+  children: React.ReactNode;
 }
 
+function Spinner() {
+  return (
+    <span
+      style={{
+        width: 16,
+        height: 16,
+        border: '2px solid rgba(255,255,255,0.3)',
+        borderTopColor: '#FFFFFF',
+        borderRadius: '50%',
+        animation: 'btnSpin 0.7s linear infinite',
+        display: 'inline-block',
+        flexShrink: 0,
+      }}
+      aria-hidden="true"
+    />
+  );
+}
+
+const VARIANT_CLASSES: Record<ButtonVariant, string> = {
+  primary: 'btn-primary',
+  secondary: 'btn-secondary',
+  ghost: 'btn-ghost',
+  navy: 'btn-navy',
+};
+
+const SIZE_CLASSES: Record<ButtonSize, string> = {
+  sm: 'btn-sm',
+  md: '',
+  lg: 'btn-lg',
+};
+
 export default function Button({
-  children,
   variant = 'primary',
   size = 'md',
-  shimmer = false,
+  fullWidth = false,
   isLoading = false,
   leftIcon,
   rightIcon,
-  className = '',
   disabled,
+  className = '',
+  children,
   ...props
 }: ButtonProps) {
-  const getVariantClass = () => {
-    switch (variant) {
-      case 'secondary':
-        return 'btn-secondary';
-      case 'outline':
-        return 'btn-outline';
-      case 'danger':
-        return 'btn-danger';
-      case 'navy':
-        return 'btn-navy';
-      default:
-        return 'btn-primary';
-    }
-  };
-
-  const getSizeClass = () => {
-    switch (size) {
-      case 'sm':
-        return 'btn-sm';
-      case 'lg':
-        return 'btn-lg';
-      default:
-        return '';
-    }
-  };
-
   return (
-    <button
-      className={`btn ${getVariantClass()} ${getSizeClass()} ${shimmer ? 'btn-shimmer' : ''} ${className}`}
-      disabled={disabled || isLoading}
-      {...props}
-    >
-      {isLoading ? (
-        <span className="spinner" />
-      ) : (
-        <>
-          {leftIcon && <span className="btn-icon-left">{leftIcon}</span>}
-          <span>{children}</span>
-          {rightIcon && <span className="btn-icon-right">{rightIcon}</span>}
-        </>
-      )}
-
-      <style jsx>{`
-        .btn-navy {
-          background: var(--navy);
-          color: #FFFFFF;
-          border-color: var(--navy);
-        }
-        .btn-navy:hover {
-          background: var(--orange);
-          border-color: var(--orange);
-        }
-        .btn-danger {
-          background: var(--error);
-          color: #FFFFFF;
-          border-color: var(--error);
-        }
-        .btn-danger:hover {
-          background: #B91C1C;
-        }
-        .btn-icon-left {
-          display: inline-flex;
-          align-items: center;
-          margin-right: 6px;
-        }
-        .btn-icon-right {
-          display: inline-flex;
-          align-items: center;
-          margin-left: 6px;
-        }
-        .spinner {
-          width: 18px;
-          height: 18px;
-          border: 2px solid rgba(255, 255, 255, 0.3);
-          border-top-color: #FFFFFF;
-          border-radius: 50%;
-          animation: spin 0.8s linear infinite;
-        }
-        @keyframes spin {
-          to {
-            transform: rotate(360deg);
-          }
-        }
-      `}</style>
-    </button>
+    <>
+      <style>{`@keyframes btnSpin { to { transform: rotate(360deg); } }`}</style>
+      <button
+        className={`btn ${VARIANT_CLASSES[variant]} ${SIZE_CLASSES[size]} ${fullWidth ? 'btn-full' : ''} ${className}`}
+        disabled={disabled || isLoading}
+        {...props}
+      >
+        {isLoading ? (
+          <Spinner />
+        ) : (
+          <>
+            {leftIcon && <span style={{ display: 'inline-flex', alignItems: 'center' }}>{leftIcon}</span>}
+            <span>{children}</span>
+            {rightIcon && <span style={{ display: 'inline-flex', alignItems: 'center' }}>{rightIcon}</span>}
+          </>
+        )}
+      </button>
+    </>
   );
 }
+
+export { Button };
