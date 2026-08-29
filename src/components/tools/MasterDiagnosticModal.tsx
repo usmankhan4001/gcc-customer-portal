@@ -2,7 +2,21 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { Sparkles, ArrowRight, X, ArrowLeft } from 'lucide-react';
+import {
+  Sparkles,
+  ArrowRight,
+  X,
+  ArrowLeft,
+  Shield,
+  User,
+  Globe,
+  Plane,
+  ShieldCheck,
+  CheckCircle2,
+  Building,
+  Coins,
+} from 'lucide-react';
+import CountryFlag from '@/components/ui/CountryFlag';
 
 interface MasterDiagnosticProps {
   isOpen: boolean;
@@ -58,66 +72,132 @@ export default function MasterDiagnosticModal({ isOpen, onClose }: MasterDiagnos
   };
 
   const isGulfMatch = answers.relocationInterest === 'yes_uae' || answers.relocationInterest === 'yes_oman';
-  const optimalCountry = isGulfMatch ? 'UAE Freezone (IFZA/DMCC)' : 'Hong Kong (Offshore)';
+  const optimalCountry = isGulfMatch ? 'UAE Freezone (IFZA Dubai)' : 'Hong Kong (Offshore Entity)';
   const optimalCountryCode = isGulfMatch ? 'uae' : 'hk';
   const optimalTier = answers.privacyNeed === 'high' ? 'Tier 2 (Nominee UBO & Director)' : 'Tier 1 (Self as UBO)';
   const optimalTierCode = answers.privacyNeed === 'high' ? 'tier2' : 'tier1';
-  
+
   const homeTaxRate = countryTaxRates[answers.currentTaxCountry] ?? 0.40;
   const estimatedHomeTax = Math.round(answers.annualProfit * homeTaxRate);
   const optimizedTax = isGulfMatch ? answers.annualProfit * 0.09 : 0;
   const netSavings = Math.round(estimatedHomeTax - optimizedTax);
 
   return (
-    <div className="modal-backdrop">
-      <div className="modal-card card">
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 250,
+        background: 'var(--modal-backdrop, rgba(20, 32, 74, 0.6))',
+        backdropFilter: 'blur(8px)',
+        display: 'flex',
+        alignItems: 'flex-end',
+        justifyContent: 'center',
+      }}
+      onClick={onClose}
+    >
+      <div
+        className="card"
+        style={{
+          width: '100%',
+          maxWidth: 500,
+          background: 'var(--card-bg, #FFFFFF)',
+          borderTopLeftRadius: 20,
+          borderTopRightRadius: 20,
+          borderBottomLeftRadius: 0,
+          borderBottomRightRadius: 0,
+          boxShadow: 'var(--shadow-xl)',
+          padding: 20,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 16,
+          maxHeight: '90vh',
+          overflowY: 'auto',
+          animation: 'slideUp 0.25s ease-out',
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Top Handle Pill */}
+        <div
+          style={{
+            width: 40,
+            height: 4,
+            borderRadius: 2,
+            background: 'var(--border)',
+            margin: '0 auto -4px',
+          }}
+        />
+
         {/* Header */}
-        <div className="modal-header">
-          <div className="badge badge-orange">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>3-MINUTE 360° DIAGNOSTIC ENGINE</span>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Sparkles size={18} color="var(--orange)" />
+            <span className="badge badge-orange">AI STRUCTURING DIAGNOSTIC</span>
           </div>
-          <button onClick={onClose} className="close-btn">
-            <X className="w-5 h-5 text-navy" />
+          <button
+            onClick={onClose}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-tertiary)' }}
+          >
+            <X size={20} />
           </button>
         </div>
 
         {/* Progress Bar */}
-        <div className="progress-bar-container">
+        <div className="progress-track">
           <div className="progress-fill" style={{ width: `${(step / 4) * 100}%` }} />
         </div>
 
         {/* Step 1: Business Profile */}
         {step === 1 && (
-          <div className="step-body">
-            <h3 className="step-title display-font">Step 1 of 4: What is your primary business activity?</h3>
-            <div className="options-grid">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <h3 style={{ fontSize: 15, fontWeight: 800, color: 'var(--navy)' }}>
+              Step 1 of 4: What is your primary business activity?
+            </h3>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
               {[
-                { id: 'ecommerce', label: 'E-Commerce / Amazon / Dropshipping', desc: 'Selling physical goods globally' },
-                { id: 'saas', label: 'SaaS / AI / Software Products', desc: 'Digital subscription software' },
-                { id: 'agency', label: 'Agency / Consulting / Freelance', desc: 'Services & remote client billing' },
-                { id: 'crypto', label: 'Crypto / Web3 / Trading', desc: 'Capital gains & digital assets' },
-              ].map((item) => (
-                <div
-                  key={item.id}
-                  onClick={() => setAnswers({ ...answers, businessType: item.id })}
-                  className={`opt-card card ${answers.businessType === item.id ? 'active' : ''}`}
-                >
-                  <strong className="opt-title text-navy">{item.label}</strong>
-                  <span className="opt-desc">{item.desc}</span>
-                </div>
-              ))}
+                { id: 'ecommerce', label: 'E-Commerce', desc: 'Amazon, Shopify dropshipping', icon: Globe },
+                { id: 'saas', label: 'SaaS & AI Software', desc: 'Cloud digital products', icon: Sparkles },
+                { id: 'agency', label: 'Agencies & Consulting', desc: 'Remote B2B client billing', icon: Building },
+                { id: 'crypto', label: 'Fintech & Web3', desc: 'Capital gains & digital assets', icon: Coins },
+              ].map((item) => {
+                const Icon = item.icon;
+                const isSel = answers.businessType === item.id;
+                return (
+                  <div
+                    key={item.id}
+                    onClick={() => setAnswers({ ...answers, businessType: item.id })}
+                    className={`card card-hover ${isSel ? 'card-sand' : ''}`}
+                    style={{
+                      cursor: 'pointer',
+                      border: isSel ? '1.5px solid var(--orange)' : undefined,
+                      padding: 12,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 6,
+                    }}
+                  >
+                    <Icon size={16} color="var(--orange)" />
+                    <strong style={{ fontSize: 13, color: 'var(--navy)' }}>{item.label}</strong>
+                    <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>{item.desc}</span>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
 
         {/* Step 2: Income & Profit */}
         {step === 2 && (
-          <div className="step-body">
-            <h3 className="step-title display-font">Step 2 of 4: What is your estimated annual profit?</h3>
-            <div className="slider-wrapper card-sand">
-              <div className="profit-value display-font text-navy">
-                €{answers.annualProfit.toLocaleString()}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <h3 style={{ fontSize: 15, fontWeight: 800, color: 'var(--navy)' }}>
+              Step 2 of 4: Estimated annual net taxable profit?
+            </h3>
+            <div className="card card-sand" style={{ padding: 14, display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>Estimated Annual Profit:</span>
+                <span style={{ fontSize: 18, fontWeight: 800, color: 'var(--navy)', fontFamily: 'monospace' }}>
+                  €{answers.annualProfit.toLocaleString()}
+                </span>
               </div>
               <input
                 type="range"
@@ -126,321 +206,145 @@ export default function MasterDiagnosticModal({ isOpen, onClose }: MasterDiagnos
                 step={10000}
                 value={answers.annualProfit}
                 onChange={(e) => setAnswers({ ...answers, annualProfit: Number(e.target.value) })}
-                className="w-full"
+                style={{ width: '100%', accentColor: 'var(--orange)', cursor: 'pointer' }}
               />
-              <div className="slider-labels">
-                <span>€50,000</span>
-                <span>€500,000</span>
-                <span>€1,000,000+</span>
-              </div>
             </div>
-            <label className="input-label">Current Tax Residence:</label>
-            <select
-              value={answers.currentTaxCountry}
-              onChange={(e) => setAnswers({ ...answers, currentTaxCountry: e.target.value })}
-              className="input-field"
-            >
-              <option value="NL">Netherlands (48%)</option>
-              <option value="DE">Germany (45%)</option>
-              <option value="FR">France (45%)</option>
-              <option value="UK">United Kingdom (40%)</option>
-              <option value="IE">Ireland (37.5%)</option>
-              <option value="US">United States (37%)</option>
-              <option value="CA">Canada (33%)</option>
-              <option value="ES">Spain (47%)</option>
-              <option value="IT">Italy (43%)</option>
-              <option value="PT">Portugal (48%)</option>
-              <option value="BE">Belgium (44%)</option>
-            </select>
+
+            <div>
+              <label className="input-label">Current Country of Tax Residence:</label>
+              <select
+                value={answers.currentTaxCountry}
+                onChange={(e) => setAnswers({ ...answers, currentTaxCountry: e.target.value })}
+                className="input-field"
+              >
+                <option value="NL">Netherlands (48%)</option>
+                <option value="DE">Germany (45%)</option>
+                <option value="FR">France (45%)</option>
+                <option value="UK">United Kingdom (40%)</option>
+                <option value="IE">Ireland (37.5%)</option>
+                <option value="US">United States (37%)</option>
+                <option value="CA">Canada (33%)</option>
+                <option value="ES">Spain (47%)</option>
+                <option value="IT">Italy (43%)</option>
+              </select>
+            </div>
           </div>
         )}
 
         {/* Step 3: Privacy & Relocation */}
         {step === 3 && (
-          <div className="step-body">
-            <h3 className="step-title display-font">Step 3 of 4: What are your privacy & relocation goals?</h3>
-            
-            <label className="input-label">Public Registry Privacy Requirement:</label>
-            <div className="options-grid" style={{ marginBottom: '16px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <h3 style={{ fontSize: 15, fontWeight: 800, color: 'var(--navy)' }}>
+              Step 3 of 4: Privacy and Relocation Preference
+            </h3>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               <div
                 onClick={() => setAnswers({ ...answers, privacyNeed: 'high' })}
-                className={`opt-card card ${answers.privacyNeed === 'high' ? 'active' : ''}`}
+                className={`card card-hover ${answers.privacyNeed === 'high' ? 'card-sand' : ''}`}
+                style={{
+                  cursor: 'pointer',
+                  border: answers.privacyNeed === 'high' ? '1.5px solid var(--orange)' : undefined,
+                  padding: 12,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10,
+                }}
               >
-                <strong className="opt-title text-navy">🛡️ High Privacy (Nominee Shield)</strong>
-                <span className="opt-desc">Keep my name 100% off public company registries</span>
+                <ShieldCheck size={20} color="var(--orange)" />
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--navy)' }}>Nominee Privacy Shield</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>Keep identity 100% off public company registry</div>
+                </div>
               </div>
+
               <div
                 onClick={() => setAnswers({ ...answers, privacyNeed: 'standard' })}
-                className={`opt-card card ${answers.privacyNeed === 'standard' ? 'active' : ''}`}
+                className={`card card-hover ${answers.privacyNeed === 'standard' ? 'card-sand' : ''}`}
+                style={{
+                  cursor: 'pointer',
+                  border: answers.privacyNeed === 'standard' ? '1.5px solid var(--orange)' : undefined,
+                  padding: 12,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10,
+                }}
               >
-                <strong className="opt-title text-navy">👤 Standard (Self UBO)</strong>
-                <span className="opt-desc">I am comfortable listing my name as direct director</span>
-              </div>
-            </div>
-
-            <label className="input-label">Relocation Preference:</label>
-            <div className="options-grid">
-              <div
-                onClick={() => setAnswers({ ...answers, relocationInterest: 'no_remote_only' })}
-                className={`opt-card card ${answers.relocationInterest === 'no_remote_only' ? 'active' : ''}`}
-              >
-                <strong className="opt-title text-navy">💻 100% Remote Operation</strong>
-                <span className="opt-desc">Manage everything online with fintech banking</span>
-              </div>
-              <div
-                onClick={() => setAnswers({ ...answers, relocationInterest: 'yes_uae' })}
-                className={`opt-card card ${answers.relocationInterest === 'yes_uae' ? 'active' : ''}`}
-              >
-                <strong className="opt-title text-navy">✈️ Move to UAE (Residency Visas)</strong>
-                <span className="opt-desc">Tax residency, Emirates ID & physical bank accounts</span>
+                <User size={20} color="var(--blue)" />
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--navy)' }}>Direct Self-Listed UBO</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>List myself directly as registered director</div>
+                </div>
               </div>
             </div>
           </div>
         )}
 
-        {/* Step 4: Summary Match */}
+        {/* Step 4: Summary Result */}
         {step === 4 && (
-          <div className="step-body">
-            <div className="badge badge-navy" style={{ alignSelf: 'center' }}>
-              <Sparkles className="w-3.5 h-3.5 text-orange" />
-              <span>CUSTOM STRUCTURING ROADMAP GENERATED</span>
-            </div>
-
-            <div className="diagnostic-summary-grid">
-              <div className="summary-box card-sand">
-                <span className="sum-label text-tertiary">OPTIMAL JURISDICTION</span>
-                <div className="sum-val display-font text-navy">{optimalCountry}</div>
-                <span className="sum-sub">100% Foreign Ownership • Fast Fintech Banking</span>
-              </div>
-
-              <div className="summary-box card-blue-lt">
-                <span className="sum-label text-blue font-bold">RECOMMENDED TIER</span>
-                <div className="sum-val display-font text-navy">{optimalTier}</div>
-                <span className="sum-sub">Includes Banking Onboarding Guarantee</span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div
+              className="card card-sand"
+              style={{
+                padding: 16,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+              }}
+            >
+              <CountryFlag country={optimalCountryCode} size="lg" />
+              <div>
+                <span className="badge badge-orange" style={{ fontSize: 9 }}>OPTIMAL MATCH</span>
+                <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--navy)' }}>{optimalCountry}</div>
+                <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>{optimalTier}</div>
               </div>
             </div>
 
-            <div className="summary-roi-banner card-navy">
-              <span className="roi-label text-orange">ESTIMATED NET ANNUAL CASH SAVINGS</span>
-              <div className="roi-val display-font text-white">+€{netSavings.toLocaleString()} / year</div>
-              <p className="roi-desc">Based on €{answers.annualProfit.toLocaleString()} profit vs {answers.currentTaxCountry} {Math.round(homeTaxRate * 100)}% tax rate.</p>
+            <div
+              className="card"
+              style={{
+                background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)',
+                padding: 16,
+                color: 'white',
+              }}
+            >
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase' }}>
+                ESTIMATED ANNUAL CASH SAVINGS
+              </div>
+              <div style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--orange)', marginTop: 2 }}>
+                +€{netSavings.toLocaleString()} / year
+              </div>
+              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', marginTop: 4 }}>
+                Based on €{answers.annualProfit.toLocaleString()} profit vs {answers.currentTaxCountry} tax.
+              </p>
             </div>
           </div>
         )}
 
         {/* Footer Navigation */}
-        <div className="modal-footer">
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, marginTop: 4 }}>
           {step > 1 && step < 4 && (
             <button onClick={handlePrev} className="btn btn-secondary btn-sm">
-              <ArrowLeft className="w-4 h-4" />
-              <span>Back</span>
+              <ArrowLeft size={14} /> Back
             </button>
           )}
 
           {step < 4 ? (
             <button onClick={handleNext} className="btn btn-primary btn-sm" style={{ marginLeft: 'auto' }}>
               <span>Continue</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight size={14} />
             </button>
           ) : (
             <Link
-              href={`/setup?country=${optimalCountryCode}&tier=${optimalTierCode}&profit=${answers.annualProfit}`}
+              href={`/setup?country=${optimalCountryCode}&tier=${optimalTierCode}`}
+              onClick={onClose}
               className="btn btn-primary btn-lg"
               style={{ width: '100%', justifyContent: 'center' }}
             >
-              <span>Launch This Formation Package</span>
-              <ArrowRight className="w-5 h-5" />
+              <span>Launch This Formation Package →</span>
             </Link>
           )}
         </div>
-
-        <style jsx>{`
-          .modal-backdrop {
-            position: fixed;
-            inset: 0;
-            z-index: 200;
-            background: rgba(20, 32, 74, 0.6);
-            backdrop-filter: blur(8px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-          }
-
-          .modal-card {
-            width: 100%;
-            max-width: 680px;
-            padding: 32px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            box-shadow: 0 20px 60px rgba(20, 32, 74, 0.2);
-          }
-
-          .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-          }
-
-          .close-btn {
-            background: var(--sand);
-            border: 1px solid var(--sand-dk);
-            border-radius: var(--radius-pill);
-            width: 34px;
-            height: 34px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-          }
-
-          .progress-bar-container {
-            width: 100%;
-            height: 6px;
-            background: #E5E7EB;
-            border-radius: var(--radius-pill);
-            overflow: hidden;
-          }
-
-          .progress-fill {
-            height: 100%;
-            background: var(--orange);
-            transition: width 0.3s ease;
-          }
-
-          .step-body {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-          }
-
-          .step-title {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: var(--navy);
-          }
-
-          .options-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-          }
-
-          @media (max-width: 600px) {
-            .options-grid {
-              grid-template-columns: 1fr;
-            }
-          }
-
-          .opt-card {
-            padding: 16px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-          }
-
-          .opt-card:hover {
-            border-color: var(--navy);
-          }
-
-          .opt-card.active {
-            border-color: var(--orange);
-            background: var(--orange-lt);
-          }
-
-          .opt-title {
-            font-size: 14px;
-          }
-
-          .opt-desc {
-            font-size: 12px;
-            color: var(--text-secondary);
-          }
-
-          .slider-wrapper {
-            padding: 24px;
-            border-radius: var(--radius);
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-          }
-
-          .profit-value {
-            font-size: 2.2rem;
-            font-weight: 700;
-            text-align: center;
-          }
-
-          .slider-labels {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            color: var(--text-tertiary);
-          }
-
-          .diagnostic-summary-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 14px;
-          }
-
-          .summary-box {
-            padding: 18px;
-            border-radius: var(--radius);
-          }
-
-          .sum-label {
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 0.05em;
-            display: block;
-            margin-bottom: 4px;
-          }
-
-          .sum-val {
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin-bottom: 2px;
-          }
-
-          .sum-sub {
-            font-size: 12px;
-            color: var(--text-secondary);
-          }
-
-          .summary-roi-banner {
-            padding: 24px;
-            border-radius: var(--radius);
-            text-align: center;
-          }
-
-          .roi-label {
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 0.08em;
-          }
-
-          .roi-val {
-            font-size: 2.2rem;
-            font-weight: 700;
-            margin: 4px 0;
-          }
-
-          .roi-desc {
-            font-size: 13px;
-            opacity: 0.9;
-          }
-
-          .modal-footer {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-top: 10px;
-          }
-        `}</style>
       </div>
     </div>
   );

@@ -3,6 +3,7 @@
 import React from 'react';
 import { usePortalStore } from '@/lib/store';
 import { useToast } from '@/components/ui/Toast';
+import CountryFlag from '@/components/ui/CountryFlag';
 import {
   ArrowRight,
   Clock,
@@ -82,7 +83,7 @@ export default function AdminKanbanPage() {
                   return (
                     <div key={ent.id} className="admin-kanban-card">
                       <div className="admin-kanban-card-top">
-                        <span className="admin-kanban-card-flag">{ent.flag}</span>
+                        <CountryFlag country={ent.countryCode || ent.flag} size="sm" />
                         <span className="admin-kanban-card-days">
                           <Clock size={11} />
                           {daysInStage}d

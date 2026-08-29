@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { usePortalStore } from '@/lib/store';
 import { useToast } from '@/components/ui/Toast';
+import CountryFlag from '@/components/ui/CountryFlag';
 import {
   Search,
   CheckCircle2,
@@ -128,7 +129,7 @@ export default function FilingQueuePage() {
             <div key={ent.id} className="admin-queue-card">
               <div className="admin-queue-card-top">
                 <div className="admin-queue-left">
-                  <span className="admin-queue-flag">{ent.flag}</span>
+                  <CountryFlag country={ent.countryCode || ent.flag} size="md" />
                   <div>
                     <div className="admin-queue-name">{ent.name}</div>
                     <div className="admin-queue-meta">

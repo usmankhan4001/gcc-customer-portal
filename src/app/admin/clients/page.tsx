@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { usePortalStore } from '@/lib/store';
 import { useToast } from '@/components/ui/Toast';
 import Modal from '@/components/ui/Modal';
+import CountryFlag from '@/components/ui/CountryFlag';
 import {
   Search,
   Download,
@@ -108,7 +109,7 @@ export default function AdminClientsPage() {
               onClick={() => setSelectedEntity(ent)}
             >
               <div className="admin-client-left">
-                <span className="admin-client-flag">{ent.flag}</span>
+                <CountryFlag country={ent.countryCode || ent.flag} size="md" />
                 <div className="admin-client-info">
                   <div className="admin-client-name">{ent.name}</div>
                   <div className="admin-client-meta">
@@ -149,7 +150,7 @@ export default function AdminClientsPage() {
         {selectedEntity && (
           <div className="admin-modal-body">
             <div className="admin-modal-header-row">
-              <span className="admin-modal-flag">{selectedEntity.flag}</span>
+              <CountryFlag country={selectedEntity.countryCode || selectedEntity.flag} size="lg" />
               <div>
                 <span
                   className="admin-status-badge"

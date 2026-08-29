@@ -15,15 +15,15 @@ import {
 
 const TEMPLATES: Record<string, string> = {
   order_confirmed_template:
-    '🎉 Order Confirmation: Your entity formation order is confirmed! Your designated lead is Abdullah K. Access your KYC Vault here: https://gccstartup.com/portal/vault',
+    'Order Confirmation: Your entity formation order is confirmed! Your designated lead is Abdullah K. Access your KYC Vault here: https://gccstartup.com/portal/vault',
   official_kyc_reminder:
-    '📋 Action Required: Please complete your identity & passport verification on the official authority portal to initiate Stage 3 Government Filing.',
+    'Action Required: Please complete your identity & passport verification on the official authority portal to initiate Stage 3 Government Filing.',
   stage_3_filing_active:
-    '🏛️ Filing Update: Your Electronic Memorandum of Association (E-MoA) has been submitted to the government registry. Estimated license issuance in 3-5 days.',
+    'Filing Update: Your Electronic Memorandum of Association (E-MoA) has been submitted to the government registry. Estimated license issuance in 3-5 days.',
   trade_license_issued:
-    '🏆 Milestone Unlocked: Your official Commercial Trade License has been issued! You can download your full corporate kit from your Cloud Locker.',
+    'Milestone Update: Your official Commercial Trade License has been issued! You can download your full corporate kit from your Cloud Locker.',
   banking_pre_approved:
-    '🏦 Banking Approval: Airwallex & Wio Bank pre-approvals are ready for final corporate dispatch. Open Banking Hub to verify.',
+    'Banking Approval: Airwallex & Wio Bank pre-approvals are ready for final corporate dispatch. Open Banking Hub to verify.',
 };
 
 const TEMPLATE_OPTIONS = [

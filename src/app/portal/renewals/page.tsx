@@ -2,320 +2,188 @@
 
 import React, { useState } from 'react';
 import { usePortalStore } from '@/lib/store';
-import { Modal } from '@/components/ui/Modal';
-import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
-import { useToast } from '@/components/ui/Toast';
+import Modal from '@/components/ui/Modal';
+import CountryFlag from '@/components/ui/CountryFlag';
 import {
   Clock,
-  Calendar,
-  CreditCard,
-  CheckCircle2,
-  ArrowRight,
   ShieldCheck,
+  CheckCircle2,
+  Calendar,
   AlertTriangle,
-  TrendingUp,
+  ArrowRight,
+  Receipt,
+  FileCheck,
+  CreditCard,
 } from 'lucide-react';
 
-function EntitySelector({
-  entities,
-  activeId,
-  onSelect,
-}: {
-  entities: { id: string; name: string; flag: string; renewalDaysLeft: number }[];
-  activeId: string;
-  onSelect: (id: string) => void;
-}) {
-  if (entities.length <= 1) return null;
-  return (
-    <div className="h-scroll" style={{ gap: 8, marginBottom: 20 }}>
-      {entities.map((ent) => (
-        <button
-          key={ent.id}
-          onClick={() => onSelect(ent.id)}
-          className={`chip ${ent.id === activeId ? 'active' : ''}`}
-          style={{ flexShrink: 0 }}
-        >
-          <span>{ent.flag}</span>
-          <span className="truncate" style={{ maxWidth: 110 }}>{ent.name}</span>
-          <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 6px', borderRadius: 'var(--radius-pill)', background: ent.renewalDaysLeft <= 90 ? 'var(--color-error-light)' : 'var(--color-surface-alt)', color: ent.renewalDaysLeft <= 90 ? 'var(--color-error)' : 'var(--color-text-secondary)' }}>
-            {ent.renewalDaysLeft}d
-          </span>
-        </button>
-      ))}
-    </div>
-  );
-}
-
-export default function RenewalsPage() {
+export default function RenewalsPortalPage() {
   const { entities, activeEntityId, setActiveEntityId, payRenewalInvoice } = usePortalStore();
-  const { showToast } = useToast();
-  const entity = entities.find((e) => e.id === activeEntityId) || entities[0];
+  const [isRenewModalOpen, setIsRenewModalOpen] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isPaidSuccess, setIsPaidSuccess] = useState(false);
 
-  const [payModalOpen, setPayModalOpen] = useState(false);
-  const [processing, setProcessing] = useState(false);
-  const [paidSuccess, setPaidSuccess] = useState(false);
+  const activeEntity = entities.find((e) => e.id === activeEntityId) || entities[0];
 
-  const renewalFee = 1200;
-  const isUrgent = (entity?.renewalDaysLeft ?? 365) <= 90;
-  const daysLeft = entity?.renewalDaysLeft ?? 0;
-  const progress = Math.max(0, Math.min(100, Math.round(((365 - daysLeft) / 365) * 100)));
-
-  const handlePay = () => {
-    setProcessing(true);
+  const handlePayRenewal = () => {
+    setIsProcessing(true);
     setTimeout(() => {
-      setProcessing(false);
-      setPaidSuccess(true);
-      if (entity) payRenewalInvoice(entity.id);
-      showToast('success', 'Renewal payment confirmed — 365 days added');
-    }, 1200);
+      setIsProcessing(false);
+      setIsPaidSuccess(true);
+      if (activeEntity) payRenewalInvoice(activeEntity.id);
+      setTimeout(() => {
+        setIsPaidSuccess(false);
+        setIsRenewModalOpen(false);
+      }, 1500);
+    }, 1000);
   };
 
-  if (!entity) {
-    return (
-      <div className="empty-state">
-        <div className="empty-state-icon"><Clock size={32} /></div>
-        <h3 className="empty-state-title">No Active Entity</h3>
-        <p className="empty-state-desc">Set up a company to view renewal information.</p>
-      </div>
-    );
-  }
+  if (!activeEntity) return null;
+
+  const isDueSoon = activeEntity.renewalDaysLeft <= 90;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-      {/* Page Header */}
-      <div className="animate-fade-in">
-        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-text-muted)', letterSpacing: '0.08em', marginBottom: 4 }}>
-          TRACK AND MANAGE RENEWALS
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      {/* Header */}
+      <div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+          <span className="badge badge-navy">STATUTORY CONTINUITY</span>
+          <span className="badge badge-orange">ANNUAL COMPLIANCE</span>
         </div>
-        <h1 className="font-heading" style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--color-text)', lineHeight: 1.2 }}>
-          License <span style={{ color: 'var(--color-orange)' }}>Renewals</span>
+        <h1
+          style={{
+            fontFamily: 'var(--font-heading)',
+            fontSize: '1.65rem',
+            fontWeight: 800,
+            color: 'var(--navy)',
+            letterSpacing: '-0.02em',
+          }}
+        >
+          Annual License <span style={{ color: 'var(--orange)' }}>Renewals & Maintenance</span>
         </h1>
-        <p style={{ fontSize: 14, color: 'var(--color-text-secondary)', marginTop: 4 }}>
-          Track and manage renewals for your corporate entities.
+        <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 2 }}>
+          Ensure uninterrupted corporate legal standing, registered agent service, and banking validity.
         </p>
       </div>
 
-      {/* Entity Selector */}
-      <EntitySelector
-        entities={entities}
-        activeId={entity.id}
-        onSelect={(id) => { setActiveEntityId(id); setPaidSuccess(false); }}
-      />
-
-      {/* Urgent Warning */}
-      {isUrgent && (
-        <div
-          className="card card-padded animate-slide-up"
-          style={{ borderLeft: '4px solid var(--color-error)', display: 'flex', gap: 12, alignItems: 'flex-start' }}
-        >
-          <AlertTriangle size={20} style={{ color: 'var(--color-error)', flexShrink: 0, marginTop: 2 }} />
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-text)', marginBottom: 2 }}>
-              License Renewal Window Open
-            </div>
-            <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', lineHeight: 1.45 }}>
-              Your trade license expires in{' '}
-              <strong style={{ color: 'var(--color-error)' }}>{daysLeft} days</strong>
-              {' '}({entity.licenseExpiryDate}). Settle before expiry to avoid statutory penalties.
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Countdown Card */}
-      <div className="section-gap animate-slide-up" style={{ animationDelay: '40ms' }}>
-        <div className="card" style={{ padding: 24 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
-            <div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-text-muted)', letterSpacing: '0.06em', marginBottom: 4 }}>
-                RENEWAL COUNTDOWN
-              </div>
-              <h2 className="font-heading" style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--color-text)' }}>
-                {entity.name}
-              </h2>
-            </div>
-            <Badge variant={isUrgent ? 'error' : 'success'}>
-              {daysLeft} Days Left
-            </Badge>
-          </div>
-
-          {/* Countdown Display */}
-          <div
-            className="card card-flat"
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around', padding: 24, marginBottom: 16 }}
+      {/* Entity Switcher Pills */}
+      <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4 }}>
+        {entities.map((ent) => (
+          <button
+            key={ent.id}
+            onClick={() => setActiveEntityId(ent.id)}
+            className={`btn ${ent.id === activeEntity.id ? 'btn-primary' : 'btn-secondary'}`}
+            style={{ flexShrink: 0, gap: 8, fontSize: 13, padding: '8px 16px' }}
           >
-            <div style={{ textAlign: 'center' }}>
-              <div className="font-heading" style={{ fontSize: '2.5rem', fontWeight: 800, color: isUrgent ? 'var(--color-error)' : 'var(--color-navy)', lineHeight: 1 }}>
-                {daysLeft}
-              </div>
-              <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)', fontWeight: 600, marginTop: 4 }}>
-                Days to Expiry
-              </div>
-            </div>
-            <div style={{ width: 1, height: 48, background: 'var(--color-border)' }} />
-            <div style={{ textAlign: 'center' }}>
-              <div className="font-heading" style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--color-navy)' }}>
-                {entity.licenseExpiryDate}
-              </div>
-              <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)', fontWeight: 600, marginTop: 4 }}>
-                Expiry Date
-              </div>
-            </div>
-          </div>
-
-          {/* Progress Bar */}
-          <div style={{ marginBottom: 16 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-              <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-text-secondary)' }}>Time Elapsed</span>
-              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-text)' }}>{progress}%</span>
-            </div>
-            <div className="progress-track" style={{ height: 8 }}>
-              <div
-                className={isUrgent ? '' : 'progress-fill'}
-                style={{
-                  width: `${progress}%`,
-                  height: '100%',
-                  borderRadius: 'var(--radius-pill)',
-                  background: isUrgent ? 'var(--color-error)' : 'var(--color-orange)',
-                  transition: 'width 0.5s cubic-bezier(0.4,0,0.2,1)',
-                }}
-              />
-            </div>
-          </div>
-
-          {/* Inclusions */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-text-muted)', letterSpacing: '0.06em' }}>
-              INCLUDED IN ANNUAL MAINTENANCE
+            <CountryFlag country={ent.countryCode} size="sm" />
+            <span style={{ maxWidth: 130, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {ent.name}
             </span>
-            {[
-              'Government Trade License Renewal & Registry Filing',
-              '1-Year Registered Office Address & Statutory Secretary',
-              'Nominee Director & Trustee Shareholder Continuation',
-              'Certificate of Good Standing & Registry Receipt',
-            ].map((item, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <CheckCircle2 size={16} style={{ color: 'var(--color-orange)', flexShrink: 0 }} />
-                <span style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>{item}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Pay Button */}
-          <Button
-            variant="primary"
-            fullWidth
-            size="lg"
-            onClick={() => setPayModalOpen(true)}
-            rightIcon={<ArrowRight size={16} />}
-          >
-            Pay Renewal — ${renewalFee.toLocaleString()}
-          </Button>
-        </div>
+          </button>
+        ))}
       </div>
 
-      {/* Compliance Schedule */}
-      <div className="section-gap animate-slide-up" style={{ animationDelay: '80ms' }}>
-        <div className="section-header">
-          <span className="section-title">Compliance Schedule</span>
+      {/* Renewal Status Banner */}
+      <div
+        className="card card-sand"
+        style={{
+          padding: 18,
+          borderLeft: `4px solid ${isDueSoon ? 'var(--orange)' : 'var(--success)'}`,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: 12,
+              background: isDueSoon ? 'var(--orange-lt)' : 'var(--success-lt)',
+              color: isDueSoon ? 'var(--orange)' : 'var(--success)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Clock size={22} />
+          </div>
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+              RENEWAL COUNTDOWN
+            </div>
+            <h3 style={{ fontSize: 16, fontWeight: 800, color: 'var(--navy)' }}>
+              {activeEntity.renewalDaysLeft} Days Remaining
+            </h3>
+            <div style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>
+              Trade License Expiry: {activeEntity.licenseExpiryDate}
+            </div>
+          </div>
         </div>
-        <div className="card card-bordered" style={{ overflow: 'hidden' }}>
+
+        <button
+          onClick={() => setIsRenewModalOpen(true)}
+          className="btn btn-primary"
+          style={{ height: 42, padding: '0 18px', fontSize: 13 }}
+        >
+          <span>Renew for Next Year</span>
+          <ArrowRight size={14} />
+        </button>
+      </div>
+
+      {/* Statutory Maintenance Breakdown */}
+      <div className="card app-card" style={{ padding: 18, display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div className="section-title">Annual Statutory Breakdown</div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {[
-            { icon: <Calendar size={16} />, color: 'var(--color-info)', bg: 'var(--color-info-light)', title: '60 Days Prior to Expiry', desc: 'Early-bird notification & registry invoice generated', badge: 'Auto-Alert', badgeVariant: 'info' as const },
-            { icon: <Calendar size={16} />, color: 'var(--color-orange)', bg: 'var(--color-orange-light)', title: '30 Days Prior to Expiry', desc: 'Registry preparation & nominee PoA extension drafting', badge: 'Drafting', badgeVariant: 'warning' as const },
-            { icon: <CheckCircle2 size={16} />, color: 'var(--color-success)', bg: 'var(--color-success-light)', title: `Expiry Date (${entity.licenseExpiryDate})`, desc: 'Updated 1-year trade license delivered to your Cloud Locker', badge: 'Final', badgeVariant: 'success' as const },
-          ].map((item, i) => (
-            <div
-              key={i}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 14,
-                padding: '14px 16px',
-                borderBottom: i < 2 ? '1px solid var(--color-border)' : 'none',
-              }}
-            >
-              <div style={{
-                width: 34, height: 34, borderRadius: 'var(--radius-sm)',
-                background: item.bg, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: item.color, flexShrink: 0,
-              }}>
-                {item.icon}
+            { title: 'Official Government Freezone License Renewal Fee', cost: '$1,200 USD', desc: 'Direct government regulatory charge' },
+            { title: 'Registered Agent & Statutory Office Representation', cost: '$450 USD', desc: 'Mandatory statutory address & legal representative' },
+            { title: 'Nominee Director & Trustee Shareholder Maintenance', cost: '$800 USD', desc: '12 months nominee deed extension & PoA renewal' },
+            { title: 'Corporate Banking Good Standing Certificate', cost: 'Included', desc: 'Banker compliance confirmation' },
+          ].map((item, idx) => (
+            <div key={idx} className="card" style={{ padding: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--navy)' }}>{item.title}</div>
+                <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>{item.desc}</div>
               </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-text)' }}>{item.title}</div>
-                <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)', marginTop: 2 }}>{item.desc}</div>
-              </div>
-              <Badge variant={item.badgeVariant} size="sm">{item.badge}</Badge>
+              <strong style={{ fontSize: 13, color: 'var(--orange)' }}>{item.cost}</strong>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Specialist Card */}
-      <div className="card card-padded animate-slide-up" style={{ animationDelay: '120ms', display: 'flex', alignItems: 'center', gap: 14, borderLeft: '4px solid var(--color-info)' }}>
-        <ShieldCheck size={20} style={{ color: 'var(--color-info)', flexShrink: 0 }} />
-        <div>
-          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-text)' }}>Dedicated Continuity Manager</div>
-          <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginTop: 2 }}>
-            {entity.assignedSpecialist} — WhatsApp: {entity.specialistPhone}
-          </div>
-        </div>
-      </div>
-
-      {/* Payment Modal */}
+      {/* Renewal Modal */}
       <Modal
-        isOpen={payModalOpen}
-        onClose={() => { setPayModalOpen(false); setPaidSuccess(false); }}
-        title={paidSuccess ? 'Renewal Confirmed' : 'Annual License & Nominee Renewal'}
+        isOpen={isRenewModalOpen}
+        onClose={() => setIsRenewModalOpen(false)}
+        title="Annual License Renewal Settlement"
+        badge="INSTANT EXTENSION"
+        badgeVariant="orange"
       >
-        {!paidSuccess ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <div className="card card-flat" style={{ padding: 18 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, marginBottom: 8 }}>
-                <span style={{ color: 'var(--color-text-secondary)' }}>{entity.name} (1-Year Renewal)</span>
-                <strong style={{ color: 'var(--color-text)' }}>${renewalFee.toLocaleString()} USD</strong>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--color-text-muted)', marginBottom: 12 }}>
-                <span>Government License + Registered Agent + Nominee</span>
-                <span>Fixed Rate</span>
-              </div>
-              <div style={{ height: 1, background: 'var(--color-border)', marginBottom: 12 }} />
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-text)' }}>Total</span>
-                <span className="font-heading" style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-orange)' }}>
-                  ${renewalFee.toLocaleString()} USD
-                </span>
-              </div>
-            </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.4 }}>
+            Extend the commercial trade license for <strong>{activeEntity.name}</strong> for another 12 months with immediate government priority filing.
+          </p>
 
-            <div className="card card-flat" style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', borderRadius: 'var(--radius-pill)' }}>
-              <CreditCard size={18} style={{ color: 'var(--color-orange)' }} />
-              <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-text)' }}>Saved Visa •••• 4242</span>
+          <div className="card card-sand" style={{ padding: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>Total Annual Renewal Cost:</div>
+              <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--orange)' }}>$2,450 USD</div>
             </div>
+            <span className="badge badge-success">ALL FEES INCLUDED</span>
+          </div>
 
-            <Button variant="primary" fullWidth size="lg" isLoading={processing} onClick={handlePay}>
-              Authorize & Pay ${renewalFee.toLocaleString()}
-            </Button>
-          </div>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14, padding: '12px 0' }}>
-            <div style={{
-              width: 64, height: 64, borderRadius: '50%',
-              background: 'var(--color-success-light)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <CheckCircle2 size={32} style={{ color: 'var(--color-success)' }} />
-            </div>
-            <h3 className="font-heading" style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-text)', textAlign: 'center' }}>
-              Renewal Successfully Extended!
-            </h3>
-            <p style={{ fontSize: 13, color: 'var(--color-text-secondary)', textAlign: 'center', lineHeight: 1.5 }}>
-              Your license renewal for <strong>{entity.name}</strong> is confirmed. 365 days have been added.
-            </p>
-            <Button variant="navy" fullWidth onClick={() => setPayModalOpen(false)}>
-              Back to Renewals
-            </Button>
-          </div>
-        )}
+          <button
+            onClick={handlePayRenewal}
+            disabled={isProcessing || isPaidSuccess}
+            className="btn btn-primary btn-lg"
+            style={{ width: '100%' }}
+          >
+            <CreditCard size={18} />
+            <span>{isPaidSuccess ? 'Renewal Confirmed!' : isProcessing ? 'Processing...' : 'Authorize $2,450 USD & Extend'}</span>
+          </button>
+        </div>
       </Modal>
     </div>
   );

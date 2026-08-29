@@ -8,13 +8,15 @@ interface ModalProps {
   onClose: () => void;
   title?: string;
   showHandle?: boolean;
+  badge?: string;
+  badgeVariant?: string;
   children: React.ReactNode;
 }
 
 const FOCUSABLE =
   'a[href], button:not([disabled]), textarea, input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-export default function Modal({ isOpen, onClose, title, showHandle = true, children }: ModalProps) {
+export default function Modal({ isOpen, onClose, title, showHandle = true, badge, badgeVariant, children }: ModalProps) {
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -71,9 +73,19 @@ export default function Modal({ isOpen, onClose, title, showHandle = true, child
         {showHandle && <div className="modal-handle" aria-hidden="true" />}
         {title && (
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <h2 id="modal-title" style={{ fontFamily: 'var(--font-heading)', fontSize: '1.15rem', fontWeight: 700, color: 'var(--color-text)', margin: 0 }}>
-              {title}
-            </h2>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <h2 id="modal-title" style={{ fontFamily: 'var(--font-heading)', fontSize: '1.15rem', fontWeight: 700, color: 'var(--color-text)', margin: 0 }}>
+                {title}
+              </h2>
+              {badge && (
+                <span
+                  className={`badge ${badgeVariant === 'orange' ? 'badge-orange' : 'badge-green'}`}
+                  style={{ fontSize: '0.65rem' }}
+                >
+                  {badge}
+                </span>
+              )}
+            </div>
             <button
               onClick={onClose}
               aria-label="Close dialog"

@@ -14,95 +14,91 @@ import {
   Sparkles,
   Check,
   ShoppingCart,
+  Lock,
+  Zap,
 } from 'lucide-react';
+import CountryFlag from '@/components/ui/CountryFlag';
+import StickyFooter from '@/components/ui/StickyFooter';
 
 /* ──────────────────────────────────────────────
-   DATA
+   DATA (De-slopified with zero emojis)
    ────────────────────────────────────────────── */
 
 const ACTIVITIES = [
-  { id: 'ecommerce', label: 'E-Commerce', icon: Globe, desc: 'Amazon, Shopify, dropshipping' },
-  { id: 'saas', label: 'SaaS & Software', icon: Sparkles, desc: 'Digital products, APIs' },
-  { id: 'consulting', label: 'Consulting', icon: Building, desc: 'Agencies, B2B services' },
-  { id: 'digital', label: 'Digital Services', icon: Coins, desc: 'Crypto, Web3, media' },
-  { id: 'physical', label: 'Physical Goods', icon: Plane, desc: 'Import, manufacturing' },
-  { id: 'other', label: 'Other', icon: Shield, desc: 'Holding, misc structures' },
+  { id: 'ecommerce', label: 'E-Commerce', icon: Globe, desc: 'Amazon, Shopify, cross-border dropshipping' },
+  { id: 'saas', label: 'SaaS & Software', icon: Sparkles, desc: 'Digital products, APIs, cloud subscriptions' },
+  { id: 'consulting', label: 'Consulting & Advisory', icon: Building, desc: 'Agencies, strategic advisory, B2B services' },
+  { id: 'digital', label: 'Digital Media & Web3', icon: Coins, desc: 'Fintech, digital assets, online media' },
+  { id: 'physical', label: 'Trading & Logistics', icon: Plane, desc: 'Import, export, global logistics' },
+  { id: 'other', label: 'Holding & Investment', icon: Shield, desc: 'IP holding, asset protection, wealth management' },
 ];
 
 const JURISDICTIONS = [
-  { id: 'hk', name: 'Hong Kong', flag: '🇭🇰', taxRate: '0% Foreign-Sourced', price: 1500 },
-  { id: 'uae', name: 'UAE Freezone', flag: '🇦🇪', taxRate: '0%–9% Corp Tax', price: 1500 },
-  { id: 'singapore', name: 'Singapore', flag: '🇸🇬', taxRate: '8.5% Startup Rate', price: 1800 },
-  { id: 'bahrain', name: 'Bahrain', flag: '🇧🇭', taxRate: '0% Corp Tax', price: 1600 },
-  { id: 'ireland', name: 'Ireland', flag: '🇮🇪', taxRate: '12.5% Trading', price: 1700 },
-  { id: 'oman', name: 'Oman', flag: '🇴🇲', taxRate: '15% Flat Rate', price: 1700 },
+  { id: 'uae', name: 'UAE Freezone (IFZA Dubai)', taxRate: '0%–9% Corporate Tax', price: 1500, highlight: 'Emirates ID & Residency' },
+  { id: 'hk', name: 'Hong Kong (Offshore Entity)', taxRate: '0% Foreign-Sourced', price: 1500, highlight: '100% Remote Biometric Pass' },
+  { id: 'singapore', name: 'Singapore Private Limited', taxRate: '8.5% Effective Startup Rate', price: 1800, highlight: 'Tier 1 Global Prestige' },
+  { id: 'bahrain', name: 'Bahrain W.L.L. (GCC Gateway)', taxRate: '0% Corporate Tax', price: 1600, highlight: '100% Foreign Ownership' },
+  { id: 'ireland', name: 'Ireland Non-Resident Ltd', taxRate: '12.5% Trading Rate', price: 1700, highlight: 'Access to European SEPA IBANs' },
+  { id: 'oman', name: 'Oman LLC (Sultanate of Oman)', taxRate: '0% Freezone Rate', price: 1700, highlight: 'GCC Customs & Tariffs Union' },
 ];
 
 const TIERS = [
   {
     id: 'tier1',
-    title: 'Self UBO & Director',
+    title: 'Tier 1: Self UBO & Director',
     price: 2000,
-    breakdown: '$1,500 Formation + $500 Bank',
-    desc: 'You are listed directly on the government registry as Director and Shareholder.',
+    breakdown: '$1,500 Formation + $500 Bank Assistance',
+    desc: 'You are registered directly on the official government registry as Director and Shareholder.',
     features: [
       '100% Beneficial Ownership registered directly',
-      'Certificate of Incorporation & E-MoA',
-      'Bank Account Setup Assistance',
-      '1 Year Registered Agent & Address',
+      'Certificate of Incorporation & Official E-MoA',
+      'Corporate Banking Setup Assistance',
+      '1 Year Registered Agent & Statutory Office',
     ],
   },
   {
     id: 'tier2',
-    title: 'Nominee UBO & Director',
+    title: 'Tier 2: Nominee UBO & Director',
     badge: 'MOST POPULAR',
     price: 3000,
     breakdown: '$1,500 Formation + $500 Bank + $1,000 Nominee',
-    desc: 'Your identity is shielded behind a licensed Nominee Director & Trustee Shareholder.',
+    desc: 'Your identity is fully shielded behind a licensed Nominee Director & Trustee Shareholder.',
     features: [
       'Full Nominee Director & Shareholder Service',
       'Irrevocable Power of Attorney (PoA)',
-      'Beneficial Ownership Declaration & Trust Agreement',
+      'Beneficial Ownership Declaration & Trust Deed',
       'Bank Account Signatory Assistance',
-      '100% Public Registry Anonymity',
+      '100% Public Registry Privacy',
     ],
   },
   {
     id: 'tier3',
-    title: 'Shelf Company (Aged)',
+    title: 'Tier 3: Shelf Company (Aged)',
     badge: 'INSTANT 24H',
     price: 2500,
     breakdown: '$2,000 Aged Entity + $500 Bank Handover',
-    desc: 'Acquire a pre-registered vintage entity with existing history and active bank accounts.',
+    desc: 'Acquire a pre-registered vintage entity with existing corporate track record.',
     features: [
-      'Pre-registered aged company (1–3 years old)',
+      'Pre-registered aged company (1–3 years vintage)',
       'Immediate 24–48 hour ownership transfer',
-      'Pre-vetted banking rails ready',
-      'Instant credibility with global clients',
+      'Pre-vetted corporate banking rails ready',
+      'Instant institutional credibility',
     ],
   },
 ];
 
 const ADDONS = [
-  { id: 'bank_extra', title: 'Secondary Bank (Airwallex + Wise)', price: 500, desc: 'Dual redundancy multi-currency payment channels.' },
-  { id: 'uae_visa', title: 'UAE Investor Residency Visa', price: 1500, desc: '2-Year UAE Residence Visa, VIP medical, Emirates ID.' },
-  { id: 'tax_trn', title: 'UAE Tax & VAT TRN Registration', price: 350, desc: 'Federal Tax Authority registration & TRN certificate.' },
-  { id: 'express', title: '24-Hour Express Filing', price: 300, desc: 'Priority queue with official registry reviewers.' },
+  { id: 'bank_extra', title: 'Secondary Multi-Currency Bank (Airwallex + Wise)', price: 500, desc: 'Dual redundancy payment channels.' },
+  { id: 'uae_visa', title: 'UAE Investor Residency Visa & Emirates ID', price: 1500, desc: '2-Year UAE Residence Visa, VIP medical, Emirates ID.' },
+  { id: 'tax_trn', title: 'UAE Federal Tax & VAT TRN Registration', price: 350, desc: 'Official FTA registration & TRN certificate.' },
+  { id: 'express', title: '24-Hour Express Registry Filing', price: 300, desc: 'Priority queue with official registry reviewers.' },
 ];
 
 const STEP_LABELS = ['Activity', 'Jurisdiction', 'Tier', 'Add-Ons', 'Summary'];
 
-/* ──────────────────────────────────────────────
-   TYPES
-   ────────────────────────────────────────────── */
-
 type ActivityId = string;
 type JurisdictionId = string;
 type TierId = 'tier1' | 'tier2' | 'tier3';
-
-/* ──────────────────────────────────────────────
-   COMPONENT
-   ────────────────────────────────────────────── */
 
 export default function OnboardingWizard() {
   const router = useRouter();
@@ -110,12 +106,11 @@ export default function OnboardingWizard() {
 
   const [step, setStep] = useState(1);
   const [activity, setActivity] = useState<ActivityId>('ecommerce');
-  const [jurisdiction, setJurisdiction] = useState<JurisdictionId>('hk');
+  const [jurisdiction, setJurisdiction] = useState<JurisdictionId>('uae');
   const [tier, setTier] = useState<TierId>('tier2');
   const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
   const [companyName, setCompanyName] = useState('');
 
-  /* Hydrate from URL params */
   useEffect(() => {
     const c = searchParams.get('country');
     const t = searchParams.get('tier');
@@ -125,9 +120,8 @@ export default function OnboardingWizard() {
     if (n) setCompanyName(decodeURIComponent(n));
   }, [searchParams]);
 
-  /* Computed */
-  const selectedJurisdiction = JURISDICTIONS.find((j) => j.id === jurisdiction)!;
-  const selectedTier = TIERS.find((t) => t.id === tier)!;
+  const selectedJurisdiction = JURISDICTIONS.find((j) => j.id === jurisdiction) || JURISDICTIONS[0];
+  const selectedTier = TIERS.find((t) => t.id === tier) || TIERS[1];
   const addonsTotal = selectedAddons.reduce((s, id) => {
     const a = ADDONS.find((ad) => ad.id === id);
     return s + (a?.price ?? 0);
@@ -145,963 +139,300 @@ export default function OnboardingWizard() {
       tier,
       total: grandTotal.toString(),
       addons: selectedAddons.join(','),
-      name: companyName || `${selectedJurisdiction.name} Enterprise Ltd`,
+      name: companyName || `${selectedJurisdiction.name.split(' ')[0]} Enterprise Ltd`,
     });
     router.push(`/checkout?${params.toString()}`);
   };
 
-  const canAdvance = () => {
-    if (step === 1) return !!activity;
-    if (step === 2) return !!jurisdiction;
-    if (step === 3) return !!tier;
-    return true;
-  };
-
-  const next = () => { if (step < 5 && canAdvance()) setStep(step + 1); };
+  const next = () => { if (step < 5) setStep(step + 1); };
   const prev = () => { if (step > 1) setStep(step - 1); };
 
-  /* ────────────────────── RENDER ────────────────────── */
-
   return (
-    <div style={styles.root}>
-      {/* ── Progress Indicator ── */}
-      <div style={styles.progressOuter}>
-        <div style={styles.progressTrack}>
-          {STEP_LABELS.map((label, i) => {
-            const num = i + 1;
-            const isDone = step > num;
-            const isCurrent = step === num;
-            return (
-              <React.Fragment key={num}>
-                {/* Connector line before */}
-                {i > 0 && (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20, paddingBottom: 80 }}>
+      {/* Progress Steps Header */}
+      <div className="card app-card" style={{ padding: 14 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+          <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--text-muted)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+            STEP {step} OF 5: {STEP_LABELS[step - 1].toUpperCase()}
+          </span>
+          <span className="badge badge-orange">{Math.round((step / 5) * 100)}% COMPLETE</span>
+        </div>
+
+        <div className="progress-track">
+          <div className="progress-fill" style={{ width: `${(step / 5) * 100}%` }} />
+        </div>
+      </div>
+
+      {/* Screen 1: Activity */}
+      {step === 1 && (
+        <div className="animate-slide-up" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div>
+            <h2 className="section-title" style={{ fontSize: '1.25rem', marginBottom: 2 }}>
+              Select Primary Business Activity
+            </h2>
+            <p style={{ fontSize: 13, color: 'var(--text-tertiary)' }}>
+              Determines qualifying corporate tax classification (QFZP) and banking license categories.
+            </p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            {ACTIVITIES.map((act) => {
+              const Icon = act.icon;
+              const isSel = activity === act.id;
+              return (
+                <div
+                  key={act.id}
+                  onClick={() => setActivity(act.id)}
+                  className={`card card-hover ${isSel ? 'card-sand' : ''}`}
+                  style={{
+                    cursor: 'pointer',
+                    border: isSel ? '1.5px solid var(--orange)' : undefined,
+                    padding: 14,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 8,
+                  }}
+                >
                   <div
                     style={{
-                      ...styles.connector,
-                      background: isDone || isCurrent ? 'var(--color-orange)' : 'var(--color-border)',
+                      width: 36,
+                      height: 36,
+                      borderRadius: 10,
+                      background: isSel ? 'var(--orange)' : 'var(--surface-alt)',
+                      color: isSel ? 'white' : 'var(--navy)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
                     }}
-                  />
-                )}
-                <button
-                  type="button"
-                  onClick={() => num <= step && setStep(num)}
-                  style={{
-                    ...styles.stepDot,
-                    background: isDone
-                      ? 'var(--color-orange)'
-                      : isCurrent
-                        ? 'var(--color-orange)'
-                        : 'var(--color-surface)',
-                    borderColor: isDone || isCurrent ? 'var(--color-orange)' : 'var(--color-border)',
-                    color: isDone || isCurrent ? '#FFF' : 'var(--color-text-muted)',
-                    cursor: num <= step ? 'pointer' : 'default',
-                  }}
-                >
-                  {isDone ? <Check size={14} strokeWidth={3} /> : num}
-                </button>
-                {/* Label */}
-                <span
-                  style={{
-                    ...styles.stepLabel,
-                    color: isCurrent ? 'var(--color-text)' : isDone ? 'var(--color-orange)' : 'var(--color-text-muted)',
-                    fontWeight: isCurrent ? 700 : 500,
-                  }}
-                >
-                  {label}
-                </span>
-              </React.Fragment>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* ── Step Content ── */}
-      <div style={styles.contentArea}>
-        <div style={styles.stepWrapper} key={step}>
-          {step === 1 && (
-            <StepActivity activity={activity} setActivity={setActivity} />
-          )}
-          {step === 2 && (
-            <StepJurisdiction jurisdiction={jurisdiction} setJurisdiction={setJurisdiction} />
-          )}
-          {step === 3 && (
-            <StepTier tier={tier} setTier={setTier} />
-          )}
-          {step === 4 && (
-            <StepAddons selectedAddons={selectedAddons} toggleAddon={toggleAddon} />
-          )}
-          {step === 5 && (
-            <StepSummary
-              companyName={companyName}
-              setCompanyName={setCompanyName}
-              jurisdiction={selectedJurisdiction}
-              tier={selectedTier}
-              selectedAddons={selectedAddons}
-              addonsTotal={addonsTotal}
-              grandTotal={grandTotal}
-              goToCheckout={goToCheckout}
-            />
-          )}
-        </div>
-      </div>
-
-      {/* ── Navigation ── */}
-      <div style={styles.navBar}>
-        <div style={styles.navInner}>
-          {step > 1 ? (
-            <button type="button" onClick={prev} style={styles.btnSecondary}>
-              <ArrowLeft size={16} />
-              Back
-            </button>
-          ) : (
-            <div />
-          )}
-
-          {step < 5 ? (
-            <button
-              type="button"
-              onClick={next}
-              disabled={!canAdvance()}
-              style={{
-                ...styles.btnPrimary,
-                opacity: canAdvance() ? 1 : 0.5,
-                pointerEvents: canAdvance() ? 'auto' : 'none',
-              }}
-            >
-              Continue
-              <ArrowRight size={16} />
-            </button>
-          ) : (
-            <button type="button" onClick={goToCheckout} style={styles.btnPrimary}>
-              <ShoppingCart size={16} />
-              Proceed to Checkout — ${grandTotal.toLocaleString()}
-            </button>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ═══════════════════════════════════════════════
-   STEP COMPONENTS
-   ═══════════════════════════════════════════════ */
-
-function StepHeader({ num, title, subtitle }: { num: number; title: string; subtitle: string }) {
-  return (
-    <div style={{ marginBottom: 24 }}>
-      <span style={styles.stepBadge}>STEP {num} OF 5</span>
-      <h2 style={styles.stepTitle}>{title}</h2>
-      <p style={styles.stepSubtitle}>{subtitle}</p>
-    </div>
-  );
-}
-
-/* ── Step 1: Activity ── */
-function StepActivity({
-  activity,
-  setActivity,
-}: {
-  activity: string;
-  setActivity: (id: string) => void;
-}) {
-  return (
-    <>
-      <StepHeader
-        num={1}
-        title="What's your business type?"
-        subtitle="We tailor your corporate structuring and banking strategy to your specific industry."
-      />
-      <div style={styles.activityGrid}>
-        {ACTIVITIES.map((item) => {
-          const Icon = item.icon;
-          const active = activity === item.id;
-          return (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => setActivity(item.id)}
-              style={{
-                ...styles.activityCard,
-                borderColor: active ? 'var(--color-orange)' : 'var(--color-border)',
-                background: active ? 'var(--color-orange-light)' : 'var(--color-card)',
-                boxShadow: active ? '0 0 0 2px var(--color-orange)' : 'var(--shadow-card)',
-              }}
-            >
-              <div
-                style={{
-                  ...styles.activityIcon,
-                  background: active ? 'var(--color-orange)' : 'var(--color-surface-alt)',
-                  color: active ? '#FFF' : 'var(--color-orange)',
-                }}
-              >
-                <Icon size={20} />
-              </div>
-              <span
-                style={{
-                  ...styles.activityLabel,
-                  color: active ? 'var(--color-text)' : 'var(--color-text-secondary)',
-                  fontWeight: active ? 700 : 600,
-                }}
-              >
-                {item.label}
-              </span>
-              <span style={styles.activityDesc}>{item.desc}</span>
-            </button>
-          );
-        })}
-      </div>
-    </>
-  );
-}
-
-/* ── Step 2: Jurisdiction ── */
-function StepJurisdiction({
-  jurisdiction,
-  setJurisdiction,
-}: {
-  jurisdiction: string;
-  setJurisdiction: (id: string) => void;
-}) {
-  return (
-    <>
-      <StepHeader
-        num={2}
-        title="Where do you want to incorporate?"
-        subtitle="Select the optimal country for tax optimization and banking access."
-      />
-      <div style={styles.hScroll}>
-        {JURISDICTIONS.map((j) => {
-          const active = jurisdiction === j.id;
-          return (
-            <button
-              key={j.id}
-              type="button"
-              onClick={() => setJurisdiction(j.id)}
-              style={{
-                ...styles.jurCard,
-                borderColor: active ? 'var(--color-orange)' : 'var(--color-border)',
-                background: active ? 'var(--color-orange-light)' : 'var(--color-card)',
-                boxShadow: active ? '0 0 0 2px var(--color-orange)' : 'var(--shadow-card)',
-              }}
-            >
-              <div style={styles.jurTop}>
-                <span style={styles.jurFlag}>{j.flag}</span>
-                {active && (
-                  <span style={styles.jurCheck}>
-                    <CheckCircle2 size={18} />
-                  </span>
-                )}
-              </div>
-              <span style={styles.jurName}>{j.name}</span>
-              <span style={styles.jurTax}>{j.taxRate}</span>
-              <div style={styles.jurFooter}>
-                <span style={styles.jurPrice}>From ${j.price.toLocaleString()}</span>
-              </div>
-            </button>
-          );
-        })}
-      </div>
-    </>
-  );
-}
-
-/* ── Step 3: Tier ── */
-function StepTier({
-  tier,
-  setTier,
-}: {
-  tier: TierId;
-  setTier: (id: TierId) => void;
-}) {
-  return (
-    <>
-      <StepHeader
-        num={3}
-        title="Choose your privacy tier"
-        subtitle="All tiers include official government filing, company documents, and banking assistance."
-      />
-      <div style={styles.tiersGrid}>
-        {TIERS.map((t) => {
-          const active = tier === t.id;
-          return (
-            <button
-              key={t.id}
-              type="button"
-              onClick={() => setTier(t.id as TierId)}
-              style={{
-                ...styles.tierCard,
-                borderColor: active ? 'var(--color-orange)' : 'var(--color-border)',
-                background: active ? 'var(--color-orange-light)' : 'var(--color-card)',
-                boxShadow: active ? '0 0 0 2px var(--color-orange)' : 'var(--shadow-card)',
-              }}
-            >
-              {t.badge && <span style={styles.tierBadge}>{t.badge}</span>}
-              <span style={styles.tierTitle}>{t.title}</span>
-              <div style={styles.tierPriceRow}>
-                <span style={styles.tierPrice}>${t.price.toLocaleString()}</span>
-                <span style={styles.tierTotal}>total</span>
-              </div>
-              <span style={styles.tierBreakdown}>{t.breakdown}</span>
-              <span style={styles.tierDesc}>{t.desc}</span>
-              <div style={styles.tierFeatures}>
-                {t.features.map((f, i) => (
-                  <div key={i} style={styles.tierFeat}>
-                    <CheckCircle2 size={14} style={{ color: 'var(--color-orange)', flexShrink: 0, marginTop: 1 }} />
-                    <span>{f}</span>
+                  >
+                    <Icon size={18} />
                   </div>
-                ))}
-              </div>
-            </button>
-          );
-        })}
-      </div>
-    </>
-  );
-}
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--navy)' }}>{act.label}</div>
+                    <div style={{ fontSize: 11, color: 'var(--text-tertiary)', marginTop: 2 }}>{act.desc}</div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
-/* ── Step 4: Add-ons ── */
-function StepAddons({
-  selectedAddons,
-  toggleAddon,
-}: {
-  selectedAddons: string[];
-  toggleAddon: (id: string) => void;
-}) {
-  return (
-    <>
-      <StepHeader
-        num={4}
-        title="Enhance your package"
-        subtitle="Optional add-ons to strengthen your corporate structure."
-      />
-      <div style={styles.addonsList}>
-        {ADDONS.map((a) => {
-          const active = selectedAddons.includes(a.id);
-          return (
-            <button
-              key={a.id}
-              type="button"
-              onClick={() => toggleAddon(a.id)}
-              style={{
-                ...styles.addonCard,
-                borderColor: active ? 'var(--color-orange)' : 'var(--color-border)',
-                background: active ? 'var(--color-orange-light)' : 'var(--color-card)',
-              }}
-            >
-              <div style={styles.addonLeft}>
+      {/* Screen 2: Jurisdiction */}
+      {step === 2 && (
+        <div className="animate-slide-up" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div>
+            <h2 className="section-title" style={{ fontSize: '1.25rem', marginBottom: 2 }}>
+              Choose Formation Jurisdiction
+            </h2>
+            <p style={{ fontSize: 13, color: 'var(--text-tertiary)' }}>
+              All jurisdictions include guaranteed remote banking and statutory registered office.
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {JURISDICTIONS.map((j) => {
+              const isSel = jurisdiction === j.id;
+              return (
                 <div
+                  key={j.id}
+                  onClick={() => setJurisdiction(j.id)}
+                  className={`card card-hover ${isSel ? 'card-sand' : ''}`}
                   style={{
-                    ...styles.checkbox,
-                    borderColor: active ? 'var(--color-orange)' : 'var(--color-border)',
-                    background: active ? 'var(--color-orange)' : 'var(--color-surface)',
+                    cursor: 'pointer',
+                    border: isSel ? '1.5px solid var(--orange)' : undefined,
+                    padding: 14,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
                   }}
                 >
-                  {active && <Check size={12} color="#FFF" strokeWidth={3} />}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <CountryFlag country={j.id} size="md" />
+                    <div>
+                      <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--navy)' }}>{j.name}</div>
+                      <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>{j.taxRate} • {j.highlight}</div>
+                    </div>
+                  </div>
+
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--orange)' }}>${j.price}</div>
+                    <span className="badge badge-sand" style={{ fontSize: 9 }}>BASE</span>
+                  </div>
                 </div>
-                <div>
-                  <span style={styles.addonTitle}>{a.title}</span>
-                  <span style={styles.addonDesc}>{a.desc}</span>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Screen 3: Structuring Tier */}
+      {step === 3 && (
+        <div className="animate-slide-up" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div>
+            <h2 className="section-title" style={{ fontSize: '1.25rem', marginBottom: 2 }}>
+              Select Legal & Privacy Tier
+            </h2>
+            <p style={{ fontSize: 13, color: 'var(--text-tertiary)' }}>
+              Protect public registry disclosure and speed up corporate banking rails.
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {TIERS.map((t) => {
+              const isSel = tier === t.id;
+              return (
+                <div
+                  key={t.id}
+                  onClick={() => setTier(t.id as TierId)}
+                  className={`card card-hover ${isSel ? 'card-sand' : ''}`}
+                  style={{
+                    cursor: 'pointer',
+                    border: isSel ? '1.5px solid var(--orange)' : undefined,
+                    padding: 16,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 10,
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{ fontSize: 14, fontWeight: 800, color: 'var(--navy)' }}>{t.title}</span>
+                        {t.badge && <span className="badge badge-orange">{t.badge}</span>}
+                      </div>
+                      <div style={{ fontSize: 11, color: 'var(--text-tertiary)', marginTop: 2 }}>{t.breakdown}</div>
+                    </div>
+                    <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--orange)' }}>${t.price}</div>
+                  </div>
+
+                  <p style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.4 }}>{t.desc}</p>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    {t.features.map((f, idx) => (
+                      <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: 'var(--text-secondary)' }}>
+                        <CheckCircle2 size={13} color="var(--orange)" />
+                        <span>{f}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Screen 4: Add-Ons */}
+      {step === 4 && (
+        <div className="animate-slide-up" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div>
+            <h2 className="section-title" style={{ fontSize: '1.25rem', marginBottom: 2 }}>
+              Optional Corporate Add-Ons
+            </h2>
+            <p style={{ fontSize: 13, color: 'var(--text-tertiary)' }}>
+              Accelerate your operations with investor visas and tax TRN registrations.
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {ADDONS.map((add) => {
+              const isSel = selectedAddons.includes(add.id);
+              return (
+                <div
+                  key={add.id}
+                  onClick={() => toggleAddon(add.id)}
+                  className={`card card-hover ${isSel ? 'card-sand' : ''}`}
+                  style={{
+                    cursor: 'pointer',
+                    border: isSel ? '1.5px solid var(--orange)' : undefined,
+                    padding: 14,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1 }}>
+                    <input
+                      type="checkbox"
+                      checked={isSel}
+                      onChange={() => {}}
+                      style={{ width: 18, height: 18, accentColor: 'var(--orange)', cursor: 'pointer' }}
+                    />
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--navy)' }}>{add.title}</div>
+                      <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>{add.desc}</div>
+                    </div>
+                  </div>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--orange)', marginLeft: 8 }}>+${add.price}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Screen 5: Summary */}
+      {step === 5 && (
+        <div className="animate-slide-up" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div>
+            <h2 className="section-title" style={{ fontSize: '1.25rem', marginBottom: 2 }}>
+              Order Review & Summary
+            </h2>
+            <p style={{ fontSize: 13, color: 'var(--text-tertiary)' }}>
+              Confirm your entity package before initiating automated registry filing.
+            </p>
+          </div>
+
+          <div className="card app-card" style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div>
+              <label className="input-label">Target Company Name (or leave blank to assign later):</label>
+              <input
+                type="text"
+                placeholder="e.g. Horizon Global Holdings FZE"
+                value={companyName}
+                onChange={(e) => setCompanyName(e.target.value)}
+                className="input-field"
+              />
+            </div>
+
+            <div style={{ borderTop: '1px solid var(--border)', paddingTop: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
+                <span style={{ color: 'var(--text-tertiary)' }}>Jurisdiction:</span>
+                <strong style={{ color: 'var(--navy)' }}>{selectedJurisdiction.name}</strong>
               </div>
-              <span style={styles.addonPrice}>+${a.price}</span>
-            </button>
-          );
-        })}
-      </div>
-    </>
-  );
-}
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
+                <span style={{ color: 'var(--text-tertiary)' }}>Legal Tier:</span>
+                <strong style={{ color: 'var(--navy)' }}>{selectedTier.title}</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
+                <span style={{ color: 'var(--text-tertiary)' }}>Selected Add-Ons:</span>
+                <strong style={{ color: 'var(--navy)' }}>{selectedAddons.length} Applied (+${addonsTotal})</strong>
+              </div>
 
-/* ── Step 5: Summary ── */
-function StepSummary({
-  companyName,
-  setCompanyName,
-  jurisdiction,
-  tier,
-  selectedAddons: addonIds,
-  addonsTotal,
-  grandTotal,
-  goToCheckout,
-}: {
-  companyName: string;
-  setCompanyName: (v: string) => void;
-  jurisdiction: (typeof JURISDICTIONS)[number];
-  tier: (typeof TIERS)[number];
-  selectedAddons: string[];
-  addonsTotal: number;
-  grandTotal: number;
-  goToCheckout: () => void;
-}) {
-  const activeAddons = ADDONS.filter((a) => addonIds.includes(a.id));
+              <div style={{ height: 1, background: 'var(--border)', margin: '4px 0' }} />
 
-  return (
-    <>
-      <StepHeader
-        num={5}
-        title="Review & checkout"
-        subtitle="Review your customized incorporation package below."
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: 14, fontWeight: 800, color: 'var(--navy)' }}>Total Package Cost:</span>
+                <span style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--orange)' }}>
+                  ${grandTotal.toLocaleString()} USD
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Sticky Bottom Action Bar */}
+      <StickyFooter
+        secondaryLabel={step > 1 ? 'Back' : undefined}
+        secondaryAction={step > 1 ? prev : undefined}
+        priceLabel="PACKAGE TOTAL"
+        priceValue={`$${grandTotal.toLocaleString()} USD`}
+        priceSub="100% Money-Back Guarantee"
+        primaryLabel={step === 5 ? 'Proceed to Checkout' : 'Next Step'}
+        primaryAction={step === 5 ? goToCheckout : next}
       />
-
-      {/* Company Name */}
-      <div style={{ marginBottom: 20 }}>
-        <label style={styles.inputLabel}>Proposed Company Name</label>
-        <input
-          type="text"
-          placeholder="e.g. Apex Global Horizon Ltd"
-          value={companyName}
-          onChange={(e) => setCompanyName(e.target.value)}
-          style={styles.inputField}
-        />
-        <span style={styles.inputHelper}>Can be updated later</span>
-      </div>
-
-      {/* Summary Card */}
-      <div style={styles.summaryCard}>
-        {/* Jurisdiction */}
-        <div style={styles.summaryRow}>
-          <div>
-            <span style={styles.summaryLabel}>Jurisdiction</span>
-            <span style={styles.summaryValue}>{jurisdiction.flag} {jurisdiction.name}</span>
-          </div>
-        </div>
-
-        {/* Tier */}
-        <div style={styles.summaryRow}>
-          <div>
-            <span style={styles.summaryLabel}>Privacy Tier</span>
-            <span style={styles.summaryValue}>{tier.title}</span>
-          </div>
-          <span style={styles.summaryPrice}>${tier.price.toLocaleString()}</span>
-        </div>
-
-        {/* Add-ons */}
-        {activeAddons.map((a) => (
-          <div key={a.id} style={styles.summaryRow}>
-            <span style={styles.summaryAddon}>{a.title}</span>
-            <span style={styles.summaryPriceSmall}>+${a.price}</span>
-          </div>
-        ))}
-
-        {/* Divider */}
-        <div style={styles.summaryDivider} />
-
-        {/* Total */}
-        <div style={styles.summaryRow}>
-          <div>
-            <span style={styles.summaryTotalLabel}>Total</span>
-            <span style={styles.summaryTotalSub}>Government fees, banking onboarding & 1st year agent</span>
-          </div>
-          <span style={styles.summaryTotalPrice}>${grandTotal.toLocaleString()}</span>
-        </div>
-      </div>
-
-      {/* Guarantee */}
-      <div style={styles.guarantee}>
-        <Shield size={16} style={{ color: 'var(--color-info)', flexShrink: 0 }} />
-        <span style={styles.guaranteeText}>
-          <strong>Banking Guarantee:</strong> Full refund on banking fees if your corporate account is not approved.
-        </span>
-      </div>
-    </>
+    </div>
   );
 }
-
-/* ═══════════════════════════════════════════════
-   STYLES
-   ═══════════════════════════════════════════════ */
-
-const styles: Record<string, React.CSSProperties> = {
-  /* Root */
-  root: {
-    display: 'flex',
-    flexDirection: 'column',
-    height: '100dvh',
-    background: 'var(--color-surface)',
-    overflow: 'hidden',
-  },
-
-  /* Progress */
-  progressOuter: {
-    padding: '20px 20px 0',
-    flexShrink: 0,
-  },
-  progressTrack: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 0,
-    maxWidth: 560,
-    margin: '0 auto',
-  },
-  connector: {
-    flex: 1,
-    height: 2,
-    minWidth: 16,
-    borderRadius: 1,
-    transition: 'background 0.3s ease',
-  },
-  stepDot: {
-    width: 30,
-    height: 30,
-    borderRadius: '50%',
-    border: '2px solid',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: 12,
-    fontWeight: 700,
-    fontFamily: 'var(--font-sans)',
-    transition: 'all 0.25s ease',
-    flexShrink: 0,
-    padding: 0,
-    lineHeight: 1,
-  },
-  stepLabel: {
-    fontSize: 11,
-    fontFamily: 'var(--font-sans)',
-    transition: 'color 0.2s ease',
-    whiteSpace: 'nowrap' as const,
-    display: 'none',
-  },
-
-  /* Content */
-  contentArea: {
-    flex: 1,
-    overflowY: 'auto',
-    overflowX: 'hidden',
-    padding: '24px 20px 20px',
-  },
-  stepWrapper: {
-    maxWidth: 720,
-    margin: '0 auto',
-    animation: 'slideUp 0.25s ease-out',
-  },
-
-  /* Nav */
-  navBar: {
-    flexShrink: 0,
-    padding: '16px 20px',
-    paddingBottom: 'max(16px, env(safe-area-inset-bottom, 0px))',
-    borderTop: '1px solid var(--color-border)',
-    background: 'var(--color-surface)',
-  },
-  navInner: {
-    maxWidth: 720,
-    margin: '0 auto',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 12,
-  },
-
-  /* Buttons */
-  btnPrimary: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    padding: '14px 28px',
-    borderRadius: 9999,
-    fontSize: 14,
-    fontWeight: 700,
-    fontFamily: 'var(--font-sans)',
-    border: 'none',
-    cursor: 'pointer',
-    background: 'var(--color-orange)',
-    color: '#FFF',
-    boxShadow: 'var(--shadow-orange)',
-    transition: 'all 0.18s ease',
-    lineHeight: 1.2,
-    whiteSpace: 'nowrap' as const,
-  },
-  btnSecondary: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    padding: '12px 20px',
-    borderRadius: 9999,
-    fontSize: 14,
-    fontWeight: 600,
-    fontFamily: 'var(--font-sans)',
-    border: '1.5px solid var(--color-border)',
-    cursor: 'pointer',
-    background: 'var(--color-surface)',
-    color: 'var(--color-text)',
-    transition: 'all 0.18s ease',
-    lineHeight: 1.2,
-  },
-
-  /* Step badge */
-  stepBadge: {
-    display: 'inline-block',
-    padding: '3px 10px',
-    borderRadius: 9999,
-    fontSize: 11,
-    fontWeight: 700,
-    letterSpacing: '0.02em',
-    background: 'var(--color-navy-subtle)',
-    color: 'var(--color-navy)',
-    marginBottom: 10,
-  },
-
-  /* Step header */
-  stepTitle: {
-    fontFamily: 'var(--font-heading)',
-    fontSize: 'clamp(1.5rem, 4vw, 2rem)',
-    fontWeight: 800,
-    color: 'var(--color-text)',
-    lineHeight: 1.15,
-    marginBottom: 6,
-  },
-  stepSubtitle: {
-    fontSize: 15,
-    color: 'var(--color-text-secondary)',
-    lineHeight: 1.5,
-  },
-
-  /* ── Activity ── */
-  activityGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-    gap: 12,
-  },
-  activityCard: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: 8,
-    padding: '20px 12px',
-    borderRadius: 'var(--radius-lg)',
-    border: '1.5px solid',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    fontFamily: 'var(--font-sans)',
-    textAlign: 'center' as const,
-  },
-  activityIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 'var(--radius-md)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    transition: 'all 0.2s ease',
-  },
-  activityLabel: {
-    fontSize: 13,
-    fontFamily: 'var(--font-sans)',
-    transition: 'color 0.15s ease',
-  },
-  activityDesc: {
-    fontSize: 11,
-    color: 'var(--color-text-tertiary)',
-    lineHeight: 1.3,
-  },
-
-  /* ── Jurisdiction ── */
-  hScroll: {
-    display: 'flex',
-    gap: 12,
-    overflowX: 'auto',
-    scrollSnapType: 'x mandatory',
-    paddingBottom: 4,
-    WebkitOverflowScrolling: 'touch',
-    scrollbarWidth: 'none' as any,
-  },
-  jurCard: {
-    flex: '0 0 220px',
-    scrollSnapAlign: 'start',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 8,
-    padding: 18,
-    borderRadius: 'var(--radius-lg)',
-    border: '1.5px solid',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    fontFamily: 'var(--font-sans)',
-    textAlign: 'left' as const,
-  },
-  jurTop: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  jurFlag: { fontSize: '1.6rem' },
-  jurCheck: { color: 'var(--color-orange)' },
-  jurName: {
-    fontSize: 15,
-    fontWeight: 700,
-    color: 'var(--color-text)',
-    fontFamily: 'var(--font-heading)',
-  },
-  jurTax: {
-    fontSize: 12,
-    color: 'var(--color-text-secondary)',
-    lineHeight: 1.3,
-  },
-  jurFooter: {
-    marginTop: 'auto',
-    paddingTop: 8,
-    borderTop: '1px solid var(--color-border)',
-  },
-  jurPrice: {
-    fontSize: 13,
-    fontWeight: 700,
-    color: 'var(--color-navy)',
-  },
-
-  /* ── Tier ── */
-  tiersGrid: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 14,
-  },
-  tierCard: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 8,
-    padding: 22,
-    borderRadius: 'var(--radius-lg)',
-    border: '1.5px solid',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    fontFamily: 'var(--font-sans)',
-    textAlign: 'left' as const,
-  },
-  tierBadge: {
-    display: 'inline-block',
-    padding: '2px 8px',
-    borderRadius: 9999,
-    fontSize: 10,
-    fontWeight: 700,
-    letterSpacing: '0.03em',
-    background: 'var(--color-orange-light)',
-    color: 'var(--color-orange)',
-    alignSelf: 'flex-start',
-  },
-  tierTitle: {
-    fontSize: 16,
-    fontWeight: 700,
-    color: 'var(--color-text)',
-    fontFamily: 'var(--font-heading)',
-  },
-  tierPriceRow: {
-    display: 'flex',
-    alignItems: 'baseline',
-    gap: 6,
-  },
-  tierPrice: {
-    fontSize: '1.8rem',
-    fontWeight: 800,
-    color: 'var(--color-navy)',
-    fontFamily: 'var(--font-heading)',
-  },
-  tierTotal: {
-    fontSize: 13,
-    color: 'var(--color-text-tertiary)',
-  },
-  tierBreakdown: {
-    fontSize: 12,
-    color: 'var(--color-text-tertiary)',
-  },
-  tierDesc: {
-    fontSize: 13,
-    color: 'var(--color-text-secondary)',
-    lineHeight: 1.4,
-  },
-  tierFeatures: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 6,
-    marginTop: 6,
-    paddingTop: 10,
-    borderTop: '1px solid var(--color-border)',
-  },
-  tierFeat: {
-    display: 'flex',
-    alignItems: 'flex-start',
-    gap: 8,
-    fontSize: 12,
-    color: 'var(--color-text-secondary)',
-    lineHeight: 1.4,
-  },
-
-  /* ── Add-ons ── */
-  addonsList: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 10,
-  },
-  addonCard: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 14,
-    padding: '16px 18px',
-    borderRadius: 'var(--radius-lg)',
-    border: '1.5px solid',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    fontFamily: 'var(--font-sans)',
-    textAlign: 'left' as const,
-  },
-  addonLeft: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 14,
-    flex: 1,
-    minWidth: 0,
-  },
-  checkbox: {
-    width: 22,
-    height: 22,
-    borderRadius: 'var(--radius-xs)',
-    border: '1.5px solid',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-    transition: 'all 0.15s ease',
-  },
-  addonTitle: {
-    display: 'block',
-    fontSize: 14,
-    fontWeight: 700,
-    color: 'var(--color-text)',
-    lineHeight: 1.3,
-  },
-  addonDesc: {
-    display: 'block',
-    fontSize: 12,
-    color: 'var(--color-text-tertiary)',
-    lineHeight: 1.3,
-    marginTop: 2,
-  },
-  addonPrice: {
-    fontSize: 15,
-    fontWeight: 700,
-    color: 'var(--color-navy)',
-    flexShrink: 0,
-    fontFamily: 'var(--font-heading)',
-  },
-
-  /* ── Summary ── */
-  inputLabel: {
-    display: 'block',
-    fontSize: 13,
-    fontWeight: 600,
-    color: 'var(--color-text)',
-    marginBottom: 6,
-    fontFamily: 'var(--font-sans)',
-  },
-  inputField: {
-    width: '100%',
-    height: 48,
-    padding: '0 16px',
-    background: 'var(--color-surface)',
-    border: '1.5px solid var(--color-border)',
-    borderRadius: 'var(--radius-md)',
-    fontSize: 14,
-    fontFamily: 'var(--font-sans)',
-    color: 'var(--color-text)',
-    outline: 'none',
-    transition: 'border-color 0.15s ease, box-shadow 0.15s ease',
-  },
-  inputHelper: {
-    display: 'block',
-    fontSize: 12,
-    color: 'var(--color-text-tertiary)',
-    marginTop: 4,
-  },
-
-  summaryCard: {
-    background: 'var(--color-surface-alt)',
-    borderRadius: 'var(--radius-lg)',
-    padding: 20,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 14,
-  },
-  summaryRow: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    gap: 12,
-  },
-  summaryLabel: {
-    display: 'block',
-    fontSize: 11,
-    fontWeight: 600,
-    color: 'var(--color-text-tertiary)',
-    letterSpacing: '0.03em',
-    textTransform: 'uppercase' as const,
-    marginBottom: 2,
-  },
-  summaryValue: {
-    fontSize: 14,
-    fontWeight: 700,
-    color: 'var(--color-text)',
-  },
-  summaryPrice: {
-    fontSize: 14,
-    fontWeight: 700,
-    color: 'var(--color-navy)',
-    fontFamily: 'var(--font-heading)',
-    flexShrink: 0,
-  },
-  summaryAddon: {
-    fontSize: 13,
-    color: 'var(--color-text-secondary)',
-  },
-  summaryPriceSmall: {
-    fontSize: 13,
-    fontWeight: 600,
-    color: 'var(--color-navy)',
-    flexShrink: 0,
-  },
-  summaryDivider: {
-    height: 1,
-    background: 'var(--color-border)',
-    margin: '2px 0',
-  },
-  summaryTotalLabel: {
-    display: 'block',
-    fontSize: 15,
-    fontWeight: 800,
-    color: 'var(--color-text)',
-    fontFamily: 'var(--font-heading)',
-  },
-  summaryTotalSub: {
-    display: 'block',
-    fontSize: 12,
-    color: 'var(--color-text-tertiary)',
-    marginTop: 2,
-  },
-  summaryTotalPrice: {
-    fontSize: '1.8rem',
-    fontWeight: 800,
-    color: 'var(--color-orange)',
-    fontFamily: 'var(--font-heading)',
-    flexShrink: 0,
-    lineHeight: 1,
-  },
-
-  /* Guarantee */
-  guarantee: {
-    display: 'flex',
-    alignItems: 'flex-start',
-    gap: 10,
-    padding: '14px 16px',
-    borderRadius: 'var(--radius-md)',
-    background: 'var(--color-info-light)',
-    marginTop: 16,
-  },
-  guaranteeText: {
-    fontSize: 13,
-    color: 'var(--color-navy)',
-    lineHeight: 1.4,
-  },
-};

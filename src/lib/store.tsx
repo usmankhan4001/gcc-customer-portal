@@ -17,11 +17,11 @@ export interface CompanyEntity {
   incorporationDate: string;
   licenseExpiryDate: string;
   renewalDaysLeft: number;
-  annualRevenue?: number;
   assignedSpecialist: string;
   specialistPhone: string;
   kycReferenceNumber?: string;
   kycVerifiedAt?: string;
+  annualRevenue?: number;
   documents: {
     id: string;
     title: string;
@@ -141,7 +141,7 @@ const INITIAL_ENTITIES: CompanyEntity[] = [
     name: 'Horizon Digital FZE',
     jurisdiction: 'UAE Freezone (IFZA Dubai)',
     countryCode: 'uae',
-    flag: '🇦🇪',
+    flag: 'uae',
     tier: 'tier2',
     tierTitle: 'Tier 2: Nominee UBO & Director',
     currentStage: 2,
@@ -165,7 +165,7 @@ const INITIAL_ENTITIES: CompanyEntity[] = [
     name: 'Apex Global Trade Ltd',
     jurisdiction: 'Hong Kong (Offshore Entity)',
     countryCode: 'hk',
-    flag: '🇭🇰',
+    flag: 'hk',
     tier: 'tier1',
     tierTitle: 'Tier 1: Self as UBO & Director',
     currentStage: 6,
@@ -281,7 +281,7 @@ const INITIAL_WHATSAPP_LOGS: WhatsAppNotification[] = [
     recipientPhone: '+31 6 12345678',
     templateName: 'order_confirmed_template',
     sentAt: '2026-08-28 14:20',
-    messageText: '🎉 Congratulations Alex! Your order for Horizon Digital FZE is confirmed. Your assigned specialist is Abdullah K. Complete your official KYC at the Document Vault.',
+    messageText: 'Confirmation: Order for Horizon Digital FZE is confirmed. Assigned lead: Abdullah K. Complete official verification at the Document Vault.',
     status: 'read',
   },
   {
@@ -289,7 +289,7 @@ const INITIAL_WHATSAPP_LOGS: WhatsAppNotification[] = [
     recipientPhone: '+31 6 12345678',
     templateName: 'official_kyc_reminder',
     sentAt: '2026-08-29 09:30',
-    messageText: '📋 Action Required: Please complete your identity scan on the UAE Freezone Electronic Authority Portal to start Stage 3 Government Filing.',
+    messageText: 'Action Required: Complete identity scan on the Electronic Authority Portal to proceed to Stage 3 Registry Filing.',
     status: 'delivered',
   },
   {
@@ -297,7 +297,7 @@ const INITIAL_WHATSAPP_LOGS: WhatsAppNotification[] = [
     recipientPhone: '+31 6 12345678',
     templateName: 'banking_pre_approved',
     sentAt: '2026-08-30 01:15',
-    messageText: '🏦 Banking Update: Pre-approval secured for Wio Bank (96% odds) and Airwallex Multi-Currency.',
+    messageText: 'Banking Update: Pre-approval confirmed for Wio Bank (96% odds) and Airwallex Multi-Currency.',
     status: 'delivered',
   },
 ];
@@ -394,13 +394,13 @@ export function PortalProvider({ children }: { children: React.ReactNode }) {
     const newOrderId = `ORD-${Date.now().toString().slice(-6)}`;
     const newEntityId = `ent_${Date.now().toString().slice(-4)}`;
 
-    const countryMap: Record<string, { name: string; flag: string }> = {
-      uae: { name: 'UAE Freezone (IFZA Dubai)', flag: '🇦🇪' },
-      hk: { name: 'Hong Kong (Offshore Entity)', flag: '🇭🇰' },
-      singapore: { name: 'Singapore Private Limited', flag: '🇸🇬' },
-      bahrain: { name: 'Bahrain W.L.L.', flag: '🇧🇭' },
-      ireland: { name: 'Ireland Non-Resident Ltd', flag: '🇮🇪' },
-      oman: { name: 'Oman LLC (Sultanate of Oman)', flag: '🇴🇲' },
+    const countryMap: Record<string, { name: string; code: CompanyEntity['countryCode'] }> = {
+      uae: { name: 'UAE Freezone (IFZA Dubai)', code: 'uae' },
+      hk: { name: 'Hong Kong (Offshore Entity)', code: 'hk' },
+      singapore: { name: 'Singapore Private Limited', code: 'singapore' },
+      bahrain: { name: 'Bahrain W.L.L.', code: 'bahrain' },
+      ireland: { name: 'Ireland Non-Resident Ltd', code: 'ireland' },
+      oman: { name: 'Oman LLC (Sultanate of Oman)', code: 'oman' },
     };
 
     const cInfo = countryMap[data.country] || countryMap.uae;
@@ -409,8 +409,8 @@ export function PortalProvider({ children }: { children: React.ReactNode }) {
       id: newEntityId,
       name: data.companyName,
       jurisdiction: cInfo.name,
-      countryCode: (data.country as any) || 'uae',
-      flag: cInfo.flag,
+      countryCode: cInfo.code,
+      flag: cInfo.code,
       tier: data.tier,
       tierTitle:
         data.tier === 'tier2'
@@ -457,11 +457,10 @@ export function PortalProvider({ children }: { children: React.ReactNode }) {
     setOrders((prev) => [newOrder, ...prev]);
     setActiveEntityId(newEntityId);
 
-    // Trigger initial WhatsApp Confirmation
     sendWhatsAppAlert(
       data.clientWhatsApp,
       'order_confirmed_template',
-      `🎉 Welcome to GCCStartup! Order #${newOrderId} for ${data.companyName} is confirmed. View your workspace & KYC vault in the client portal.`
+      `Welcome to GCCStartup. Order #${newOrderId} for ${data.companyName} is confirmed. View your workspace & KYC vault in the client portal.`
     );
 
     return newOrderId;
@@ -484,13 +483,12 @@ export function PortalProvider({ children }: { children: React.ReactNode }) {
       })
     );
 
-    // Send WhatsApp notification
     const entity = entities.find((e) => e.id === entityId);
     if (entity) {
       sendWhatsAppAlert(
         userProfile.phone || '+31 6 12345678',
         'kyc_verified_template',
-        `✅ Official Portal Reference (${referenceNumber}) received for ${entity.name}. Stage 3 (Government Registry Filing) is now active!`
+        `Official Registry Reference (${referenceNumber}) received for ${entity.name}. Stage 3 (Government Registry Filing) is now active.`
       );
     }
   };
