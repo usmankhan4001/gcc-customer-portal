@@ -1,0 +1,1162 @@
+<html>
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=Generator content="Microsoft Word 15 (filtered)">
+<style>
+<!--
+ /* Font Definitions */
+ @font-face
+	{font-family:"Cambria Math";
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0in;
+	font-size:10.0pt;
+	font-family:"Times New Roman",serif;}
+p.MsoListParagraph, li.MsoListParagraph, div.MsoListParagraph
+	{margin:0in;
+	font-size:10.0pt;
+	font-family:"Times New Roman",serif;}
+.MsoChpDefault
+	{font-size:10.0pt;}
+@page WordSection1
+	{size:595.3pt 841.9pt;
+	margin:45.0pt 50.0pt 45.0pt 50.0pt;}
+div.WordSection1
+	{page:WordSection1;}
+ /* List Definitions */
+ ol
+	{margin-bottom:0in;}
+ul
+	{margin-bottom:0in;}
+-->
+</style>
+
+</head>
+
+<body lang=EN-US link="#0563C1" vlink="#954F72" style='word-wrap:break-word'>
+
+<div class=WordSection1>
+
+<p class=MsoNormal align=center style='margin-bottom:2.0pt;text-align:center'><b><span
+style='color:#C9A84C;letter-spacing:1.0pt'>GCCSTARTUP.COM</span></b></p>
+
+<p class=MsoNormal align=center style='margin-bottom:1.0pt;text-align:center'><b><span
+style='font-size:18.0pt;color:#0A2540'>Client Portal / Sales-Focused Webapp</span></b></p>
+
+<div style='border:none;border-bottom:solid #C9A84C 1.5pt;padding:0in 0in 6.0pt 0in'>
+
+<p class=MsoNormal align=center style='margin-bottom:15.0pt;text-align:center;
+border:none;padding:0in'><i><span style='font-size:11.0pt;color:#6B7C93'>Step-by-Step
+Execution Plan</span></i></p>
+
+</div>
+
+<p class=MsoNormal style='margin-bottom:7.0pt;line-height:120%'><span
+style='color:#333333'>This plan turns GCCStartup.com from a marketing
+lead-generation site into a full sales-execution webapp: a client signs up,
+configures their own service (jurisdiction, UBO/Nominee, banking), pays via
+checkout, uploads documents, and is tracked from application through
+incorporation — with automated Email/WhatsApp sequences and a Trello-style
+pipeline board for internal team and VA use.</span></p>
+
+<table class=MsoNormalTable border=1 cellspacing=0 cellpadding=0 width=623
+ style='width:467.5pt;border-collapse:collapse;border:none'>
+ <tr>
+  <td width=623 valign=top style='width:467.5pt;border:solid windowtext 1.0pt;
+  background:#F4F7FB;padding:8.0pt 10.0pt 8.0pt 10.0pt'>
+  <p class=MsoNormal style='margin-bottom:3.0pt'><b><span style='font-size:
+  9.5pt;color:#0A2540'>Reference points used for this plan:</span></b></p>
+  <p class=MsoNormal><span style='font-size:9.5pt;color:#333333'>Your live site
+  (gccstartup.com) — service tiers, jurisdiction pages, pricing structure, and
+  lead form already exist and will be reused as the entry point into the new
+  signup flow. Befiler's dashboard (befiler.com/dashboard/setup) — used as the
+  interaction model for a guided, step-based signup wizard that collects
+  service selection first, then documents.</span></p>
+  </td>
+ </tr>
+</table>
+
+<div style='border:none;border-bottom:solid #C9A84C 1.0pt;padding:0in 0in 4.0pt 0in'>
+
+<p class=MsoNormal style='margin-top:19.0pt;margin-right:0in;margin-bottom:
+7.0pt;margin-left:0in;border:none;padding:0in'><b><span style='font-size:12.0pt;
+color:#0A2540;letter-spacing:.6pt'>Phase 0  FOUNDATION &amp; SCOPE LOCK</span></b></p>
+
+</div>
+
+<p class=MsoNormal style='margin-bottom:7.0pt;line-height:120%'><span
+style='color:#333333'>Before any building starts, lock the exact scope so
+nothing is built twice. This phase is planning only — no code.</span></p>
+
+<table class=MsoNormalTable border=1 cellspacing=0 cellpadding=0 width=623
+ style='width:467.5pt;border-collapse:collapse;border:none'>
+ <tr>
+  <td width=93 valign=top style='width:70.0pt;border:solid windowtext 1.0pt;
+  background:#0A2540;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><b><span style='font-size:9.0pt;color:white'>Step</span></b></p>
+  </td>
+  <td width=363 valign=top style='width:272.5pt;border:solid windowtext 1.0pt;
+  border-left:none;background:#0A2540;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><b><span style='font-size:9.0pt;color:white'>Task</span></b></p>
+  </td>
+  <td width=167 valign=top style='width:125.0pt;border:solid windowtext 1.0pt;
+  border-left:none;background:#0A2540;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><b><span style='font-size:9.0pt;color:white'>Owner</span></b></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=93 valign=top style='width:70.0pt;border:solid windowtext 1.0pt;
+  border-top:none;background:white;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><b><span style='font-size:9.0pt;color:#0A2540'>0.1</span></b></p>
+  </td>
+  <td width=363 valign=top style='width:272.5pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  background:white;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><span style='font-size:9.0pt;color:#333333'>Confirm
+  CMS/tech base: is the new Custom CMS (replacing Usman's WordPress) already
+  selected? Recommend Next.js + a headless CMS/DB (e.g. Sanity, Supabase, or
+  custom Postgres) since your current site is already Next.js-based.</span></p>
+  </td>
+  <td width=167 valign=top style='width:125.0pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  background:white;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><span style='font-size:9.0pt;color:#6B7C93'>Abdullah + Dev</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=93 valign=top style='width:70.0pt;border:solid windowtext 1.0pt;
+  border-top:none;background:#F4F7FB;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><b><span style='font-size:9.0pt;color:#0A2540'>0.2</span></b></p>
+  </td>
+  <td width=363 valign=top style='width:272.5pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  background:#F4F7FB;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><span style='font-size:9.0pt;color:#333333'>Finalize the
+  exact document list required per jurisdiction/tier (you noted this will be
+  shared later) — this determines the document upload step design.</span></p>
+  </td>
+  <td width=167 valign=top style='width:125.0pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  background:#F4F7FB;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><span style='font-size:9.0pt;color:#6B7C93'>Farooq</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=93 valign=top style='width:70.0pt;border:solid windowtext 1.0pt;
+  border-top:none;background:white;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><b><span style='font-size:9.0pt;color:#0A2540'>0.3</span></b></p>
+  </td>
+  <td width=363 valign=top style='width:272.5pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  background:white;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><span style='font-size:9.0pt;color:#333333'>Map every
+  service combination (Jurisdiction × Tier × Bank accounts × Tax residency)
+  into a single data table — this becomes the logic behind the signup wizard
+  AND the checkout pricing engine.</span></p>
+  </td>
+  <td width=167 valign=top style='width:125.0pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  background:white;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><span style='font-size:9.0pt;color:#6B7C93'>Abdullah +
+  Farooq</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=93 valign=top style='width:70.0pt;border:solid windowtext 1.0pt;
+  border-top:none;background:#F4F7FB;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><b><span style='font-size:9.0pt;color:#0A2540'>0.4</span></b></p>
+  </td>
+  <td width=363 valign=top style='width:272.5pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  background:#F4F7FB;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><span style='font-size:9.0pt;color:#333333'>Confirm
+  WhatsApp Business API and Email (Sender.net or replacement) are live and
+  API-accessible — automation cannot be built until these are stable.</span></p>
+  </td>
+  <td width=167 valign=top style='width:125.0pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  background:#F4F7FB;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><span style='font-size:9.0pt;color:#6B7C93'>Ahmed</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=93 valign=top style='width:70.0pt;border:solid windowtext 1.0pt;
+  border-top:none;background:white;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><b><span style='font-size:9.0pt;color:#0A2540'>0.5</span></b></p>
+  </td>
+  <td width=363 valign=top style='width:272.5pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  background:white;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><span style='font-size:9.0pt;color:#333333'>Select payment
+  gateway provider(s) — see Phase 3.5 for details and jurisdiction-specific
+  recommendations.</span></p>
+  </td>
+  <td width=167 valign=top style='width:125.0pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  background:white;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><span style='font-size:9.0pt;color:#6B7C93'>Abdullah</span></p>
+  </td>
+ </tr>
+</table>
+
+<p class=MsoNormal style='margin-top:0in;margin-right:0in;margin-bottom:8.0pt;
+margin-left:.25in'><b><span style='font-size:9.0pt;color:#8A6E1E'>Owner: </span></b><i><span
+style='font-size:9.0pt;color:#6B7C93'>Abdullah (final sign-off on scope before
+Phase 1 begins)</span></i></p>
+
+<div style='border:none;border-bottom:solid #C9A84C 1.0pt;padding:0in 0in 4.0pt 0in'>
+
+<p class=MsoNormal style='margin-top:19.0pt;margin-right:0in;margin-bottom:
+7.0pt;margin-left:0in;border:none;padding:0in'><b><span style='font-size:12.0pt;
+color:#0A2540;letter-spacing:.6pt'>Phase 1  CLIENT SIGNUP &amp; ACCOUNT
+CREATION</span></b></p>
+
+</div>
+
+<p class=MsoNormal style='margin-bottom:7.0pt;line-height:120%'><span
+style='color:#333333'>The entry point. A visitor on the marketing site becomes
+a registered user in your CMS.</span></p>
+
+<p class=MsoNormal style='margin-top:11.0pt;margin-right:0in;margin-bottom:
+5.0pt;margin-left:0in'><b><span style='font-size:10.5pt;color:#2B7BE8'>1.1 —
+Signup Flow</span></b></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Add
+a &quot;Start My Application&quot; CTA on the existing site (reuse the current
+#lead-form button positions) that leads to account creation instead of just a
+contact form.</span></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Signup
+fields: Full Name, Email, Phone/WhatsApp number, Password (or magic-link/OTP
+login — recommended for lower friction).</span></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>On
+submit: create a new user record in the CMS database with status = &quot;Signed
+Up&quot; and a unique client ID.</span></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Send
+an automatic welcome email + WhatsApp message confirming account creation
+(Automation Engine, Phase 5).</span></p>
+
+<p class=MsoNormal style='margin-top:11.0pt;margin-right:0in;margin-bottom:
+5.0pt;margin-left:0in'><b><span style='font-size:10.5pt;color:#2B7BE8'>1.2 —
+Login &amp; Dashboard Shell</span></b></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Build
+a simple authenticated dashboard shell (&quot;My Application&quot;) the client
+lands on after signup — this is the container for every step that follows.</span></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Dashboard
+shows: current application status, next required action, and a progress
+indicator (Signup &#8594; Service Selected &#8594; Payment &#8594; Documents
+Submitted &#8594; In Review &#8594; Filed &#8594; Approved).</span></p>
+
+<p class=MsoNormal style='margin-top:0in;margin-right:0in;margin-bottom:8.0pt;
+margin-left:.25in'><b><span style='font-size:9.0pt;color:#8A6E1E'>Owner: </span></b><i><span
+style='font-size:9.0pt;color:#6B7C93'>Dev team (frontend) — Abdullah approves
+UX flow before build</span></i></p>
+
+<div style='border:none;border-bottom:solid #C9A84C 1.0pt;padding:0in 0in 4.0pt 0in'>
+
+<p class=MsoNormal style='margin-top:19.0pt;margin-right:0in;margin-bottom:
+7.0pt;margin-left:0in;border:none;padding:0in'><b><span style='font-size:12.0pt;
+color:#0A2540;letter-spacing:.6pt'>Phase 2  SERVICE CONFIGURATION WIZARD</span></b></p>
+
+</div>
+
+<p class=MsoNormal style='margin-bottom:7.0pt;line-height:120%'><span
+style='color:#333333'>This is the Befiler-style guided step-by-step selector.
+The client tells you exactly what they want to buy, and the system captures it
+structurally (not as free text) — this selection also determines the exact
+checkout price in Phase 3.</span></p>
+
+<p class=MsoNormal style='margin-top:11.0pt;margin-right:0in;margin-bottom:
+5.0pt;margin-left:0in'><b><span style='font-size:10.5pt;color:#2B7BE8'>2.1 —
+Step-by-Step Selector (reuse your existing cost estimator logic)</span></b></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Step
+1: Select Jurisdiction (UAE, Bahrain, Hong Kong, Singapore, Ireland, BVI &amp;
+Cayman, Oman, Qatar) — pull directly from your existing jurisdiction
+pages/data.</span></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Step
+2: Select Package Tier (Self as UBO / Nominee UBO / Shelf Company) — reuse your
+existing pricing tier logic and copy.</span></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Step
+3: Select Bank Accounts needed (0, 1, 2+) and preferred banking type (local vs
+fintech: Airwallex/Wise).</span></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Step
+4: Select Tax Residency add-on (Yes/No) if relevant to jurisdiction chosen.</span></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Step
+5: Auto-generated summary + final price shown (reuses your existing cost
+estimator component) — this price carries directly into the checkout page in
+Phase 3.</span></p>
+
+<p class=MsoNormal style='margin-top:11.0pt;margin-right:0in;margin-bottom:
+5.0pt;margin-left:0in'><b><span style='font-size:10.5pt;color:#2B7BE8'>2.2 — On
+Completion</span></b></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Save
+full selection to the client's CMS record (linked to their user ID).</span></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Update
+application status to &quot;Service Selected&quot; and redirect to Checkout
+(Phase 3) — documents are NOT unlocked until payment is confirmed.</span></p>
+
+<p class=MsoNormal style='margin-top:0in;margin-right:0in;margin-bottom:8.0pt;
+margin-left:.25in'><b><span style='font-size:9.0pt;color:#8A6E1E'>Owner: </span></b><i><span
+style='font-size:9.0pt;color:#6B7C93'>Dev team — logic table sourced from
+Abdullah + Farooq (Phase 0.3)</span></i></p>
+
+<div style='border:none;border-bottom:solid #C9A84C 1.0pt;padding:0in 0in 4.0pt 0in'>
+
+<p class=MsoNormal style='margin-top:19.0pt;margin-right:0in;margin-bottom:
+7.0pt;margin-left:0in;border:none;padding:0in'><b><span style='font-size:12.0pt;
+color:#0A2540;letter-spacing:.6pt'>Phase 3  CHECKOUT &amp; PAYMENT</span></b></p>
+
+</div>
+
+<p class=MsoNormal style='margin-bottom:7.0pt;line-height:120%'><span
+style='color:#333333'>Payment is now the gate between service selection and
+document submission. An application is only considered &quot;submitted&quot;
+once payment is confirmed — this protects against incomplete, unpaid
+applications clogging the pipeline.</span></p>
+
+<p class=MsoNormal style='margin-top:11.0pt;margin-right:0in;margin-bottom:
+5.0pt;margin-left:0in'><b><span style='font-size:10.5pt;color:#2B7BE8'>3.1 —
+Checkout Page</span></b></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Immediately
+after service selection (Phase 2.2), the client is directed to a checkout page
+— not the document upload step.</span></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Checkout
+page displays: full order summary (jurisdiction, tier, add-ons selected),
+itemized pricing breakdown, and total amount due, pulled directly from the
+standard rate table (Phase 3.2).</span></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Client
+enters payment details and completes payment on this page — no redirect to a
+third-party site if avoidable, to keep the experience seamless and on-brand.</span></p>
+
+<p class=MsoNormal style='margin-top:11.0pt;margin-right:0in;margin-bottom:
+5.0pt;margin-left:0in'><b><span style='font-size:10.5pt;color:#2B7BE8'>3.2 —
+Standard Rate Table</span></b></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Build
+a single source-of-truth pricing table: [Jurisdiction + Tier + Bank Accounts +
+Tax Residency] &#8594; [Total Price] — this is the same combination logic from
+Phase 0.3, now directly wired to the checkout amount.</span></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Rates
+should be stored in the CMS/database (not hardcoded in the frontend) so
+Abdullah or Farooq can update pricing without a developer, using the same rates
+you'll provide.</span></p>
+
+<p class=MsoNormal style='margin-top:11.0pt;margin-right:0in;margin-bottom:
+5.0pt;margin-left:0in'><b><span style='font-size:10.5pt;color:#2B7BE8'>3.3 —
+Payment Confirmation Logic</span></b></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>On
+successful payment: update application status to &quot;Application
+Submitted&quot; — this is the trigger point (not the service selection step)
+for unlocking Phase 4 (document upload).</span></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>On
+failed/abandoned payment: application status stays &quot;Payment Pending&quot;
+— client can return to checkout and retry. Trigger a reminder Email/WhatsApp
+after a set delay (e.g. 2 hours, then 24 hours) if payment isn't completed.</span></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Generate
+and store a receipt/invoice against the client's CMS record automatically on
+successful payment.</span></p>
+
+<p class=MsoNormal style='margin-top:11.0pt;margin-right:0in;margin-bottom:
+5.0pt;margin-left:0in'><b><span style='font-size:10.5pt;color:#2B7BE8'>3.4 —
+CMS Entry &amp; Confirmation Messaging</span></b></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>A
+CMS entry is created/updated with full order + payment details (amount paid,
+payment method, transaction ID, timestamp).</span></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Payment
+confirmation triggers its own Email + WhatsApp message (receipt + &quot;what
+happens next&quot;) — separate from the later &quot;Application Submitted&quot;
+message sent after documents are uploaded (Phase 4).</span></p>
+
+<p class=MsoNormal style='margin-top:11.0pt;margin-right:0in;margin-bottom:
+5.0pt;margin-left:0in'><b><span style='font-size:10.5pt;color:#2B7BE8'>3.5 —
+Payment Gateway Selection</span></b></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Recommended
+options given your jurisdictions and client base: Stripe (strong international
+card coverage, clean checkout API, supports multi-currency — best default
+choice), PayPal (as a secondary option for clients who prefer it), and a
+regional gateway if a large share of clients are Gulf-based (e.g. Telr or
+PayTabs for AED/BHD-friendly processing).</span></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Confirm
+with your finance/compliance side whether receiving payment for
+company-formation services triggers any additional KYC/AML obligations on
+GCCStartup as the merchant of record — this should be checked before gateway
+selection is finalized.</span></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Gateway
+must support the currencies you price in (USD primarily, based on your current
+site) and provide webhook/API confirmation so payment status updates the CMS
+automatically and reliably (not manually).</span></p>
+
+<p class=MsoNormal style='margin-top:0in;margin-right:0in;margin-bottom:8.0pt;
+margin-left:.25in'><b><span style='font-size:9.0pt;color:#8A6E1E'>Owner: </span></b><i><span
+style='font-size:9.0pt;color:#6B7C93'>Abdullah (gateway selection + standard
+rates) — Dev team (checkout build + webhook integration)</span></i></p>
+
+<span style='font-size:10.0pt;font-family:"Times New Roman",serif'><br
+clear=all style='page-break-before:always'>
+</span>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<div style='border:none;border-bottom:solid #C9A84C 1.0pt;padding:0in 0in 4.0pt 0in'>
+
+<p class=MsoNormal style='margin-top:19.0pt;margin-right:0in;margin-bottom:
+7.0pt;margin-left:0in;border:none;padding:0in'><b><span style='font-size:12.0pt;
+color:#0A2540;letter-spacing:.6pt'>Phase 4  DOCUMENT SUBMISSION</span></b></p>
+
+</div>
+
+<p class=MsoNormal style='margin-bottom:7.0pt;line-height:120%'><span
+style='color:#333333'>Once payment is confirmed, the client is directed to
+submit the exact documents/information required for their specific service
+combination.</span></p>
+
+<p class=MsoNormal style='margin-top:11.0pt;margin-right:0in;margin-bottom:
+5.0pt;margin-left:0in'><b><span style='font-size:10.5pt;color:#2B7BE8'>4.1 —
+Dynamic Document Checklist</span></b></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Build
+a document requirements table: [Jurisdiction + Tier] &#8594; [Required
+Documents List]. This will be populated once you provide the exact document
+list.</span></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Client
+sees only the documents relevant to their selection (not a generic
+one-size-fits-all list) — reduces confusion and drop-off.</span></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Support
+file upload (PDF, JPG, PNG) with basic validation (file size, file type) and a
+clear checklist UI (uploaded / pending / rejected).</span></p>
+
+<p class=MsoNormal style='margin-top:11.0pt;margin-right:0in;margin-bottom:
+5.0pt;margin-left:0in'><b><span style='font-size:10.5pt;color:#2B7BE8'>4.2 —
+Final Submission</span></b></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>A
+single &quot;Submit My Application&quot; action once all required documents are
+uploaded — this step is only reachable after successful payment (Phase 3.3).</span></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>On
+submission: update the CMS entry with status = &quot;Application
+Submitted&quot; (fully — payment + documents both complete), timestamp, and
+full document set attached to the client record.</span></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Trigger
+the Thank You + Next Steps automation (Phase 5) — Email and WhatsApp,
+referencing client details and Abdullah's contact info as the account handler.</span></p>
+
+<p class=MsoNormal style='margin-top:0in;margin-right:0in;margin-bottom:8.0pt;
+margin-left:.25in'><b><span style='font-size:9.0pt;color:#8A6E1E'>Owner: </span></b><i><span
+style='font-size:9.0pt;color:#6B7C93'>Dev team — document list from Farooq</span></i></p>
+
+<div style='border:none;border-bottom:solid #C9A84C 1.0pt;padding:0in 0in 4.0pt 0in'>
+
+<p class=MsoNormal style='margin-top:19.0pt;margin-right:0in;margin-bottom:
+7.0pt;margin-left:0in;border:none;padding:0in'><b><span style='font-size:12.0pt;
+color:#0A2540;letter-spacing:.6pt'>Phase 5  AUTOMATION ENGINE — INBOUND &amp;
+SALES FUNNEL</span></b></p>
+
+</div>
+
+<p class=MsoNormal style='margin-bottom:7.0pt;line-height:120%'><span
+style='color:#333333'>Two separate automation tracks. Both use the same
+Email/WhatsApp sending capability already available in the CMS — this phase is
+about sequencing and triggers, not building new sending infrastructure.</span></p>
+
+<p class=MsoNormal style='margin-top:11.0pt;margin-right:0in;margin-bottom:
+5.0pt;margin-left:0in'><b><span style='font-size:10.5pt;color:#2B7BE8'>5.1 —
+Inbound Funnel (Marketing Leads — Tax Playbook / Contact Form)</span></b></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Trigger:
+lead downloads playbook or submits the existing marketing contact form
+(unchanged from current site).</span></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Sequence:
+Immediate auto-response &#8594; Day 1 personalized follow-up (per your existing
+crispy-hook email format) &#8594; Day 3 WhatsApp nudge if no reply &#8594; Day
+7 final follow-up.</span></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Goal
+of this sequence: move lead to WhatsApp conversation with Abdullah, or into the
+signup flow (Phase 1) directly.</span></p>
+
+<p class=MsoNormal style='margin-top:11.0pt;margin-right:0in;margin-bottom:
+5.0pt;margin-left:0in'><b><span style='font-size:10.5pt;color:#2B7BE8'>5.2 —
+Sales Funnel (Signed-Up / In-Progress Clients)</span></b></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Trigger:
+account created &#8594; service selected &#8594; payment completed &#8594;
+documents submitted &#8594; each pipeline stage change (Phase 6).</span></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Sequence:
+Welcome message on signup &#8594; reminder if service selection incomplete
+after 24h &#8594; payment reminder if checkout abandoned (Phase 3.3) &#8594;
+confirmation + receipt on successful payment &#8594; reminder if documents
+incomplete after 48h &#8594; confirmation on full submission &#8594; status
+update messages triggered by Kanban stage changes.</span></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Both
+funnels reuse the same underlying Email + WhatsApp sending tool already in the
+CMS — only the trigger logic and message templates are new.</span></p>
+
+<p class=MsoNormal style='margin-top:0in;margin-right:0in;margin-bottom:8.0pt;
+margin-left:.25in'><b><span style='font-size:9.0pt;color:#8A6E1E'>Owner: </span></b><i><span
+style='font-size:9.0pt;color:#6B7C93'>Ahmed (sequence content + triggers) + Dev
+team (automation logic)</span></i></p>
+
+<div style='border:none;border-bottom:solid #C9A84C 1.0pt;padding:0in 0in 4.0pt 0in'>
+
+<p class=MsoNormal style='margin-top:19.0pt;margin-right:0in;margin-bottom:
+7.0pt;margin-left:0in;border:none;padding:0in'><b><span style='font-size:12.0pt;
+color:#0A2540;letter-spacing:.6pt'>Phase 6  PROJECT MANAGEMENT BOARD
+(TRELLO-STYLE PIPELINE)</span></b></p>
+
+</div>
+
+<p class=MsoNormal style='margin-bottom:7.0pt;line-height:120%'><span
+style='color:#333333'>Internal tool for tracking each client's company through
+the actual incorporation process — separate from the client-facing dashboard,
+but linked to the same record.</span></p>
+
+<p class=MsoNormal style='margin-top:11.0pt;margin-right:0in;margin-bottom:
+5.0pt;margin-left:0in'><b><span style='font-size:10.5pt;color:#2B7BE8'>6.1 —
+Board Structure</span></b></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Each
+fully submitted (paid + documented) application becomes a &quot;card&quot; on
+the board, linked directly to that client's CMS record (contact, service
+selection, payment record, documents).</span></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Default
+stages (customizable): Application Received &#8594; Under Review &#8594; Filed
+with Government &#8594; Awaiting Approval &#8594; Approved/Incorporated &#8594;
+Bank Account in Progress &#8594; Fully Operational.</span></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Cards
+can be dragged between stages manually by the team as government/bank updates
+come in — no need for real-time government API integration.</span></p>
+
+<p class=MsoNormal style='margin-top:11.0pt;margin-right:0in;margin-bottom:
+5.0pt;margin-left:0in'><b><span style='font-size:10.5pt;color:#2B7BE8'>6.2 —
+Task Templates &amp; Attachments</span></b></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Pre-built
+task templates per stage (e.g. &quot;Filed with Government&quot; auto-adds a
+checklist: filing reference number, expected approval date, submitted-by).</span></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Team
+can attach files directly to a card (approval certificates, filing receipts,
+bank correspondence) — stored against that client's record permanently.</span></p>
+
+<p class=MsoNormal style='margin-top:11.0pt;margin-right:0in;margin-bottom:
+5.0pt;margin-left:0in'><b><span style='font-size:10.5pt;color:#2B7BE8'>6.3 —
+Stage-Triggered Client Notifications</span></b></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Every
+time a card moves to a new stage, an automatic Email + WhatsApp message is sent
+to that client with a status update (reuses Phase 5 automation engine,
+triggered by board stage change instead of a form event).</span></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Message
+templates per stage should be pre-written and editable (e.g. &quot;Filed with
+Government&quot; template, &quot;Approved&quot; template) so the team isn't
+writing custom messages for every client.</span></p>
+
+<p class=MsoNormal style='margin-top:0in;margin-right:0in;margin-bottom:8.0pt;
+margin-left:.25in'><b><span style='font-size:9.0pt;color:#8A6E1E'>Owner: </span></b><i><span
+style='font-size:9.0pt;color:#6B7C93'>Dev team (board build) — Farooq (stage
+definitions + task templates) — Ahmed (client messaging templates)</span></i></p>
+
+<div style='border:none;border-bottom:solid #C9A84C 1.0pt;padding:0in 0in 4.0pt 0in'>
+
+<p class=MsoNormal style='margin-top:19.0pt;margin-right:0in;margin-bottom:
+7.0pt;margin-left:0in;border:none;padding:0in'><b><span style='font-size:12.0pt;
+color:#0A2540;letter-spacing:.6pt'>Phase 7  ROLE-BASED ACCESS FOR VA / SUPPORT
+STAFF</span></b></p>
+
+</div>
+
+<p class=MsoNormal style='margin-bottom:7.0pt;line-height:120%'><span
+style='color:#333333'>Give a VA controlled access to manage clients without
+exposing sensitive admin functions (ad accounts, financials, payment data,
+other team members' data).</span></p>
+
+<p class=MsoNormal style='margin-top:11.0pt;margin-right:0in;margin-bottom:
+5.0pt;margin-left:0in'><b><span style='font-size:10.5pt;color:#2B7BE8'>7.1 —
+Roles to Build</span></b></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Admin
+(Abdullah, Farooq, Ahmed): full access — all clients, all settings, financials,
+payment records, automation editing.</span></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Customer
+Support / VA Role: access to assigned client records only — can view documents,
+move Kanban cards, send template messages, update task notes. Cannot edit
+pricing, view full payment/card details, edit automation sequences, or see
+other staff's performance data.</span></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>(Optional,
+future) Sales Role: access to lead pipeline and inbound funnel only, not the
+incorporation Kanban board or payment data.</span></p>
+
+<p class=MsoNormal style='margin-top:11.0pt;margin-right:0in;margin-bottom:
+5.0pt;margin-left:0in'><b><span style='font-size:10.5pt;color:#2B7BE8'>7.2 —
+Access Control Build</span></b></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Implement
+role-based permissions at the CMS/database level (not just hidden UI elements —
+actual access control), so a VA account cannot pull data outside their role
+even via direct API calls.</span></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Payment/financial
+data should be restricted to Admin roles only by default — VA can see
+&quot;Paid&quot; / &quot;Unpaid&quot; status but not underlying transaction or
+card details.</span></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Assign
+each VA (e.g. Muhammad Rafay if applicable, or future hires) to specific
+clients or a shared support queue, based on how you want to distribute
+workload.</span></p>
+
+<p class=MsoNormal style='margin-top:0in;margin-right:0in;margin-bottom:8.0pt;
+margin-left:.25in'><b><span style='font-size:9.0pt;color:#8A6E1E'>Owner: </span></b><i><span
+style='font-size:9.0pt;color:#6B7C93'>Dev team — Abdullah defines exact
+permission boundaries before build</span></i></p>
+
+<span style='font-size:10.0pt;font-family:"Times New Roman",serif'><br
+clear=all style='page-break-before:always'>
+</span>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<div style='border:none;border-bottom:solid #C9A84C 1.0pt;padding:0in 0in 4.0pt 0in'>
+
+<p class=MsoNormal style='margin-top:19.0pt;margin-right:0in;margin-bottom:
+7.0pt;margin-left:0in;border:none;padding:0in'><b><span style='font-size:12.0pt;
+color:#0A2540;letter-spacing:.6pt'>Reference  SUGGESTED TECHNICAL ARCHITECTURE</span></b></p>
+
+</div>
+
+<p class=MsoNormal style='margin-bottom:7.0pt;line-height:120%'><span
+style='color:#333333'>Since your current site is already built on Next.js, the
+most efficient path is to extend it rather than rebuild from scratch.</span></p>
+
+<table class=MsoNormalTable border=1 cellspacing=0 cellpadding=0 width=623
+ style='width:467.5pt;margin-left:-.15pt;border-collapse:collapse;border:none'>
+ <tr>
+  <td width=173 valign=top style='width:130.0pt;border:solid windowtext 1.0pt;
+  background:#F4F7FB;padding:5.0pt 6.0pt 5.0pt 6.0pt'>
+  <p class=MsoNormal><b><span style='font-size:9.5pt;color:#0A2540'>Frontend</span></b></p>
+  </td>
+  <td width=450 valign=top style='width:337.5pt;border:solid windowtext 1.0pt;
+  border-left:none;padding:5.0pt 6.0pt 5.0pt 6.0pt'>
+  <p class=MsoNormal><span style='font-size:9.5pt;color:#333333'>Next.js
+  (existing) — add authenticated /dashboard routes for signup, wizard,
+  checkout, document upload, and client status view</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=173 valign=top style='width:130.0pt;border:solid windowtext 1.0pt;
+  border-top:none;background:#F4F7FB;padding:5.0pt 6.0pt 5.0pt 6.0pt'>
+  <p class=MsoNormal><b><span style='font-size:9.5pt;color:#0A2540'>Backend /
+  Database</span></b></p>
+  </td>
+  <td width=450 valign=top style='width:337.5pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  padding:5.0pt 6.0pt 5.0pt 6.0pt'>
+  <p class=MsoNormal><span style='font-size:9.5pt;color:#333333'>Supabase or
+  Postgres — stores users, service selections, payment records, documents (or
+  document metadata + S3/Cloud storage links), Kanban cards, automation logs</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=173 valign=top style='width:130.0pt;border:solid windowtext 1.0pt;
+  border-top:none;background:#F4F7FB;padding:5.0pt 6.0pt 5.0pt 6.0pt'>
+  <p class=MsoNormal><b><span style='font-size:9.5pt;color:#0A2540'>Payment
+  Gateway</span></b></p>
+  </td>
+  <td width=450 valign=top style='width:337.5pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  padding:5.0pt 6.0pt 5.0pt 6.0pt'>
+  <p class=MsoNormal><span style='font-size:9.5pt;color:#333333'>Stripe
+  (primary recommendation) + optional PayPal/regional gateway — integrated via
+  hosted checkout or embedded Elements, with webhooks feeding payment status
+  back into the CMS automatically</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=173 valign=top style='width:130.0pt;border:solid windowtext 1.0pt;
+  border-top:none;background:#F4F7FB;padding:5.0pt 6.0pt 5.0pt 6.0pt'>
+  <p class=MsoNormal><b><span style='font-size:9.5pt;color:#0A2540'>File
+  Storage</span></b></p>
+  </td>
+  <td width=450 valign=top style='width:337.5pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  padding:5.0pt 6.0pt 5.0pt 6.0pt'>
+  <p class=MsoNormal><span style='font-size:9.5pt;color:#333333'>AWS S3,
+  Cloudflare R2, or Supabase Storage for uploaded KYC documents (must be
+  encrypted at rest given document sensitivity)</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=173 valign=top style='width:130.0pt;border:solid windowtext 1.0pt;
+  border-top:none;background:#F4F7FB;padding:5.0pt 6.0pt 5.0pt 6.0pt'>
+  <p class=MsoNormal><b><span style='font-size:9.5pt;color:#0A2540'>Automation
+  Engine</span></b></p>
+  </td>
+  <td width=450 valign=top style='width:337.5pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  padding:5.0pt 6.0pt 5.0pt 6.0pt'>
+  <p class=MsoNormal><span style='font-size:9.5pt;color:#333333'>n8n (already
+  used previously per your notes) or a similar workflow tool — connects CMS
+  events (signup, payment, stage change) to Email (Sender.net) and WhatsApp
+  Business API sends</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=173 valign=top style='width:130.0pt;border:solid windowtext 1.0pt;
+  border-top:none;background:#F4F7FB;padding:5.0pt 6.0pt 5.0pt 6.0pt'>
+  <p class=MsoNormal><b><span style='font-size:9.5pt;color:#0A2540'>Kanban
+  Board</span></b></p>
+  </td>
+  <td width=450 valign=top style='width:337.5pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  padding:5.0pt 6.0pt 5.0pt 6.0pt'>
+  <p class=MsoNormal><span style='font-size:9.5pt;color:#333333'>Custom-built
+  lightweight board (Trello-style UI) inside the admin dashboard, OR
+  embed/integrate an existing tool (e.g. Trello API) if faster to launch —
+  custom is preferred long-term for the client-linking requirement</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=173 valign=top style='width:130.0pt;border:solid windowtext 1.0pt;
+  border-top:none;background:#F4F7FB;padding:5.0pt 6.0pt 5.0pt 6.0pt'>
+  <p class=MsoNormal><b><span style='font-size:9.5pt;color:#0A2540'>Auth &amp;
+  Roles</span></b></p>
+  </td>
+  <td width=450 valign=top style='width:337.5pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  padding:5.0pt 6.0pt 5.0pt 6.0pt'>
+  <p class=MsoNormal><span style='font-size:9.5pt;color:#333333'>Supabase Auth
+  (or similar) with role-based row-level security — critical for the VA access
+  control in Phase 7, and for restricting payment data visibility</span></p>
+  </td>
+ </tr>
+</table>
+
+<p class=MsoNormal style='margin-top:10.0pt'>&nbsp;</p>
+
+<div style='border:none;border-bottom:solid #C9A84C 1.0pt;padding:0in 0in 4.0pt 0in'>
+
+<p class=MsoNormal style='margin-top:19.0pt;margin-right:0in;margin-bottom:
+7.0pt;margin-left:0in;border:none;padding:0in'><b><span style='font-size:12.0pt;
+color:#0A2540;letter-spacing:.6pt'>Reference  SUGGESTED TIMELINE</span></b></p>
+
+</div>
+
+<table class=MsoNormalTable border=1 cellspacing=0 cellpadding=0 width=623
+ style='width:467.5pt;margin-left:-.15pt;border-collapse:collapse;border:none'>
+ <tr>
+  <td width=93 valign=top style='width:70.0pt;border:solid windowtext 1.0pt;
+  background:#0A2540;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><b><span style='font-size:9.0pt;color:white'>Step</span></b></p>
+  </td>
+  <td width=363 valign=top style='width:272.5pt;border:solid windowtext 1.0pt;
+  border-left:none;background:#0A2540;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><b><span style='font-size:9.0pt;color:white'>Task</span></b></p>
+  </td>
+  <td width=167 valign=top style='width:125.0pt;border:solid windowtext 1.0pt;
+  border-left:none;background:#0A2540;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><b><span style='font-size:9.0pt;color:white'>Owner</span></b></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=93 valign=top style='width:70.0pt;border:solid windowtext 1.0pt;
+  border-top:none;background:white;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><b><span style='font-size:9.0pt;color:#0A2540'>Wk 1</span></b></p>
+  </td>
+  <td width=363 valign=top style='width:272.5pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  background:white;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><span style='font-size:9.0pt;color:#333333'>Phase 0 —
+  scope lock, document list finalized, tech stack + payment gateway confirmed</span></p>
+  </td>
+  <td width=167 valign=top style='width:125.0pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  background:white;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><span style='font-size:9.0pt;color:#6B7C93'>All</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=93 valign=top style='width:70.0pt;border:solid windowtext 1.0pt;
+  border-top:none;background:#F4F7FB;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><b><span style='font-size:9.0pt;color:#0A2540'>Wk 2–3</span></b></p>
+  </td>
+  <td width=363 valign=top style='width:272.5pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  background:#F4F7FB;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><span style='font-size:9.0pt;color:#333333'>Phase 1 —
+  signup, auth, dashboard shell live</span></p>
+  </td>
+  <td width=167 valign=top style='width:125.0pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  background:#F4F7FB;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><span style='font-size:9.0pt;color:#6B7C93'>Dev</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=93 valign=top style='width:70.0pt;border:solid windowtext 1.0pt;
+  border-top:none;background:white;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><b><span style='font-size:9.0pt;color:#0A2540'>Wk 3–4</span></b></p>
+  </td>
+  <td width=363 valign=top style='width:272.5pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  background:white;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><span style='font-size:9.0pt;color:#333333'>Phase 2 —
+  service configuration wizard built and tested</span></p>
+  </td>
+  <td width=167 valign=top style='width:125.0pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  background:white;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><span style='font-size:9.0pt;color:#6B7C93'>Dev</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=93 valign=top style='width:70.0pt;border:solid windowtext 1.0pt;
+  border-top:none;background:#F4F7FB;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><b><span style='font-size:9.0pt;color:#0A2540'>Wk 4–5</span></b></p>
+  </td>
+  <td width=363 valign=top style='width:272.5pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  background:#F4F7FB;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><span style='font-size:9.0pt;color:#333333'>Phase 3 —
+  checkout + payment gateway integration, webhook testing</span></p>
+  </td>
+  <td width=167 valign=top style='width:125.0pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  background:#F4F7FB;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><span style='font-size:9.0pt;color:#6B7C93'>Dev</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=93 valign=top style='width:70.0pt;border:solid windowtext 1.0pt;
+  border-top:none;background:white;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><b><span style='font-size:9.0pt;color:#0A2540'>Wk 5–6</span></b></p>
+  </td>
+  <td width=363 valign=top style='width:272.5pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  background:white;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><span style='font-size:9.0pt;color:#333333'>Phase 4 —
+  document upload + final submission flow</span></p>
+  </td>
+  <td width=167 valign=top style='width:125.0pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  background:white;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><span style='font-size:9.0pt;color:#6B7C93'>Dev</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=93 valign=top style='width:70.0pt;border:solid windowtext 1.0pt;
+  border-top:none;background:#F4F7FB;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><b><span style='font-size:9.0pt;color:#0A2540'>Wk 6–7</span></b></p>
+  </td>
+  <td width=363 valign=top style='width:272.5pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  background:#F4F7FB;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><span style='font-size:9.0pt;color:#333333'>Phase 5 —
+  automation engine (both funnels + payment triggers) connected and tested</span></p>
+  </td>
+  <td width=167 valign=top style='width:125.0pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  background:#F4F7FB;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><span style='font-size:9.0pt;color:#6B7C93'>Dev + Ahmed</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=93 valign=top style='width:70.0pt;border:solid windowtext 1.0pt;
+  border-top:none;background:white;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><b><span style='font-size:9.0pt;color:#0A2540'>Wk 7–8</span></b></p>
+  </td>
+  <td width=363 valign=top style='width:272.5pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  background:white;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><span style='font-size:9.0pt;color:#333333'>Phase 6 —
+  Kanban board + stage-triggered notifications</span></p>
+  </td>
+  <td width=167 valign=top style='width:125.0pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  background:white;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><span style='font-size:9.0pt;color:#6B7C93'>Dev + Farooq</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=93 valign=top style='width:70.0pt;border:solid windowtext 1.0pt;
+  border-top:none;background:#F4F7FB;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><b><span style='font-size:9.0pt;color:#0A2540'>Wk 8</span></b></p>
+  </td>
+  <td width=363 valign=top style='width:272.5pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  background:#F4F7FB;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><span style='font-size:9.0pt;color:#333333'>Phase 7 —
+  role-based access for VA, permissions tested (incl. payment data
+  restrictions)</span></p>
+  </td>
+  <td width=167 valign=top style='width:125.0pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  background:#F4F7FB;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><span style='font-size:9.0pt;color:#6B7C93'>Dev</span></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=93 valign=top style='width:70.0pt;border:solid windowtext 1.0pt;
+  border-top:none;background:white;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><b><span style='font-size:9.0pt;color:#0A2540'>Wk 9</span></b></p>
+  </td>
+  <td width=363 valign=top style='width:272.5pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  background:white;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><span style='font-size:9.0pt;color:#333333'>End-to-end
+  testing with a dummy client application incl. test payment, fix issues, soft
+  launch</span></p>
+  </td>
+  <td width=167 valign=top style='width:125.0pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  background:white;padding:4.0pt 5.0pt 4.0pt 5.0pt'>
+  <p class=MsoNormal><span style='font-size:9.0pt;color:#6B7C93'>All</span></p>
+  </td>
+ </tr>
+</table>
+
+<div style='border:none;border-bottom:solid #C9A84C 1.0pt;padding:0in 0in 4.0pt 0in'>
+
+<p class=MsoNormal style='margin-top:19.0pt;margin-right:0in;margin-bottom:
+7.0pt;margin-left:0in;border:none;padding:0in'><b><span style='font-size:12.0pt;
+color:#0A2540;letter-spacing:.6pt'>Next Steps  WHAT I NEED FROM YOU BEFORE
+DEVELOPMENT STARTS</span></b></p>
+
+</div>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Exact
+document/data list required per jurisdiction and tier (Phase 0.2 / 4.1) — you
+mentioned this will come later.</span></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Standard
+rate card for every Jurisdiction × Tier × Add-on combination (Phase 3.2) — this
+becomes the live checkout pricing table.</span></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Confirmation
+on tech stack decision (in-house dev, agency, or no-code/low-code hybrid) —
+affects timeline significantly.</span></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Preferred
+payment gateway (Stripe recommended as default) and confirmation of any KYC/AML
+review needed on the merchant side (Phase 3.5).</span></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Final
+Kanban stage names and task templates per stage (Phase 6.2) — can be a simple
+list to start, refined later.</span></p>
+
+<p class=MsoListParagraph style='margin-top:0in;margin-right:0in;margin-bottom:
+4.0pt;margin-left:.25in;text-indent:-13.0pt;line-height:112%'>•<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+dir=LTR></span><span style='font-size:9.5pt;line-height:112%;color:#333333'>Exact
+WhatsApp/Email message templates for each automation trigger point — I can
+draft all of these once the stage list is confirmed.</span></p>
+
+</div>
+
+</body>
+
+</html>
