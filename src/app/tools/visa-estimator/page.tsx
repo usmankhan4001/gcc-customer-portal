@@ -2,23 +2,45 @@
 
 import React, { useState } from 'react';
 import BannerHeader from '@/components/portal/BannerHeader';
+import ContactCaptureGate from '@/components/portal/ContactCaptureGate';
 
 export default function VisaEstimatorPage() {
   const [employees, setEmployees] = useState('1');
   const [jurisdiction, setJurisdiction] = useState('Mainland');
   const [showResults, setShowResults] = useState(false);
+  const [captured, setCaptured] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setShowResults(true);
+    setCaptured(false);
+  };
+
+  const perEmployeeTotal = jurisdiction === 'Mainland' ? 4190 : 1190;
+  const grandTotal = perEmployeeTotal * (parseInt(employees) || 1);
+
+  const handleCapture = async (contact: { email: string; whatsapp_number: string }) => {
+    await fetch('/api/leads/capture', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        source_tool: 'visa_estimator',
+        email: contact.email || undefined,
+        whatsapp_number: contact.whatsapp_number || undefined,
+        tool_input: { employees, jurisdiction },
+        tool_result: { perEmployeeTotal, grandTotal },
+        signals: { primaryInterestJurisdiction: 'uae' },
+      }),
+    });
+    setCaptured(true);
   };
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
-      <BannerHeader title="VISA ESTIMATOR" />
+      <BannerHeader title="Visa Estimator" />
 
-      <div className="flex-1 px-4 py-8 max-w-4xl mx-auto w-full">
-        <div className="bg-white p-6 rounded-md shadow-sm border border-gray-200 mb-8">
+      <div className="flex-1 px-4 py-8 max-w-4xl mx-auto w-full space-y-8">
+        <div className="bg-white p-6 rounded-md shadow-sm border border-gray-200">
           <h2 className="text-xl font-bold text-gray-900 mb-4">Calculate Visa Costs</h2>
           <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4 items-end">
             <div className="flex-1 w-full">
@@ -58,7 +80,15 @@ export default function VisaEstimatorPage() {
           </form>
         </div>
 
-        {showResults && (
+        {showResults && !captured && (
+          <ContactCaptureGate
+            title="See your full cost breakdown"
+            subtitle="Enter your contact info to reveal the numbers below."
+            onCapture={handleCapture}
+          />
+        )}
+
+        {showResults && captured && (
           <div className="bg-white rounded-md shadow-sm border border-gray-200 overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
               <h3 className="text-lg font-bold text-gray-900">Estimated Visa Costs (Per Employee)</h3>
@@ -95,19 +125,17 @@ export default function VisaEstimatorPage() {
                   </tr>
                   <tr className="bg-gray-50 font-bold text-gray-900">
                     <td className="px-6 py-4" colSpan={2}>Total Estimated Cost (Per Employee)</td>
-                    <td className="px-6 py-4 text-right">
-                      {jurisdiction === 'Mainland' ? '4,190' : '1,190'}
-                    </td>
+                    <td className="px-6 py-4 text-right">{perEmployeeTotal.toLocaleString()}</td>
                   </tr>
                 </tbody>
               </table>
             </div>
-            
+
             <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
-                <div className="flex justify-between items-center font-bold text-lg">
-                    <span>Grand Total for {employees} Employee(s)</span>
-                    <span className="text-red-600">AED {(jurisdiction === 'Mainland' ? 4190 * parseInt(employees) : 1190 * parseInt(employees)).toLocaleString()}</span>
-                </div>
+              <div className="flex justify-between items-center font-bold text-lg">
+                <span>Grand Total for {employees} Employee(s)</span>
+                <span className="text-red-600">AED {grandTotal.toLocaleString()}</span>
+              </div>
             </div>
           </div>
         )}
