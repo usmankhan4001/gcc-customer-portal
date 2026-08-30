@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createHmac, timingSafeEqual } from 'crypto';
+import { and, desc, eq } from 'drizzle-orm';
+import { db } from '@/lib/db';
+import { companies, notifications, users } from '@/lib/db/schema';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -52,14 +55,10 @@ function verifyWebhookSignature(
 ): boolean {
   if (!signatureHeader) return false;
 
-  // Meta sends x-hub-signature-256: sha256=<hex>
   const expectedSignature = `sha256=${createHmac('sha256', appSecret).update(body).digest('hex')}`;
 
   try {
-    return timingSafeEqual(
-      Buffer.from(signatureHeader),
-      Buffer.from(expectedSignature)
-    );
+    return timingSafeEqual(Buffer.from(signatureHeader), Buffer.from(expectedSignature));
   } catch {
     return false;
   }
@@ -76,6 +75,58 @@ function extractKYCReference(text: string): string | null {
   return match ? match[1] : null;
 }
 
+function normalizePhone(phone: string): string {
+  return phone.replace(/[^\d+]/g, '');
+}
+
+/**
+ * A client who's completed KYC on the external government/bank portal
+ * (Decision 7) forwards the reference code they received back to us over
+ * WhatsApp. This looks up that sender, finds their company currently
+ * waiting on KYC, and advances it automatically — no staff/admin
+ * document-review step needed for this stage.
+ */
+async function handleKycReference(fromPhone: string, kycRef: string): Promise<void> {
+  const whatsappNumber = normalizePhone(fromPhone);
+  const [user] = await db.select().from(users).where(eq(users.whatsapp_number, whatsappNumber)).limit(1);
+  if (!user) {
+    console.log(`[webhooks/whatsapp] KYC reference ${kycRef} received from unknown number ${whatsappNumber}`);
+    return;
+  }
+
+  const [company] = await db
+    .select()
+    .from(companies)
+    .where(and(eq(companies.user_id, user.id), eq(companies.status, 'official_kyc_pending')))
+    .orderBy(desc(companies.created_at))
+    .limit(1);
+
+  if (!company) {
+    console.log(`[webhooks/whatsapp] User ${user.id} has no company awaiting KYC — ignoring reference ${kycRef}`);
+    return;
+  }
+
+  await db
+    .update(companies)
+    .set({
+      official_kyc_completed: true,
+      official_kyc_reference: kycRef,
+      status: 'filing_in_progress',
+      updated_at: new Date(),
+    })
+    .where(eq(companies.id, company.id));
+
+  await db.insert(notifications).values({
+    user_id: user.id,
+    title: 'KYC Verified',
+    message: `Your KYC reference (${kycRef}) for ${company.company_name} has been received. We're now proceeding with government filing.`,
+    type: 'success',
+    category: 'kyc',
+  });
+
+  console.log(`[webhooks/whatsapp] Company ${company.id} advanced to filing_in_progress via KYC ref ${kycRef}`);
+}
+
 // ---------------------------------------------------------------------------
 // POST /api/webhooks/whatsapp
 // ---------------------------------------------------------------------------
@@ -84,7 +135,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const body = await request.text();
 
-    // 1. Verify webhook signature
     const signature = request.headers.get('X-Hub-Signature-256');
     const appSecret = process.env.WHATSAPP_APP_SECRET!;
 
@@ -93,7 +143,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
     }
 
-    // 2. Parse payload
     let payload: WhatsAppWebhookBody;
     try {
       payload = JSON.parse(body) as WhatsAppWebhookBody;
@@ -105,76 +154,29 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: 'Invalid object type' }, { status: 400 });
     }
 
-    // 3. Process entries
     for (const entry of payload.entry) {
       for (const change of entry.changes) {
         if (change.field !== 'messages') continue;
 
-        const { messages, statuses, metadata } = change.value;
+        const { messages, statuses } = change.value;
 
-        // Handle incoming messages
         if (messages) {
           for (const message of messages) {
-            console.log(
-              `[webhooks/whatsapp] Message from ${message.id}: type=${message.type}`
-            );
-
-            // Check for KYC reference in text messages
             if (message.type === 'text' && message.text?.body) {
               const kycRef = extractKYCReference(message.text.body);
-
               if (kycRef) {
-                console.log(`[webhooks/whatsapp] KYC reference detected: ${kycRef}`);
-
-                // TODO: Look up document by reference and update status
-                // const document = await queryOne(
-                //   `SELECT d.*, c.id as company_id
-                //    FROM documents d
-                //    JOIN companies c ON d.company_id = c.id
-                //    WHERE d.reference_number = $1 OR d.id = $1`,
-                //   [kycRef]
-                // );
-                //
-                // if (document) {
-                //   await query(
-                //     `UPDATE documents SET status = 'uploaded', updated_at = NOW() WHERE id = $1`,
-                //     [document.id]
-                //   );
-                // }
-
-                console.log(`[webhooks/whatsapp] Mock DB: KYC reference ${kycRef} processed`);
+                await handleKycReference(message.from, kycRef);
               }
             }
-
-            // TODO: Log notification in database
-            // await query(
-            //   `INSERT INTO notifications (id, channel, direction, phone_number, message_id, content, metadata, created_at)
-            //    VALUES ($1, 'whatsapp', 'inbound', $2, $3, $4, $5, NOW())`,
-            //   [
-            //     crypto.randomUUID(),
-            //     message.from,
-            //     message.id,
-            //     message.text?.body ?? `[${message.type}]`,
-            //     JSON.stringify({ type: message.type, phone_number_id: metadata.phone_number_id }),
-            //   ]
-            // );
-
-            console.log(`[webhooks/whatsapp] Mock DB: notification logged for ${message.from}`);
           }
         }
 
-        // Handle status updates
+        // Delivery/read status updates for outbound messages aren't
+        // persisted yet — would need a whatsapp_message_id column on
+        // notifications to correlate; not needed for anything in v1.
         if (statuses) {
           for (const status of statuses) {
-            console.log(
-              `[webhooks/whatsapp] Status update: ${status.id} → ${status.status}`
-            );
-
-            // TODO: Update notification status in database
-            // await query(
-            //   `UPDATE notifications SET status = $1, updated_at = NOW() WHERE message_id = $2`,
-            //   [status.status, status.id]
-            // );
+            console.log(`[webhooks/whatsapp] Status update: ${status.id} → ${status.status}`);
           }
         }
       }
@@ -183,10 +185,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ received: true }, { status: 200 });
   } catch (error) {
     console.error('[webhooks/whatsapp] Error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
