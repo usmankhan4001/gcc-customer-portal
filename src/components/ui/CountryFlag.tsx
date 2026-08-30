@@ -41,6 +41,8 @@ export default function CountryFlag({
         );
 
       case 'hk':
+      case 'hong-kong':
+      case 'hong_kong':
         return (
           <svg viewBox="0 0 64 64" width={dimension} height={dimension} className={className}>
             <circle cx="32" cy="32" r="30" fill="#EE1C25" />

@@ -2,53 +2,16 @@
 
 import { use } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, CheckCircle2, Clock, ShieldCheck, Wallet } from 'lucide-react';
+import { CheckCircle2, Clock, Wallet } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import BannerHeader from '@/components/portal/BannerHeader';
-
-const jurisdictionData: Record<string, any> = {
-  'uae': {
-    name: 'United Arab Emirates',
-    flagUrl: 'https://flagcdn.com/ae.svg',
-    price: '$1,500',
-    tax: '9% / 0% Foreign',
-    timeline: '~30 days',
-    description: 'Emirates ID, full tax residency, top-tier local banking, and a cosmopolitan lifestyle base.',
-    features: [
-      '0% tax on foreign-sourced income',
-      'Local credible banking (Emirates NBD, FAB)',
-      'Emirates ID & Tax Residency included',
-      '100% foreign ownership'
-    ]
-  },
-  'hong-kong': {
-    name: 'Hong Kong',
-    flagUrl: 'https://flagcdn.com/hk.svg',
-    price: '$2,000',
-    tax: '0% on Foreign',
-    timeline: '17–18 days',
-    description: '100% remote. Fintech banking via Airwallex & Wise. The preferred structure for digital income earners.',
-    features: [
-      '100% fully remote setup',
-      '0% tax on all foreign-sourced income',
-      'Instant fintech banking (Airwallex)',
-      'Highly reputable global jurisdiction'
-    ]
-  },
-  // Add fallback for others for demo purposes
-};
+import CountryFlag from '@/components/ui/CountryFlag';
+import { getJurisdiction } from '@/lib/jurisdictions';
 
 export default function JurisdictionDetails({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
-  const data = jurisdictionData[resolvedParams.id] || {
-    name: resolvedParams.id.charAt(0).toUpperCase() + resolvedParams.id.slice(1),
-    flagUrl: 'https://flagcdn.com/bh.svg', // generic fallback
-    price: 'Custom quote',
-    tax: '0% Corporate',
-    timeline: 'Varies',
-    description: 'Premium corporate structuring tailored to your specific global needs.',
-    features: ['100% foreign ownership', 'Zero minimum capital requirement']
-  };
+  const data = getJurisdiction(resolvedParams.id);
+  if (!data) notFound();
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 pb-20">
@@ -57,11 +20,9 @@ export default function JurisdictionDetails({ params }: { params: Promise<{ id: 
       {/* Hero Section */}
       <div className="bg-white px-4 py-4 border-b border-gray-200">
         <div className="flex items-center gap-4">
-          <img 
-            src={data.flagUrl} 
-            alt={`${data.name} Flag`} 
-            className="w-16 h-16 rounded-sm object-cover border border-gray-200 shadow-sm"
-          />
+          <div className="rounded-sm border border-gray-200 shadow-sm overflow-hidden">
+            <CountryFlag country={data.flagCode} size="xl" />
+          </div>
           <div>
             <h2 className="text-2xl font-black text-gray-900 tracking-tight">{data.name}</h2>
             <div className="flex items-center gap-2 mt-1">

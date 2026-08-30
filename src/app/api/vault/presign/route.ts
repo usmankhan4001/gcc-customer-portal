@@ -1,37 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { jwtVerify } from 'jose';
-
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
+import { and, eq, ne, desc } from 'drizzle-orm';
+import { verifyToken } from '@/lib/auth';
+import { db } from '@/lib/db';
+import { companies, documents, documentVersions } from '@/lib/db/schema';
 
 interface PresignRequest {
-  company_id: string;
   category: string;
   file_name: string;
   file_size: number;
   mime_type: string;
+  expiry_date?: string;
 }
-
-interface PresignResponse {
-  document_id: string;
-  upload_url: string;
-  r2_key: string;
-  expires_in_seconds: number;
-}
-
-interface JWTPayload {
-  sub: string;
-  email: string;
-  role: string;
-  company_id?: string;
-}
-
-// ---------------------------------------------------------------------------
-// R2 / S3 Client
-// ---------------------------------------------------------------------------
 
 const r2Client = new S3Client({
   region: 'auto',
@@ -44,56 +26,27 @@ const r2Client = new S3Client({
 
 const BUCKET_NAME = process.env.R2_BUCKET_NAME!;
 const PRESIGN_EXPIRY_SECONDS = 900; // 15 minutes
-
-// ---------------------------------------------------------------------------
-// Auth helper
-// ---------------------------------------------------------------------------
-
-async function verifyAuth(request: NextRequest): Promise<JWTPayload> {
-  const authHeader = request.headers.get('Authorization');
-  if (!authHeader?.startsWith('Bearer ')) {
-    throw new Error('Missing or invalid Authorization header');
-  }
-
-  const token = authHeader.slice(7);
-  const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
-
-  const { payload } = await jwtVerify(token, secret);
-  return payload as unknown as JWTPayload;
-}
-
-// ---------------------------------------------------------------------------
-// POST /api/vault/presign
-// ---------------------------------------------------------------------------
+const MAX_FILE_SIZE = 25 * 1024 * 1024;
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    // 1. Authenticate
-    let user: JWTPayload;
-    try {
-      user = await verifyAuth(request);
-    } catch {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('gcc_session')?.value;
+    const session = token ? await verifyToken(token) : null;
+    if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // 2. Parse body
     const body = (await request.json()) as PresignRequest;
-    const { company_id, category, file_name, file_size, mime_type } = body;
+    const { category, file_name, file_size, mime_type, expiry_date } = body;
 
-    if (!company_id || !category || !file_name || !file_size || !mime_type) {
+    if (!category || !file_name || !file_size || !mime_type) {
       return NextResponse.json(
-        { error: 'Missing required fields: company_id, category, file_name, file_size, mime_type' },
+        { error: 'Missing required fields: category, file_name, file_size, mime_type' },
         { status: 400 }
       );
     }
 
-    // 3. Validate company access
-    if (user.role !== 'admin' && user.company_id !== company_id) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
-
-    // 4. Validate file size (max 25 MB)
-    const MAX_FILE_SIZE = 25 * 1024 * 1024;
     if (file_size > MAX_FILE_SIZE) {
       return NextResponse.json(
         { error: `File size exceeds maximum of ${MAX_FILE_SIZE / 1024 / 1024}MB` },
@@ -101,26 +54,70 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // 5. Build R2 key
+    const [company] = await db
+      .select()
+      .from(companies)
+      .where(and(eq(companies.user_id, session.userId), ne(companies.status, 'lead')))
+      .orderBy(desc(companies.created_at))
+      .limit(1);
+
     const now = new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
     const safeFileName = file_name.replace(/[^a-zA-Z0-9._-]/g, '_');
-    const r2Key = `vault/${year}/${month}/${safeFileName}`;
+    const r2Key = `vault/${session.userId}/${year}/${month}/${Date.now()}_${safeFileName}`;
 
-    // 6. Create document record in database
-    const documentId = crypto.randomUUID();
+    // If a document of the same company+category already exists, archive it
+    // as a version instead of silently overwriting it.
+    const [existing] = company
+      ? await db
+          .select()
+          .from(documents)
+          .where(
+            and(
+              eq(documents.company_id, company.id),
+              eq(documents.category, category as any),
+              eq(documents.status, 'active')
+            )
+          )
+          .limit(1)
+      : [];
 
-    // TODO: Insert document record into database
-    // await query(
-    //   `INSERT INTO documents (id, company_id, category, file_name, file_size, mime_type, r2_key, status, created_at)
-    //    VALUES ($1, $2, $3, $4, $5, $6, $7, 'pending', NOW())`,
-    //   [documentId, company_id, category, file_name, file_size, mime_type, r2Key]
-    // );
+    if (existing) {
+      const [latestVersion] = await db
+        .select({ version_number: documentVersions.version_number })
+        .from(documentVersions)
+        .where(eq(documentVersions.document_id, existing.id))
+        .orderBy(desc(documentVersions.version_number))
+        .limit(1);
 
-    console.log(`[vault/presign] Mock DB insert: document ${documentId} for company ${company_id}`);
+      await db.insert(documentVersions).values({
+        document_id: existing.id,
+        version_number: (latestVersion?.version_number ?? 1) + 1,
+        r2_key: existing.r2_key,
+        file_name: existing.file_name,
+        uploaded_by: session.userId,
+      });
 
-    // 7. Generate presigned PUT URL
+      await db.update(documents).set({ status: 'superseded' }).where(eq(documents.id, existing.id));
+    }
+
+    const [document] = await db
+      .insert(documents)
+      .values({
+        user_id: session.userId,
+        company_id: company?.id,
+        file_name,
+        r2_key: r2Key,
+        category: category as any,
+        mime_type,
+        file_size_bytes: file_size,
+        status: 'active',
+        expiry_date: expiry_date ? new Date(expiry_date) : undefined,
+        uploaded_by: session.userId,
+      })
+      .returning();
+
     const command = new PutObjectCommand({
       Bucket: BUCKET_NAME,
       Key: r2Key,
@@ -128,23 +125,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       ContentLength: file_size,
     });
 
-    const uploadUrl = await getSignedUrl(r2Client, command, {
-      expiresIn: PRESIGN_EXPIRY_SECONDS,
-    });
+    const uploadUrl = await getSignedUrl(r2Client, command, { expiresIn: PRESIGN_EXPIRY_SECONDS });
 
-    const response: PresignResponse = {
-      document_id: documentId,
+    return NextResponse.json({
+      document_id: document.id,
       upload_url: uploadUrl,
       r2_key: r2Key,
       expires_in_seconds: PRESIGN_EXPIRY_SECONDS,
-    };
-
-    return NextResponse.json(response, { status: 200 });
+    });
   } catch (error) {
     console.error('[vault/presign] Error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
