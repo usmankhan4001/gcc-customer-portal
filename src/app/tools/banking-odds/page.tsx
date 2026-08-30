@@ -152,7 +152,7 @@ export default function BankingOddsMatcher() {
                     <div className="text-lg font-bold text-gray-900">
                       {result.odds}<span className="text-sm text-gray-400">%</span>
                     </div>
-                    <p className={`text-xs font-medium ${result.odds > 80 ? 'text-green-600' : result.odds > 50 ? 'text-yellow-600' : 'text-primary'}`}>
+                    <p className={`text-xs font-medium ${result.odds > 80 ? 'text-success' : result.odds > 50 ? 'text-warning' : 'text-destructive'}`}>
                       {result.odds > 80 ? 'High Likelihood' : result.odds > 50 ? 'Medium Likelihood' : 'Low Likelihood'}
                     </p>
                   </div>

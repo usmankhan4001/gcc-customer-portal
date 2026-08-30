@@ -60,9 +60,9 @@ function computeDeadlines(formationDate: Date): DeadlineRow[] {
 }
 
 const STATUS_STYLES: Record<DeadlineRow['status'], string> = {
-  'On Track': 'bg-green-100 text-green-800',
-  'Action Needed': 'bg-yellow-100 text-yellow-800',
-  Overdue: 'bg-primary-100 text-primary-800',
+  'On Track': 'bg-success-light text-success',
+  'Action Needed': 'bg-warning-light text-warning',
+  Overdue: 'bg-destructive/10 text-destructive',
   Ongoing: 'bg-gray-100 text-gray-800',
 };
 

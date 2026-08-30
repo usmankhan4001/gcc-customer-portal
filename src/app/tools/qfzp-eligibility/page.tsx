@@ -100,7 +100,7 @@ export default function QFZPEligibilityChecker() {
           <>
             <div
               className={`p-4 rounded-md border transition-colors duration-300 ${
-                isLikelyEligible ? 'bg-green-50 border-green-200 text-green-900' : 'bg-primary-50 border-primary-200 text-primary-900'
+                isLikelyEligible ? 'bg-success-light border-success/30 text-success' : 'bg-primary-50 border-primary-200 text-primary-900'
               }`}
             >
               <div className="flex items-start gap-4 text-sm">

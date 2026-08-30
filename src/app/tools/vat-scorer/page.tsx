@@ -106,16 +106,16 @@ export default function VatScorerPage() {
 
         {submitted && revAmount > 0 && captured && (
           <>
-            <div className={`p-4 rounded-md border transition-colors duration-300 text-sm ${isMandatory ? 'bg-primary-50 border-primary-200' : 'bg-green-50 border-green-200'}`}>
+            <div className={`p-4 rounded-md border transition-colors duration-300 text-sm ${isMandatory ? 'bg-primary-50 border-primary-200' : 'bg-success-light border-success/30'}`}>
               <div className="flex items-start gap-4">
                 <div className="font-medium min-w-[120px]">Requirement:</div>
-                <div className={`font-semibold ${isMandatory ? 'text-primary-800' : 'text-green-800'}`}>
+                <div className={`font-semibold ${isMandatory ? 'text-primary-800' : 'text-success'}`}>
                   {isMandatory ? 'VAT Registration Mandatory' : 'Voluntary'}
                 </div>
               </div>
               <div className="flex items-start gap-4 mt-2">
                 <div className="font-medium min-w-[120px]">Details:</div>
-                <div className={isMandatory ? 'text-primary-700' : 'text-green-700'}>
+                <div className={isMandatory ? 'text-primary-700' : 'text-success'}>
                   {isMandatory
                     ? `Based on your estimated revenue, you are required to register for VAT in the UAE (mandatory threshold: AED ${threshold.toLocaleString()}).`
                     : `Based on your estimated revenue, VAT registration is currently voluntary (mandatory threshold: AED ${threshold.toLocaleString()}).`}

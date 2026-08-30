@@ -18,20 +18,20 @@ function checkExposure(jurisdiction: string): PrivacyResult {
     return {
       level: "High Exposure: Publicly Searchable",
       desc: "Your details (name, nationality, month/year of birth, and service address) are freely available on public registries like Companies House.",
-      color: "text-primary-700 bg-primary-50 border-primary-200",
+      color: "text-destructive bg-destructive/10 border-destructive/20",
     };
   }
   if (lowerJurisdiction.includes("us") || lowerJurisdiction.includes("united states")) {
     return {
       level: "Medium/High Exposure",
       desc: "While FinCEN data is generally not public, state-level registries may publicly expose your details depending on the state.",
-      color: "text-orange-700 bg-orange-50 border-orange-200",
+      color: "text-warning bg-warning-light border-warning/30",
     };
   }
   return {
     level: "Moderate Exposure",
     desc: "Your UBO data may be accessible to authorities and potentially the public depending on specific local laws.",
-    color: "text-yellow-700 bg-yellow-50 border-yellow-200",
+    color: "text-info bg-info-light border-info/30",
   };
 }
 

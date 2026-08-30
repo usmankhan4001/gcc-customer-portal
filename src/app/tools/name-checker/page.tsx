@@ -95,10 +95,10 @@ export default function NameCheckerPage() {
 
         {result && captured && (
           <>
-            <div className={`p-4 rounded-md border ${result.status === 'available' ? 'bg-green-50 border-green-200' : 'bg-amber-50 border-amber-200'}`}>
+            <div className={`p-4 rounded-md border ${result.status === 'available' ? 'bg-success-light border-success/30' : 'bg-warning-light border-warning/30'}`}>
               <div className="flex items-start gap-3 text-sm">
                 <div className="font-medium min-w-[120px]">Preliminary check:</div>
-                <div className={`font-semibold ${result.status === 'available' ? 'text-green-800' : 'text-amber-800'}`}>
+                <div className={`font-semibold ${result.status === 'available' ? 'text-success' : 'text-warning'}`}>
                   {result.message}
                 </div>
               </div>
