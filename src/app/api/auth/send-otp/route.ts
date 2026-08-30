@@ -3,7 +3,7 @@ import { randomInt } from 'crypto';
 import { db } from '@/lib/db';
 import { otpCodes } from '@/lib/db/schema';
 import { hashToken } from '@/lib/auth';
-import { sendWhatsAppMessage } from '@/lib/whatsapp';
+import { sendWhatsAppMessage, sendTextMessage } from '@/lib/whatsapp';
 
 const OTP_TTL_MINUTES = 10;
 
@@ -48,17 +48,33 @@ export async function POST(request: Request) {
       process.env.WHATSAPP_PHONE_NUMBER_ID !== 'xxx';
 
     let sentViaWhatsApp = false;
+    let whatsAppError: string | null = null;
+
     if (isWhatsAppConfigured) {
       try {
+        // Try template message first (Standard Meta WhatsApp OTP template)
         const result = await sendWhatsAppMessage(whatsappNumber, 'otp_verification', 'en', [
           { type: 'text', text: otp },
         ]);
-        sentViaWhatsApp = result.success;
-        if (!result.success) {
-          console.warn('[Auth] WhatsApp dispatch failed. Falling back to dev/demo OTP.');
+        
+        if (result.success) {
+          sentViaWhatsApp = true;
+        } else {
+          // Attempt direct text message fallback
+          const textResult = await sendTextMessage(
+            whatsappNumber,
+            `Your GCC Startup verification code is: ${otp}. Valid for 10 minutes.`
+          );
+          if (textResult.success) {
+            sentViaWhatsApp = true;
+          } else {
+            console.warn('[WhatsApp] Both template and text message dispatch failed. Check Meta App Token/Permissions.');
+            whatsAppError = 'Meta WhatsApp API dispatch error. Verify template "otp_verification" is approved in Meta WABA.';
+          }
         }
-      } catch (err) {
-        console.warn('[Auth] WhatsApp dispatch exception:', err);
+      } catch (err: any) {
+        console.error('[WhatsApp] Dispatch exception:', err);
+        whatsAppError = err.message || 'WhatsApp dispatch error';
       }
     } else {
       console.log(`[Auth DEV/DEMO] WhatsApp credentials not configured. OTP for ${whatsappNumber}: ${otp}`);

@@ -37,8 +37,9 @@ export async function sendWhatsAppMessage(
   templateName: string,
   languageCode: string,
   parameters?: { type: string; text: string }[]
-): Promise<{ success: boolean; messageId?: string }> {
+): Promise<{ success: boolean; messageId?: string; error?: any }> {
   try {
+    const recipient = to.replace(/\D/g, '');
     const components = parameters
       ? [{ type: 'body', parameters }]
       : [];
@@ -53,7 +54,7 @@ export async function sendWhatsAppMessage(
         },
         body: JSON.stringify({
           messaging_product: 'whatsapp',
-          to,
+          to: recipient,
           type: 'template',
           template: {
             name: templateName,
@@ -67,23 +68,24 @@ export async function sendWhatsAppMessage(
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('WhatsApp API error:', data);
-      return { success: false };
+      console.error('[WhatsApp Cloud API Error]:', JSON.stringify(data, null, 2));
+      return { success: false, error: data };
     }
 
     const messageId = data.messages?.[0]?.id;
     return { success: true, messageId };
   } catch (error) {
     console.error('Failed to send WhatsApp message:', error);
-    return { success: false };
+    return { success: false, error };
   }
 }
 
 export async function sendTextMessage(
   to: string,
   text: string
-): Promise<{ success: boolean; messageId?: string }> {
+): Promise<{ success: boolean; messageId?: string; error?: any }> {
   try {
+    const recipient = to.replace(/\D/g, '');
     const response = await fetch(
       `${GRAPH_API_URL}/${PHONE_NUMBER_ID}/messages`,
       {
@@ -94,7 +96,7 @@ export async function sendTextMessage(
         },
         body: JSON.stringify({
           messaging_product: 'whatsapp',
-          to,
+          to: recipient,
           type: 'text',
           text: { body: text },
         }),
@@ -104,15 +106,15 @@ export async function sendTextMessage(
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('WhatsApp text message error:', data);
-      return { success: false };
+      console.error('[WhatsApp Text API Error]:', JSON.stringify(data, null, 2));
+      return { success: false, error: data };
     }
 
     const messageId = data.messages?.[0]?.id;
     return { success: true, messageId };
   } catch (error) {
     console.error('Failed to send WhatsApp text message:', error);
-    return { success: false };
+    return { success: false, error };
   }
 }
 
