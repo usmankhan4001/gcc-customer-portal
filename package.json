@@ -6,7 +6,10 @@
     "dev": "next dev --port 3005",
     "build": "next build",
     "start": "next start --port 3005",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:seed": "tsx scripts/seed.ts"
   },
   "dependencies": {
     "@ark-ui/react": "^5.39.1",
@@ -30,7 +33,6 @@
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.45.2",
     "jose": "^6.2.10",
-    "jsonwebtoken": "^9.0.3",
     "lucide-react": "^1.37.0",
     "next": "^15.2.1",
     "next-themes": "^0.4.6",
@@ -50,7 +52,6 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",
     "@types/canvas-confetti": "^1.9.0",
-    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^22.13.9",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
@@ -60,6 +61,7 @@
     "postcss": "^8.5.26",
     "sharp": "^0.35.4",
     "tailwindcss": "^4.3.3",
+    "tsx": "^4.19.2",
     "typescript": "^5.8.2"
   },
   "allowScripts": {

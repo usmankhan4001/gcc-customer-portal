@@ -53,7 +53,7 @@ export const companies = pgTable('companies', {
   user_id: uuid('user_id').references(() => users.id).notNull(),
   company_name: text('company_name').notNull(),
   jurisdiction: text('jurisdiction', {
-    enum: ['uae', 'hong_kong', 'singapore', 'bahrain', 'ireland', 'bvi_cayman'],
+    enum: ['uae', 'hong-kong', 'singapore', 'bahrain', 'ireland', 'bvi'],
   }).notNull(),
   tier: text('tier', {
     enum: ['tier_1_self', 'tier_2_nominee', 'tier_3_shelf'],
@@ -197,7 +197,7 @@ export const orders = pgTable('orders', {
 export const jurisdictionPricing = pgTable('jurisdiction_pricing', {
   id: uuid('id').primaryKey().defaultRandom(),
   jurisdiction: text('jurisdiction', {
-    enum: ['uae', 'hong_kong', 'singapore', 'bahrain', 'ireland', 'bvi_cayman'],
+    enum: ['uae', 'hong-kong', 'singapore', 'bahrain', 'ireland', 'bvi'],
   }).notNull(),
   tier: text('tier', {
     enum: ['tier_1_self', 'tier_2_nominee', 'tier_3_shelf'],
@@ -228,7 +228,7 @@ export const renewals = pgTable('renewals', {
 export const jurisdictionTaxRules = pgTable('jurisdiction_tax_rules', {
   id: uuid('id').primaryKey().defaultRandom(),
   jurisdiction: text('jurisdiction', {
-    enum: ['uae', 'hong_kong', 'singapore', 'bahrain', 'ireland', 'bvi_cayman'],
+    enum: ['uae', 'hong-kong', 'singapore', 'bahrain', 'ireland', 'bvi'],
   }).notNull(),
   tax_type: text('tax_type', { enum: ['corporate', 'vat', 'other'] }).notNull(),
   rate_percent: integer('rate_percent').notNull(), // basis points would be ideal; keep integer percent *100 for 1 decimal precision
@@ -328,7 +328,7 @@ export const leads = pgTable('leads', {
     enum: ['low', 'medium', 'high'],
   }),
   primary_interest_jurisdiction: text('primary_interest_jurisdiction', {
-    enum: ['uae', 'hong_kong', 'singapore', 'bahrain', 'ireland', 'bvi_cayman'],
+    enum: ['uae', 'hong-kong', 'singapore', 'bahrain', 'ireland', 'bvi'],
   }),
   persona_tag: text('persona_tag'),
   funnel_track: text('funnel_track', {
