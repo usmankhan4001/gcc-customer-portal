@@ -36,7 +36,7 @@ const TAX_RULES: (typeof jurisdictionTaxRules.$inferInsert)[] = [
   {
     jurisdiction: 'uae',
     tax_type: 'corporate',
-    rate_percent: 9,
+    rate_percent: 900, // 9.00% — see convention note above
     threshold_amount: 37500000, // AED 375,000 profit threshold, in fils-equivalent cents
     currency: 'aed',
     filing_frequency: 'annual',
@@ -46,7 +46,7 @@ const TAX_RULES: (typeof jurisdictionTaxRules.$inferInsert)[] = [
   {
     jurisdiction: 'uae',
     tax_type: 'vat',
-    rate_percent: 5,
+    rate_percent: 500, // 5.00%
     threshold_amount: 37500000, // AED 375,000 mandatory registration threshold
     currency: 'aed',
     filing_frequency: 'quarterly',
@@ -56,17 +56,17 @@ const TAX_RULES: (typeof jurisdictionTaxRules.$inferInsert)[] = [
   {
     jurisdiction: 'hong-kong',
     tax_type: 'corporate',
-    rate_percent: 825, // 8.25% on first HKD 2M profit, stored *100 for 2dp precision — see note
+    rate_percent: 825, // 8.25% on first HKD 2M profit
     threshold_amount: null,
     currency: 'hkd',
     filing_frequency: 'annual',
     filing_deadline_rule: 'within 1 month of the profits tax return issue date',
-    notes: 'PLACEHOLDER — two-tier rate (8.25%/16.5%) simplified to the lower tier. rate_percent stored as percent*100. Verify with Farooq.',
+    notes: 'PLACEHOLDER — two-tier rate (8.25%/16.5%) simplified to the lower tier. Verify with Farooq.',
   },
   {
     jurisdiction: 'singapore',
     tax_type: 'corporate',
-    rate_percent: 17,
+    rate_percent: 1700, // 17.00%
     threshold_amount: null,
     currency: 'sgd',
     filing_frequency: 'annual',

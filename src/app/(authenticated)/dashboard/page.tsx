@@ -5,6 +5,7 @@ import BannerHeader from '@/components/portal/BannerHeader';
 import SummaryCard from '@/components/portal/SummaryCard';
 import ServiceTile from '@/components/portal/ServiceTile';
 import PipelineStepTracker from '@/components/portal/PipelineStepTracker';
+import ComplianceSnapshot from '@/components/portal/ComplianceSnapshot';
 import { getServerSession } from '@/lib/session';
 import { db } from '@/lib/db';
 import { companies, notifications, users } from '@/lib/db/schema';
@@ -67,6 +68,14 @@ export default async function DashboardPage() {
 
           <div className="px-4 mt-6 max-w-4xl mx-auto w-full">
             <PipelineStepTracker steps={STAGE_LABELS} currentStep={STATUS_TO_STEP[activeCompany.status] ?? 0} />
+          </div>
+
+          <div className="px-4 mt-6 max-w-4xl mx-auto w-full">
+            <ComplianceSnapshot
+              jurisdiction={activeCompany.jurisdiction}
+              annualRevenueEstimate={activeCompany.annual_revenue_estimate}
+              fiscalYearEnd={activeCompany.fiscal_year_end}
+            />
           </div>
         </>
       ) : (
