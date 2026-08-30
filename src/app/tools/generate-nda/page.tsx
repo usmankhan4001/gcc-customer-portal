@@ -57,7 +57,7 @@ export default function GenerateNDAPage() {
                     value={yourCompany}
                     onChange={(e) => setYourCompany(e.target.value)}
                     placeholder="e.g. Acme Corp"
-                    className="flex-1 px-2 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500 transition-colors"
+                    className="flex-1 px-2 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-colors"
                     required
                   />
                 </div>
@@ -71,7 +71,7 @@ export default function GenerateNDAPage() {
                     value={otherParty}
                     onChange={(e) => setOtherParty(e.target.value)}
                     placeholder="e.g. Globex Inc."
-                    className="flex-1 px-2 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500 transition-colors"
+                    className="flex-1 px-2 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-colors"
                     required
                   />
                 </div>
@@ -79,7 +79,7 @@ export default function GenerateNDAPage() {
                 <button
                   type="submit"
                   disabled={!yourCompany || !otherParty}
-                  className="w-full mt-4 bg-red-600 text-white text-sm font-medium py-2 px-4 rounded-md shadow hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="w-full mt-4 bg-primary text-white text-sm font-medium py-2 px-4 rounded-md shadow hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   Continue
                 </button>
@@ -107,14 +107,14 @@ export default function GenerateNDAPage() {
                 </p>
               </div>
 
-              <div className="bg-red-50 rounded-md border border-red-100 p-4 flex flex-col sm:flex-row items-center justify-between shadow-sm">
+              <div className="bg-primary-50 rounded-md border border-primary-100 p-4 flex flex-col sm:flex-row items-center justify-between shadow-sm">
                 <div>
-                  <h3 className="text-red-900 font-semibold text-sm">Store all your corporate documents securely.</h3>
-                  <p className="text-red-700 text-xs mt-0.5">Keep your NDAs, contracts, and filings in one secure place.</p>
+                  <h3 className="text-primary-900 font-semibold text-sm">Store all your corporate documents securely.</h3>
+                  <p className="text-primary-700 text-xs mt-0.5">Keep your NDAs, contracts, and filings in one secure place.</p>
                 </div>
                 <Link
                   href="/vault"
-                  className="whitespace-nowrap px-4 py-2 bg-white border border-red-200 text-red-700 text-xs font-medium rounded-md shadow-sm hover:bg-red-50 transition-colors mt-3 sm:mt-0"
+                  className="whitespace-nowrap px-4 py-2 bg-white border border-primary-200 text-primary-700 text-xs font-medium rounded-md shadow-sm hover:bg-primary-50 transition-colors mt-3 sm:mt-0"
                 >
                   Go to My Vault
                 </Link>

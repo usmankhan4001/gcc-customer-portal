@@ -74,7 +74,7 @@ export default function WelcomeCarouselPage() {
             <button
               key={index}
               onClick={() => scrollToSlide(index)}
-              className={`h-1.5 rounded-sm transition-all duration-300 ${currentSlide === index ? 'w-6 bg-red-600' : 'w-2 bg-gray-300'}`}
+              className={`h-1.5 rounded-sm transition-all duration-300 ${currentSlide === index ? 'w-6 bg-primary' : 'w-2 bg-gray-300'}`}
               aria-label={`Go to slide ${index + 1}`}
             />
           ))}
@@ -84,14 +84,14 @@ export default function WelcomeCarouselPage() {
           {currentSlide === slides.length - 1 ? (
             <Link
               href="/auth"
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-semibold text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-600 transition-colors"
+              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-semibold text-white bg-primary hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"
             >
               Get Started
             </Link>
           ) : (
             <button
               onClick={() => scrollToSlide(currentSlide + 1)}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-semibold text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-600 transition-colors"
+              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-semibold text-white bg-primary hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"
             >
               Next
             </button>

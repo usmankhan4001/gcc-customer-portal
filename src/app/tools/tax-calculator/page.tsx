@@ -115,7 +115,7 @@ export default function TaxCalculatorPage() {
             <div className="flex flex-col sm:flex-row sm:items-center gap-2">
               <label className="w-40 text-sm font-semibold text-gray-700">Current Country</label>
               <select
-                className="flex-1 px-2 py-1.5 text-sm rounded-md border border-gray-300 focus:ring-1 focus:ring-red-500 focus:border-red-500 bg-gray-50"
+                className="flex-1 px-2 py-1.5 text-sm rounded-md border border-gray-300 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 bg-gray-50"
                 value={countryResidence}
                 onChange={(e) => setCountryResidence(e.target.value)}
               >
@@ -129,7 +129,7 @@ export default function TaxCalculatorPage() {
               <label className="w-40 text-sm font-semibold text-gray-700">Annual Profit ($)</label>
               <input
                 type="number"
-                className="flex-1 px-2 py-1.5 text-sm rounded-md border border-gray-300 focus:ring-1 focus:ring-red-500 focus:border-red-500 bg-gray-50"
+                className="flex-1 px-2 py-1.5 text-sm rounded-md border border-gray-300 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 bg-gray-50"
                 placeholder="100000"
                 value={annualProfit}
                 onChange={(e) => setAnnualProfit(e.target.value === '' ? '' : Number(e.target.value))}
@@ -139,7 +139,7 @@ export default function TaxCalculatorPage() {
             <div className="flex flex-col sm:flex-row sm:items-center gap-2">
               <label className="w-40 text-sm font-semibold text-gray-700">Compare with</label>
               <select
-                className="flex-1 px-2 py-1.5 text-sm rounded-md border border-gray-300 focus:ring-1 focus:ring-red-500 focus:border-red-500 bg-gray-50"
+                className="flex-1 px-2 py-1.5 text-sm rounded-md border border-gray-300 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 bg-gray-50"
                 value={targetJurisdiction}
                 onChange={(e) => setTargetJurisdiction(e.target.value)}
               >
@@ -149,12 +149,12 @@ export default function TaxCalculatorPage() {
               </select>
             </div>
 
-            {error && <p className="text-sm text-red-600">{error}</p>}
+            {error && <p className="text-sm text-destructive">{error}</p>}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-red-600 hover:bg-red-700 disabled:opacity-60 text-white text-sm font-bold py-2 rounded-md transition-colors"
+              className="w-full bg-primary hover:bg-primary-700 disabled:opacity-60 text-white text-sm font-bold py-2 rounded-md transition-colors"
             >
               {loading ? 'Calculating...' : 'Calculate My Savings'}
             </button>
@@ -171,15 +171,15 @@ export default function TaxCalculatorPage() {
 
         {result && captured && (
           <div className="bg-white rounded-md shadow-sm border border-gray-200 overflow-hidden">
-            <div className="p-4 bg-red-50 border-b border-red-100">
-              <h3 className="text-xs font-semibold text-red-800 uppercase tracking-wider mb-1">Your Potential Savings</h3>
+            <div className="p-4 bg-primary-50 border-b border-primary-100">
+              <h3 className="text-xs font-semibold text-primary-800 uppercase tracking-wider mb-1">Your Potential Savings</h3>
               <div className="flex items-baseline space-x-1">
-                <span className="text-2xl font-bold text-red-900">
+                <span className="text-2xl font-bold text-primary-900">
                   ${result.net_annual_savings.toLocaleString()}
                 </span>
-                <span className="text-red-700 text-sm font-medium">/ year</span>
+                <span className="text-primary-700 text-sm font-medium">/ year</span>
               </div>
-              <div className="mt-3 pt-3 border-t border-red-200/60 space-y-1">
+              <div className="mt-3 pt-3 border-t border-primary-200/60 space-y-1">
                 <div className="flex justify-between text-xs">
                   <span className="text-gray-600">Current Tax ({(result.home_tax_rate * 100).toFixed(1)}%):</span>
                   <span className="font-semibold text-gray-800">${result.home_tax_amount.toLocaleString()}</span>
@@ -193,7 +193,7 @@ export default function TaxCalculatorPage() {
             <div className="p-4 border-t border-gray-200 space-y-3">
               <Link
                 href="/services"
-                className="block w-full bg-red-600 hover:bg-red-700 text-white text-center text-sm font-bold py-2 rounded-md shadow hover:shadow-md transition-all"
+                className="block w-full bg-primary hover:bg-primary-700 text-white text-center text-sm font-bold py-2 rounded-md shadow hover:shadow-md transition-all"
               >
                 Start 0% Tax Setup Now
               </Link>

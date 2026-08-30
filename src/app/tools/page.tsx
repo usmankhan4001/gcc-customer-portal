@@ -2,28 +2,28 @@ import BannerHeader from '@/components/portal/BannerHeader';
 import ServiceTile from '@/components/portal/ServiceTile';
 import {
   Calculator,
-  Landmark,
-  FileSignature,
-  ShieldQuestion,
+  Bank,
+  Signature,
+  ShieldCheck,
   Percent,
-  CalendarClock,
+  CalendarCheck,
   Users,
-  Search,
-  BadgeCheck,
+  MagnifyingGlass,
+  SealCheck,
   Compass,
-} from 'lucide-react';
+} from '@phosphor-icons/react/dist/ssr';
 
 const TOOLS = [
   { title: 'Tax Calculator', href: '/tools/tax-calculator', icon: Calculator },
   { title: 'Jurisdiction Fit Quiz', href: '/tools/jurisdiction-quiz', icon: Compass },
-  { title: 'Banking Odds', href: '/tools/banking-odds', icon: Landmark },
-  { title: 'Generate NDA', href: '/tools/generate-nda', icon: FileSignature },
-  { title: 'UBO Privacy', href: '/tools/ubo-privacy', icon: ShieldQuestion },
+  { title: 'Banking Odds', href: '/tools/banking-odds', icon: Bank },
+  { title: 'Generate NDA', href: '/tools/generate-nda', icon: Signature },
+  { title: 'UBO Privacy', href: '/tools/ubo-privacy', icon: ShieldCheck },
   { title: 'VAT Scorer', href: '/tools/vat-scorer', icon: Percent },
-  { title: 'Compliance Calendar', href: '/tools/compliance-calendar', icon: CalendarClock },
+  { title: 'Compliance Calendar', href: '/tools/compliance-calendar', icon: CalendarCheck },
   { title: 'Visa Estimator', href: '/tools/visa-estimator', icon: Users },
-  { title: 'Name Checker', href: '/tools/name-checker', icon: Search },
-  { title: 'QFZP Eligibility', href: '/tools/qfzp-eligibility', icon: BadgeCheck },
+  { title: 'Name Checker', href: '/tools/name-checker', icon: MagnifyingGlass },
+  { title: 'QFZP Eligibility', href: '/tools/qfzp-eligibility', icon: SealCheck },
 ];
 
 export default function ToolsIndexPage() {
@@ -38,7 +38,7 @@ export default function ToolsIndexPage() {
               key={tool.href}
               title={tool.title}
               href={tool.href}
-              icon={<tool.icon className="w-6 h-6 text-gray-700" />}
+              icon={<tool.icon className="w-6 h-6 text-gray-700" weight="duotone" />}
             />
           ))}
         </div>

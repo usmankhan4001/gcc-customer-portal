@@ -53,7 +53,7 @@ export default function QFZPEligibilityChecker() {
                 id="activity"
                 value={activity}
                 onChange={(e) => setActivity(e.target.value)}
-                className="w-2/3 border border-gray-300 bg-white rounded-md p-2 text-sm text-gray-700 focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500 transition-shadow"
+                className="w-2/3 border border-gray-300 bg-white rounded-md p-2 text-sm text-gray-700 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-shadow"
               >
                 <option value="Tech">Tech</option>
                 <option value="Trading">Trading</option>
@@ -72,7 +72,7 @@ export default function QFZPEligibilityChecker() {
                 min="0"
                 value={visas}
                 onChange={(e) => setVisas(parseInt(e.target.value) || 0)}
-                className="w-2/3 border border-gray-300 rounded-md p-2 text-sm text-gray-700 focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500 transition-shadow"
+                className="w-2/3 border border-gray-300 rounded-md p-2 text-sm text-gray-700 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-shadow"
                 placeholder="Enter number of visas"
               />
             </div>
@@ -80,7 +80,7 @@ export default function QFZPEligibilityChecker() {
             <div className="flex justify-end border-t border-gray-100 pt-4">
               <button
                 onClick={handleSubmit}
-                className="py-2 px-6 rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 transition-colors"
+                className="py-2 px-6 rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-700 transition-colors"
               >
                 Check Eligibility
               </button>
@@ -100,7 +100,7 @@ export default function QFZPEligibilityChecker() {
           <>
             <div
               className={`p-4 rounded-md border transition-colors duration-300 ${
-                isLikelyEligible ? 'bg-green-50 border-green-200 text-green-900' : 'bg-red-50 border-red-200 text-red-900'
+                isLikelyEligible ? 'bg-green-50 border-green-200 text-green-900' : 'bg-primary-50 border-primary-200 text-primary-900'
               }`}
             >
               <div className="flex items-start gap-4 text-sm">
@@ -125,7 +125,7 @@ export default function QFZPEligibilityChecker() {
             <div className="text-right">
               <Link
                 href="/services"
-                className="inline-block bg-red-600 hover:bg-red-700 text-white text-sm font-medium py-2 px-6 rounded-md shadow-sm transition-all duration-200"
+                className="inline-block bg-primary hover:bg-primary-700 text-white text-sm font-medium py-2 px-6 rounded-md shadow-sm transition-all duration-200"
               >
                 Start Freezone Setup
               </Link>

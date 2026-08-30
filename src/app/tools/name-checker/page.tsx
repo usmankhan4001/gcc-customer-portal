@@ -68,7 +68,7 @@ export default function NameCheckerPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleCheck()}
-                className="w-2/3 px-3 py-2 rounded-md border border-gray-300 focus:ring-1 focus:ring-red-500 focus:border-red-500 transition-shadow outline-none text-gray-900 text-sm"
+                className="w-2/3 px-3 py-2 rounded-md border border-gray-300 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-shadow outline-none text-gray-900 text-sm"
                 placeholder="e.g., Acme Corp"
               />
             </div>
@@ -77,7 +77,7 @@ export default function NameCheckerPage() {
               <button
                 onClick={handleCheck}
                 disabled={!name.trim()}
-                className="flex items-center justify-center py-2 px-6 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="flex items-center justify-center py-2 px-6 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 Check
               </button>
@@ -109,14 +109,14 @@ export default function NameCheckerPage() {
             </div>
 
             {result.status === 'available' && (
-              <div className="bg-red-50 rounded-md p-4 flex flex-col sm:flex-row items-center justify-between border border-red-100 gap-4">
+              <div className="bg-primary-50 rounded-md p-4 flex flex-col sm:flex-row items-center justify-between border border-primary-100 gap-4">
                 <div>
                   <h4 className="text-sm font-semibold text-gray-900">Ready to register?</h4>
                   <p className="text-gray-600 text-xs mt-1">We'll run the official check as part of formation.</p>
                 </div>
                 <Link
                   href="/services"
-                  className="whitespace-nowrap inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md shadow-sm transition-colors"
+                  className="whitespace-nowrap inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary-700 rounded-md shadow-sm transition-colors"
                 >
                   Start Formation
                 </Link>

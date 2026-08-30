@@ -100,7 +100,7 @@ export default function JurisdictionQuizPage() {
             <select
               value={goal}
               onChange={(e) => setGoal(e.target.value)}
-              className="w-full px-2 py-1.5 text-sm rounded-md border border-gray-300 focus:ring-1 focus:ring-red-500 focus:border-red-500 bg-gray-50"
+              className="w-full px-2 py-1.5 text-sm rounded-md border border-gray-300 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 bg-gray-50"
             >
               {GOALS.map((g) => (
                 <option key={g.value} value={g.value}>{g.label}</option>
@@ -113,7 +113,7 @@ export default function JurisdictionQuizPage() {
             <select
               value={budgetBand}
               onChange={(e) => setBudgetBand(e.target.value)}
-              className="w-full px-2 py-1.5 text-sm rounded-md border border-gray-300 focus:ring-1 focus:ring-red-500 focus:border-red-500 bg-gray-50"
+              className="w-full px-2 py-1.5 text-sm rounded-md border border-gray-300 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 bg-gray-50"
             >
               {BUDGETS.map((b) => (
                 <option key={b.value} value={b.value}>{b.label}</option>
@@ -126,7 +126,7 @@ export default function JurisdictionQuizPage() {
             <select
               value={timeline}
               onChange={(e) => setTimeline(e.target.value)}
-              className="w-full px-2 py-1.5 text-sm rounded-md border border-gray-300 focus:ring-1 focus:ring-red-500 focus:border-red-500 bg-gray-50"
+              className="w-full px-2 py-1.5 text-sm rounded-md border border-gray-300 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 bg-gray-50"
             >
               {TIMELINES.map((t) => (
                 <option key={t.value} value={t.value}>{t.label}</option>
@@ -139,7 +139,7 @@ export default function JurisdictionQuizPage() {
               type="checkbox"
               checked={wantsRelocation}
               onChange={(e) => setWantsRelocation(e.target.checked)}
-              className="rounded border-gray-300 text-red-600 focus:ring-red-500"
+              className="rounded border-gray-300 text-primary focus:ring-primary-500"
             />
             I'm open to physically relocating
           </label>
@@ -147,7 +147,7 @@ export default function JurisdictionQuizPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-red-600 hover:bg-red-700 disabled:opacity-60 text-white text-sm font-bold py-2 rounded-md transition-colors"
+            className="w-full bg-primary hover:bg-primary-700 disabled:opacity-60 text-white text-sm font-bold py-2 rounded-md transition-colors"
           >
             {loading ? 'Matching...' : 'Find My Jurisdiction'}
           </button>
@@ -168,12 +168,12 @@ export default function JurisdictionQuizPage() {
               <div key={rec.jurisdiction} className="bg-white rounded-md shadow-sm border border-gray-200 p-4">
                 <div className="flex items-center justify-between mb-1">
                   <span className="font-bold text-gray-900">
-                    {idx === 0 && <span className="text-red-600">#1 </span>}
+                    {idx === 0 && <span className="text-primary">#1 </span>}
                     {rec.name}
                   </span>
                   <Link
                     href={`/services/${rec.jurisdiction}`}
-                    className="text-xs font-semibold text-red-600 hover:text-red-700"
+                    className="text-xs font-semibold text-primary hover:text-primary-700"
                   >
                     View details →
                   </Link>

@@ -57,7 +57,7 @@ export default function VisaEstimatorPage() {
                 type="number"
                 id="employees"
                 min="1"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 value={employees}
                 onChange={(e) => setEmployees(e.target.value)}
                 required
@@ -69,7 +69,7 @@ export default function VisaEstimatorPage() {
               </label>
               <select
                 id="jurisdiction"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 value={jurisdiction}
                 onChange={(e) => setJurisdiction(e.target.value)}
               >
@@ -79,7 +79,7 @@ export default function VisaEstimatorPage() {
             </div>
             <button
               type="submit"
-              className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-6 rounded-md transition-colors"
+              className="w-full sm:w-auto bg-primary hover:bg-primary-700 text-white font-medium py-2 px-6 rounded-md transition-colors"
             >
               Estimate
             </button>
@@ -140,7 +140,7 @@ export default function VisaEstimatorPage() {
             <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
               <div className="flex justify-between items-center font-bold text-lg">
                 <span>Grand Total for {employees} Employee(s)</span>
-                <span className="text-red-600">AED {grandTotal.toLocaleString()}</span>
+                <span className="text-primary">AED {grandTotal.toLocaleString()}</span>
               </div>
             </div>
             {leadId && (

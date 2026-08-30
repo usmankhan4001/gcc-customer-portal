@@ -74,7 +74,7 @@ export default function BankingOddsMatcher() {
                 id="nationality"
                 value={nationality}
                 onChange={(e) => setNationality(e.target.value)}
-                className="flex-1 border-gray-300 rounded-md shadow-sm focus:border-red-500 focus:ring-1 focus:ring-red-500 p-1.5 text-sm border outline-none transition-colors bg-white text-gray-900"
+                className="flex-1 border-gray-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 p-1.5 text-sm border outline-none transition-colors bg-white text-gray-900"
               >
                 <option value="">Select Nationality</option>
                 <option value="US">United States</option>
@@ -93,7 +93,7 @@ export default function BankingOddsMatcher() {
                 id="industry"
                 value={industry}
                 onChange={(e) => setIndustry(e.target.value)}
-                className="flex-1 border-gray-300 rounded-md shadow-sm focus:border-red-500 focus:ring-1 focus:ring-red-500 p-1.5 text-sm border outline-none transition-colors bg-white text-gray-900"
+                className="flex-1 border-gray-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 p-1.5 text-sm border outline-none transition-colors bg-white text-gray-900"
               >
                 <option value="">Select Industry</option>
                 <option value="Consulting">Consulting</option>
@@ -115,7 +115,7 @@ export default function BankingOddsMatcher() {
                 value={turnover}
                 onChange={(e) => setTurnover(e.target.value === '' ? '' : Number(e.target.value))}
                 placeholder="150000"
-                className="flex-1 border-gray-300 rounded-md shadow-sm focus:border-red-500 focus:ring-1 focus:ring-red-500 p-1.5 text-sm border outline-none transition-colors bg-white text-gray-900"
+                className="flex-1 border-gray-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 p-1.5 text-sm border outline-none transition-colors bg-white text-gray-900"
               />
             </div>
           </div>
@@ -123,7 +123,7 @@ export default function BankingOddsMatcher() {
           <button
             onClick={handleCalculate}
             disabled={!nationality || !industry || !turnover}
-            className="w-full bg-red-600 hover:bg-red-700 text-white text-sm font-medium py-2 px-4 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-primary hover:bg-primary-700 text-white text-sm font-medium py-2 px-4 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Calculate Odds
           </button>
@@ -152,7 +152,7 @@ export default function BankingOddsMatcher() {
                     <div className="text-lg font-bold text-gray-900">
                       {result.odds}<span className="text-sm text-gray-400">%</span>
                     </div>
-                    <p className={`text-xs font-medium ${result.odds > 80 ? 'text-green-600' : result.odds > 50 ? 'text-yellow-600' : 'text-red-600'}`}>
+                    <p className={`text-xs font-medium ${result.odds > 80 ? 'text-green-600' : result.odds > 50 ? 'text-yellow-600' : 'text-primary'}`}>
                       {result.odds > 80 ? 'High Likelihood' : result.odds > 50 ? 'Medium Likelihood' : 'Low Likelihood'}
                     </p>
                   </div>
@@ -160,14 +160,14 @@ export default function BankingOddsMatcher() {
               ))}
             </div>
 
-            <div className="bg-red-50 border border-red-100 rounded-md p-4 text-center space-y-3 mt-4 shadow-sm">
-              <h3 className="text-sm font-bold text-red-900">Need guaranteed approval?</h3>
-              <p className="text-red-800 text-xs max-w-md mx-auto">
+            <div className="bg-primary-50 border border-primary-100 rounded-md p-4 text-center space-y-3 mt-4 shadow-sm">
+              <h3 className="text-sm font-bold text-primary-900">Need guaranteed approval?</h3>
+              <p className="text-primary-800 text-xs max-w-md mx-auto">
                 Skip the guesswork. Our experts have relationships with all major UAE banks.
               </p>
               <Link
                 href="/services"
-                className="inline-block w-full bg-red-600 hover:bg-red-700 text-white text-sm font-medium py-2 px-4 rounded-md transition-colors shadow-sm"
+                className="inline-block w-full bg-primary hover:bg-primary-700 text-white text-sm font-medium py-2 px-4 rounded-md transition-colors shadow-sm"
               >
                 Get Guaranteed Banking
               </Link>

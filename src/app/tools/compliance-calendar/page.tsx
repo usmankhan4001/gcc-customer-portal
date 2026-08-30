@@ -62,7 +62,7 @@ function computeDeadlines(formationDate: Date): DeadlineRow[] {
 const STATUS_STYLES: Record<DeadlineRow['status'], string> = {
   'On Track': 'bg-green-100 text-green-800',
   'Action Needed': 'bg-yellow-100 text-yellow-800',
-  Overdue: 'bg-red-100 text-red-800',
+  Overdue: 'bg-primary-100 text-primary-800',
   Ongoing: 'bg-gray-100 text-gray-800',
 };
 
@@ -114,7 +114,7 @@ export default function ComplianceCalendarPage() {
               <input
                 type="date"
                 id="formationDate"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 value={formationDate}
                 onChange={(e) => setFormationDate(e.target.value)}
                 required
@@ -122,7 +122,7 @@ export default function ComplianceCalendarPage() {
             </div>
             <button
               type="submit"
-              className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-6 rounded-md transition-colors"
+              className="w-full sm:w-auto bg-primary hover:bg-primary-700 text-white font-medium py-2 px-6 rounded-md transition-colors"
             >
               Generate
             </button>

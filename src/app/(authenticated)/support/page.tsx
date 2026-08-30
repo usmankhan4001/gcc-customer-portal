@@ -1,4 +1,4 @@
-import { Mail, Phone, MessageCircle } from 'lucide-react';
+import { Envelope, Phone, ChatCircle } from '@phosphor-icons/react/dist/ssr';
 import BannerHeader from '@/components/portal/BannerHeader';
 
 export default function Support() {
@@ -15,8 +15,8 @@ export default function Support() {
           
           <div className="p-2 flex flex-col gap-2">
             <a href="mailto:support@gccstartup.com" className="flex items-center gap-4 p-4 rounded-md hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-100">
-              <div className="bg-red-50 text-red-600 p-3 rounded-md shrink-0">
-                <Mail className="w-6 h-6" />
+              <div className="bg-primary-50 text-primary p-3 rounded-md shrink-0">
+                <Envelope className="w-6 h-6" weight="duotone" />
               </div>
               <div>
                 <h3 className="font-bold text-gray-900 text-base">E-mail</h3>
@@ -25,8 +25,8 @@ export default function Support() {
             </a>
 
             <a href="tel:+97337728231" className="flex items-center gap-4 p-4 rounded-md hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-100">
-              <div className="bg-red-50 text-red-600 p-3 rounded-md shrink-0">
-                <Phone className="w-6 h-6" />
+              <div className="bg-primary-50 text-primary p-3 rounded-md shrink-0">
+                <Phone className="w-6 h-6" weight="duotone" />
               </div>
               <div>
                 <h3 className="font-bold text-gray-900 text-base">Call</h3>
@@ -35,8 +35,8 @@ export default function Support() {
             </a>
 
             <a href="https://wa.me/97337728231" target="_blank" rel="noreferrer" className="flex items-center gap-4 p-4 rounded-md hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-100">
-              <div className="bg-red-50 text-red-600 p-3 rounded-md shrink-0">
-                <MessageCircle className="w-6 h-6" />
+              <div className="bg-primary-50 text-primary p-3 rounded-md shrink-0">
+                <ChatCircle className="w-6 h-6" weight="duotone" />
               </div>
               <div>
                 <h3 className="font-bold text-gray-900 text-base">WhatsApp</h3>

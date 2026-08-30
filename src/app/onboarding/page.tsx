@@ -77,7 +77,7 @@ function OnboardingInner() {
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               placeholder="Jane Doe"
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-red-600 focus:border-red-600"
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
               required
             />
           </div>
@@ -89,7 +89,7 @@ function OnboardingInner() {
               value={countryOfResidence}
               onChange={(e) => setCountryOfResidence(e.target.value)}
               placeholder="e.g. United Kingdom"
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-red-600 focus:border-red-600"
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
               required
             />
           </div>
@@ -99,7 +99,7 @@ function OnboardingInner() {
             <select
               value={goal}
               onChange={(e) => setGoal(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-red-600 focus:border-red-600 bg-white"
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary bg-white"
             >
               {GOALS.map((g) => (
                 <option key={g.value} value={g.value}>{g.label}</option>
@@ -112,7 +112,7 @@ function OnboardingInner() {
             <select
               value={budgetBand}
               onChange={(e) => setBudgetBand(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-red-600 focus:border-red-600 bg-white"
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary bg-white"
             >
               {BUDGETS.map((b) => (
                 <option key={b.value} value={b.value}>{b.label}</option>
@@ -125,7 +125,7 @@ function OnboardingInner() {
             <select
               value={timeline}
               onChange={(e) => setTimeline(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-red-600 focus:border-red-600 bg-white"
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary bg-white"
             >
               {TIMELINES.map((t) => (
                 <option key={t.value} value={t.value}>{t.label}</option>
@@ -138,7 +138,7 @@ function OnboardingInner() {
               type="checkbox"
               checked={wantsRelocation}
               onChange={(e) => setWantsRelocation(e.target.checked)}
-              className="rounded border-gray-300 text-red-600 focus:ring-red-600"
+              className="rounded border-gray-300 text-primary focus:ring-primary"
             />
             I'm open to physically relocating
           </label>
@@ -146,7 +146,7 @@ function OnboardingInner() {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full bg-red-600 hover:bg-red-700 disabled:opacity-60 text-white text-sm font-semibold py-2.5 px-4 rounded-md transition-colors"
+            className="w-full bg-primary hover:bg-primary-700 disabled:opacity-60 text-white text-sm font-semibold py-2.5 px-4 rounded-md transition-colors"
           >
             {submitting ? 'Setting up your account...' : 'Continue'}
           </button>

@@ -9,8 +9,8 @@ interface ErrorStateProps {
 /** Shared error treatment for a failed fetch/action within a screen. */
 export default function ErrorState({ title = 'Something went wrong', description, onRetry }: ErrorStateProps) {
   return (
-    <div className="bg-white rounded-md border border-red-200 p-6 text-center">
-      <div className="mx-auto flex items-center justify-center w-12 h-12 rounded-full bg-red-50 text-red-600 mb-3">
+    <div className="bg-white rounded-md border border-destructive/20 p-6 text-center">
+      <div className="mx-auto flex items-center justify-center w-12 h-12 rounded-full bg-destructive/10 text-destructive mb-3">
         <WarningCircle size={24} weight="duotone" />
       </div>
       <h3 className="text-sm font-bold text-gray-900 mb-1">{title}</h3>

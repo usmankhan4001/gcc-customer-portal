@@ -18,7 +18,7 @@ function checkExposure(jurisdiction: string): PrivacyResult {
     return {
       level: "High Exposure: Publicly Searchable",
       desc: "Your details (name, nationality, month/year of birth, and service address) are freely available on public registries like Companies House.",
-      color: "text-red-700 bg-red-50 border-red-200",
+      color: "text-primary-700 bg-primary-50 border-primary-200",
     };
   }
   if (lowerJurisdiction.includes("us") || lowerJurisdiction.includes("united states")) {
@@ -100,7 +100,7 @@ export default function UBOPrivacyChecker() {
                 placeholder="e.g., France"
                 value={citizenship}
                 onChange={(e) => setCitizenship(e.target.value)}
-                className="w-2/3 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
+                className="w-2/3 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 text-sm"
                 required
               />
             </div>
@@ -115,7 +115,7 @@ export default function UBOPrivacyChecker() {
                 placeholder="e.g., UK, US"
                 value={jurisdiction}
                 onChange={(e) => setJurisdiction(e.target.value)}
-                className="w-2/3 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500 text-sm"
+                className="w-2/3 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 text-sm"
                 required
               />
             </div>
@@ -154,14 +154,14 @@ export default function UBOPrivacyChecker() {
               </div>
             </div>
 
-            <div className="bg-red-50 border border-red-100 rounded-md p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="bg-primary-50 border border-primary-100 rounded-md p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div>
-                <h4 className="text-red-900 font-semibold text-sm">Protect Your Identity</h4>
-                <p className="text-red-700 text-xs mt-1">Keep your personal information private and off public databases.</p>
+                <h4 className="text-primary-900 font-semibold text-sm">Protect Your Identity</h4>
+                <p className="text-primary-700 text-xs mt-1">Keep your personal information private and off public databases.</p>
               </div>
               <Link
                 href={`/checkout/${sellableJurisdiction}`}
-                className="whitespace-nowrap inline-block bg-red-600 text-white text-sm font-medium py-2 px-4 rounded-md hover:bg-red-700 transition-colors"
+                className="whitespace-nowrap inline-block bg-primary text-white text-sm font-medium py-2 px-4 rounded-md hover:bg-primary-700 transition-colors"
               >
                 Secure Privacy
               </Link>
