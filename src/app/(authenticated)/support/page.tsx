@@ -1,39 +1,51 @@
-import BannerHeader from '@/components/portal/BannerHeader';
 import { Mail, Phone, MessageCircle } from 'lucide-react';
+import BannerHeader from '@/components/portal/BannerHeader';
 
-export default function SupportPage() {
+export default function Support() {
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
-      <BannerHeader title="ONLINE SUPPORT" subtitle="How do you want to connect with us?" />
+    <div className="min-h-screen bg-gray-50 pb-24">
+      <BannerHeader title="Support" subtitle="We are here to help" />
       
-      <main className="flex-1 max-w-md w-full mx-auto p-4 flex items-center justify-center -mt-8">
-        <div className="bg-white rounded-md shadow-md border border-gray-200 p-8 w-full">
-          <p className="text-center text-gray-700 font-medium mb-6 text-sm">Please select below any option from below</p>
+      <div className="max-w-4xl mx-auto px-4 md:px-6 -mt-8 relative z-10">
+        {/* Support Card */}
+        <div className="bg-white rounded-md shadow-sm border border-gray-200 overflow-hidden">
+          <div className="p-4 border-b border-gray-200 bg-gray-50">
+            <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider">Online Support</h2>
+          </div>
           
-          <div className="flex justify-center items-center gap-4">
-            <button className="flex flex-col items-center gap-2 group">
-              <div className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center text-gray-700 hover:bg-gray-50 transition-colors">
-                <Mail className="w-5 h-5" />
+          <div className="p-2 flex flex-col gap-2">
+            <a href="mailto:support@gccstartup.com" className="flex items-center gap-4 p-4 rounded-md hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-100">
+              <div className="bg-red-50 text-red-600 p-3 rounded-md shrink-0">
+                <Mail className="w-6 h-6" />
               </div>
-              <span className="text-xs font-semibold text-gray-600">e-mail</span>
-            </button>
-            
-            <button className="flex flex-col items-center gap-2 group">
-              <div className="w-12 h-12 rounded-full border border-red-200 flex items-center justify-center text-red-600 hover:bg-red-50 transition-colors">
-                <Phone className="w-5 h-5" />
+              <div>
+                <h3 className="font-bold text-gray-900 text-base">E-mail</h3>
+                <p className="text-sm text-gray-500">support@gccstartup.com</p>
               </div>
-              <span className="text-xs font-semibold text-gray-600">Call</span>
-            </button>
-            
-            <a href="https://wa.me/97337728231" target="_blank" rel="noreferrer" className="flex flex-col items-center gap-2 group">
-              <div className="w-12 h-12 rounded-full border border-green-200 flex items-center justify-center text-green-600 hover:bg-green-50 transition-colors">
-                <MessageCircle className="w-5 h-5" />
+            </a>
+
+            <a href="tel:+97337728231" className="flex items-center gap-4 p-4 rounded-md hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-100">
+              <div className="bg-red-50 text-red-600 p-3 rounded-md shrink-0">
+                <Phone className="w-6 h-6" />
               </div>
-              <span className="text-xs font-semibold text-gray-600">WhatsApp</span>
+              <div>
+                <h3 className="font-bold text-gray-900 text-base">Call</h3>
+                <p className="text-sm text-gray-500">Speak directly with our team</p>
+              </div>
+            </a>
+
+            <a href="https://wa.me/97337728231" target="_blank" rel="noreferrer" className="flex items-center gap-4 p-4 rounded-md hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-100">
+              <div className="bg-red-50 text-red-600 p-3 rounded-md shrink-0">
+                <MessageCircle className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-bold text-gray-900 text-base">WhatsApp</h3>
+                <p className="text-sm text-gray-500">Fastest response time</p>
+              </div>
             </a>
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }
