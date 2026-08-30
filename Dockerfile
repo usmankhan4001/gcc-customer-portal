@@ -45,9 +45,19 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
+# The standalone output's node_modules is pruned to only what the app
+# itself imports at runtime, which excludes drizzle-kit (a CLI tool, never
+# imported by app code). Layer the full deps install on top so the
+# migration step below has it — Docker COPY merges into an existing
+# directory rather than replacing it, so this only adds what's missing.
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=builder /app/drizzle ./drizzle
+COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
+COPY docker-entrypoint.sh ./docker-entrypoint.sh
+
 USER nextjs
 EXPOSE 3005
 ENV PORT=3005
 ENV HOSTNAME=0.0.0.0
 
-CMD ["node", "server.js"]
+CMD ["sh", "docker-entrypoint.sh"]
