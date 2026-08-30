@@ -137,12 +137,15 @@ export async function sendTextMessage(
 
 export async function markMessageAsRead(messageId: string): Promise<void> {
   try {
+    const { phoneNumberId, accessToken, isConfigured } = getWhatsAppConfig();
+    if (!isConfigured) return;
+
     const response = await fetch(
-      `${GRAPH_API_URL}/${PHONE_NUMBER_ID}/messages`,
+      `${GRAPH_API_URL}/${phoneNumberId}/messages`,
       {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${ACCESS_TOKEN}`,
+          Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
