@@ -15,25 +15,25 @@
   --popover: #FFFFFF;
   --popover-foreground: #1A1D26;
   
-  --primary: #d32f2f; /* red */
+  --primary: #F26522; /* orange — GCCStartup brand, not reference-screenshot red (Decision 22) */
   --primary-foreground: #FFFFFF;
-  
+
   --secondary: #14204A; /* navy */
   --secondary-foreground: #FFFFFF;
-  
+
   --muted: #F8FAFC;
   --muted-foreground: #5A6178;
-  
+
   --accent: #FEF1E9;
   --accent-foreground: #D4561A;
-  
+
   --destructive: #DC2626;
   --destructive-foreground: #FFFFFF;
-  
+
   --border: #E8ECF1;
   --input: #E8ECF1;
   --ring: #F26522;
-  
+
   --radius: 0.5rem;
 
   --sidebar-background: #ffffff;
@@ -56,21 +56,21 @@
   --popover: #161921;
   --popover-foreground: #f8fafc;
   
-  --primary: #ef4444; /* red */
+  --primary: #F26522;
   --primary-foreground: #FFFFFF;
-  
+
   --secondary: #1E2D5A;
   --secondary-foreground: #FFFFFF;
-  
+
   --muted: #1e222d;
   --muted-foreground: #8C93A7;
-  
+
   --accent: #D4561A;
   --accent-foreground: #FFFFFF;
-  
+
   --destructive: #ef4444;
   --destructive-foreground: #FFFFFF;
-  
+
   --border: #2a303d;
   --input: #2a303d;
   --ring: #F26522;
