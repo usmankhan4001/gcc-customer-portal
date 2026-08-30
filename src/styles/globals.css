@@ -15,7 +15,7 @@
   --popover: #FFFFFF;
   --popover-foreground: #1A1D26;
   
-  --primary: #F26522; /* orange */
+  --primary: #d32f2f; /* red */
   --primary-foreground: #FFFFFF;
   
   --secondary: #14204A; /* navy */
@@ -56,7 +56,7 @@
   --popover: #161921;
   --popover-foreground: #f8fafc;
   
-  --primary: #F26522;
+  --primary: #ef4444; /* red */
   --primary-foreground: #FFFFFF;
   
   --secondary: #1E2D5A;

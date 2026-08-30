@@ -1,0 +1,286 @@
+ GCCStartup Customer Portal — Amend-in-Place Rebuild                              │
+│                                                                                  │
+│ Context                                                                          │
+│                                                                                  │
+│ GCCStartup is an international company-formation/tax service (UAE, Hong Kong,    │
+│ Singapore, Ireland, Bahrain, Oman, +15 jurisdictions). The business's core       │
+│ pain point: leads currently wait 10-15 days for a first response (site           │
+│ promises 24h), converting only ~2-3% of ~50-60 monthly leads. This portal        │
+│ exists to fix that — a hybrid self-serve/consultation funnel converging at       │
+│ payment → document collection → a visible incorporation pipeline → ongoing       │
+│ client portal.                                                                   │
+│                                                                                  │
+│ A one-day build sprint (2026-08-30) produced a UI shell for this — dashboard,    │
+│ services catalog, checkout, vault, profile, three lead-gen micro-tools — but     │
+│ investigation (three parallel research passes + a design pass, all grounded      │
+│ in reading the actual source) found it's a non-functional mockup:                │
+│                                                                                  │
+│ - Login is broken. The reachable /auth OTP flow accepts a hardcoded              │
+│   123456 and sets cookie auth_token; everything else in the app                  │
+│   (middleware.ts, api/auth/session, lib/auth-hooks.ts) reads cookie              │
+│   gcc_session. A user can never actually produce a session the app               │
+│   recognizes.                                                                    │
+│ - Every "authenticated" page is public. middleware.ts guards /portal/*           │
+│   and /admin/* — paths that don't match the real routes                          │
+│   (/dashboard, /services, /vault, /profile), which are consequently              │
+│   unprotected. src/app/admin/* (a Kanban board with fake-but-realistic           │
+│   client names) is likewise reachable by anyone who guesses the URL.             │
+│ - Nothing persists. Two conflicting, unapplied DB schemas exist                  │
+│   (src/lib/db/schema.ts: 3 tables; supabase/migrations/001_initial_schema.sql:   │
+│   8 tables) and every API route has real DB calls commented out in favor of      │
+│   console.log('Mock DB...').                                                     │
+│ - Payments can't complete. api/checkout/route.ts never sets Stripe               │
+│   session metadata; api/webhooks/stripe/route.ts expects order_id/               │
+│   company_id in that metadata and silently no-ops without it.                    │
+│ - Every screen shows hardcoded data (dashboard says "Welcome back, Usman"        │
+│   unconditionally; profile hardcodes "Usman Khan"; vault has a fake file         │
+│   list).                                                                         │
+│ - Visually it's generic modern-SaaS (soft rounded-2xl white cards,               │
+│   pastel icon-circle badges, globals.css) — the opposite of the dense,           │
+│   bold "utility app that gets things done" persona the user wants, shown in      │
+│   reference screenshots of a comparable tax-filing app (ui-example/*.jpeg):      │
+│   diagonal color-block header banners, dense 4-per-row icon-tile service         │
+│   grids, a numbers-forward summary card, a circular step-tracker for case        │
+│   status, a 5-icon bottom tab bar, and a WhatsApp/email/call bottom-sheet.       │
+│                                                                                  │
+│ Some backend integration code is genuinely solid and worth keeping as-is:        │
+│ src/lib/stripe.ts, src/lib/r2.ts (Cloudflare R2 presigning), src/lib/whatsapp.ts │
+│ (real Meta Graph API calls + HMAC webhook verification), src/lib/email.ts        │
+│ (Resend, real templates), src/lib/auth.ts (jose JWT utilities).                  │
+│                                                                                  │
+│ Decisions locked in with the user:                                               │
+│ 1. Platform scope: web-only responsive Next.js portal for v1. The                │
+│    separate TrustGate/ React Native/Expo app is archived, not developed          │
+│    further ("the trust gate is shit archive it").                                │
+│ 2. Strategy: amend in place — reuse the solid integration code, fix the          │
+│    data/auth/routing layer for real, reskin every screen. Not a fresh repo.      │
+│ 3. UI persona: the dense utility-app look (icon-tile grids, bold                 │
+│    color-block headers, step trackers) applies app-wide, not just to the         │
+│    pipeline tracker.                                                             │
+│                                                                                  │
+│ This plan makes the app functionally real first (Phase 1-2), then reskins it     │
+│ (Phase 3-5), then polishes (Phase 6) — so there's a working, demoable product    │
+│ at the earliest possible point, and the flagship visual work (dashboard,         │
+│ pipeline tracker) lands on top of real data instead of more mock state.          │
+│                                                                                  │
+│ ---                                                                              │
+│                                                                                  │
+│ Phase 1 — Foundation: data model, auth, route protection                         │
+│                                                                                  │
+│ 1a. Canonical schema. Rewrite src/lib/db/schema.ts in Drizzle,                   │
+│ replacing the current 3-table stub, based on the richer structure already        │
+│ sketched in supabase/migrations/001_initial_schema.sql (8 tables) — that         │
+│ SQL file was never applied and becomes reference-only, then gets deleted         │
+│ once real migrations exist. Tables: users (add magic_token fields                │
+│ dropped since magic-link is deferred — see 1b; add role enum                     │
+│ client|staff|operations|admin|super_admin), companies (status enum               │
+│ expanded to the full pipeline: lead|onboarding|official_kyc_pending| filing_in_progress|bank_opening|active|renewal_due|suspended|archived; add       │
+│ tier, jurisdiction, track_type (remote|gulf, encodes the two ICPs),              │
+│ KYC/license fields), documents (rename s3_key → r2_key to match the              │
+│ real R2 integration; add category, mime_type, status), milestones                │
+│ (new — company_id, stage_index 1-6, stage_name, status; this is what             │
+│ the pipeline step-tracker queries), orders (new — stripe_session_id,             │
+│ payment_status, line_items; this is what checkout/webhook write to),             │
+│ renewals, notifications (schema only for the last two in v1; see Phase           │
+│ 10 guardrail). Use text(..., { enum: [...] }) rather than a hard Postgres        │
+│ pgEnum for companies.status specifically, since that enum will keep              │
+│ changing early on and real pgEnum migrations are more painful to alter.          │
+│                                                                                  │
+│ Apply it: set a real Neon DATABASE_URL in .env.local, run                        │
+│ npx drizzle-kit generate then migrate (config already correct at                 │
+│ drizzle.config.ts). All new DB access goes through src/lib/db/index.ts           │
+│ (Drizzle client) — src/lib/db.ts (raw pool) can stay as an escape hatch          │
+│ for the one multi-table transactional write in the Stripe webhook.               │
+│                                                                                  │
+│ 1b. Auth — converge on one flow. Keep the OTP UX already built in                │
+│ src/app/auth/page.tsx; rebuild its transport on the stack the rest of the        │
+│ app already assumes (jose + cookie gcc_session), delivered over real             │
+│ WhatsApp (src/lib/whatsapp.ts) instead of a hardcoded 123456:                    │
+│ - api/auth/send-otp/route.ts: generate a random 6-digit code, hash and           │
+│   store it (new small otp_codes table), send it via                              │
+│   sendWhatsAppMessage().                                                         │
+│ - api/auth/verify-otp/route.ts: drop jsonwebtoken/auth_token entirely,           │
+│   verify the stored hash, mint a session via generateToken() from                │
+│   src/lib/auth.ts, set cookie gcc_session (matching the options already          │
+│   used in api/auth/logout/route.ts).                                             │
+│ - Delete api/auth/magic-link/route.ts and api/auth/verify/route.ts from          │
+│   the live tree (magic-link email login is a clean v1.1 addition later —         │
+│   the Resend templates already exist in src/lib/email.ts). This also             │
+│   removes the dead /portal/dashboard redirect bug by deletion.                   │
+│ - Remove jsonwebtoken/@types/jsonwebtoken from package.json (confirmed           │
+│   single importer).                                                              │
+│ - Wire the profile page's "Log Out" to actually call                             │
+│   POST /api/auth/logout before navigating (today it's a bare <Link>              │
+│   that never clears the cookie).                                                 │
+│                                                                                  │
+│ 1c. Fix src/middleware.ts. Replace the pathname.startsWith('/portal')            │
+│ branch with real protected prefixes: /dashboard, /services, /vault,              │
+│ /profile. Keep the existing /admin role-check logic (already correctly           │
+│ written) but fix its failure-redirect target from /portal/dashboard to           │
+│ /. This closes the public-Kanban-board exposure immediately, even before         │
+│ /admin gets any real functionality. Decide whether /checkout/[id]                │
+│ requires login first or stays open for guest checkout with account               │
+│ provisioned post-payment (current code implies the latter — the Stripe           │
+│ webhook already drafts a magic-token welcome flow — so default to guest          │
+│ checkout allowed, account/session created via the WhatsApp welcome               │
+│ message + OTP after payment, unless you'd rather require login first).           │
+│                                                                                  │
+│ 1d. Archive TrustGate. TrustGate/ is untracked by this repo and has              │
+│ its own independent .git, so this is a plain filesystem move, not a git          │
+│ operation. Move it to _archived/TrustGate/, update the .gitignore entry,         │
+│ and strip it from README.md's repository layout section.                         │
+│                                                                                  │
+│ ---                                                                              │
+│                                                                                  │
+│ Phase 2 — Wire real data (no visual changes yet)                                 │
+│                                                                                  │
+│ - Fix checkout ↔ webhook. api/checkout/route.ts currently                        │
+│   instantiates its own stale Stripe client and hardcodes prices with no          │
+│   metadata — replace with createCheckoutSession() from src/lib/stripe.ts         │
+│   (already correct API version), insert a real orders row                        │
+│   (payment_status: 'unpaid') and companies row (status: 'lead') first,           │
+│   then pass order_id/company_id in Stripe metadata so                            │
+│   api/webhooks/stripe/route.ts (which already expects exactly those keys)        │
+│   can find and update them. Uncomment and wire its DB writes for real            │
+│   (order → paid, company → onboarding) and replace the mocked WhatsApp           │
+│   welcome dispatch with a real sendWhatsAppMessage() call.                       │
+│ - Wire api/vault/presign/route.ts: uncomment the documents insert,               │
+│   point it at the new schema; add company_id to the JWT payload (or look         │
+│   it up server-side) since the route currently assumes a shape the token         │
+│   doesn't carry.                                                                 │
+│ - Wire api/webhooks/whatsapp/route.ts: uncomment the notifications               │
+│   insert and the KYC-reference-triggered documents status update (HMAC           │
+│   verification and message parsing are already correct — only the DB writes      │
+│   are mocked).                                                                   │
+│ - Live-fetch the authenticated pages: dashboard/page.tsx (real user              │
+│   name, active company + milestones + notifications instead of hardcoded         │
+│   "Usman"/one fake activity card), profile/page.tsx (real users row),            │
+│   vault/page.tsx (real documents rows, wire the Upload button to                 │
+│   POST /api/vault/presign → PUT → refresh).                                      │
+│ - Remove the orphaned mock state layer: delete PortalProvider from               │
+│   src/components/layout/Providers.tsx and remove/archive                         │
+│   src/lib/store.tsx — it's mounted globally, fully re-implements a fake          │
+│   6-stage pipeline in localStorage, and is consumed by zero pages today, so      │
+│   it would just fight the real data once wired. Its stage-name copy              │
+│   (Order Paid → Official Portal KYC → ... → Active & Operational) is a           │
+│   good source for seeding real milestones.stage_name values.                     │
+│ - Wire CountryFlag.tsx (built, unused) into services/page.tsx and                │
+│   services/[id]/page.tsx, replacing the raw flagcdn.com <img> calls.             │
+│ - Fill in missing jurisdiction content in services/[id]/page.tsx                 │
+│   (only uae/hong-kong have real copy today; bahrain/singapore/                   │
+│   ireland/bvi fall through to generic filler) — move the data into a             │
+│   shared src/lib/jurisdictions.ts used by both the catalog and detail            │
+│   pages instead of duplicating/diverging across two files.                       │
+│ - Point tools/tax-calculator/page.tsx at the existing, richer                    │
+│   api/calculator/evaluate/route.ts instead of its own thinner inline             │
+│   table.                                                                         │
+│                                                                                  │
+│ At the end of this phase: a lead can sign up via real WhatsApp OTP, browse       │
+│ real jurisdiction content, pay, and see their real company/document state —      │
+│ functionally correct end-to-end, still wearing the old visual style.             │
+│                                                                                  │
+│ ---                                                                              │
+│                                                                                  │
+│ Phase 3 — Design system foundation                                               │
+│                                                                                  │
+│ Keep the existing token architecture in src/styles/globals.css (Tailwind         │
+│ v4 @theme inline) and the brand colors (--primary: #F26522 orange,               │
+│ --secondary: #14204A navy) — this is a component-vocabulary and                  │
+│ token-extension problem, not a rip-and-replace. Existing primitives              │
+│ (Card, Button, Sheet, Badge, Dialog, Tabs, Progress, etc. in                     │
+│ src/components/ui/*) are CVA/token-driven already and get re-themed, not         │
+│ rebuilt.                                                                         │
+│                                                                                  │
+│ Add:                                                                             │
+│ - A color-block "banner" token pair for the diagonal-cut header (built via       │
+│   clip-path/SVG mask), distinct from flat --primary usage today.                 │
+│ - A tighter tile radius token for the new dense icon-tiles (current              │
+│   rounded-2xl everywhere reads soft/SaaS; reference tiles are barely             │
+│   rounded).                                                                      │
+│                                                                                  │
+│ Build new components (in src/components/portal/ or similar):                     │
+│ - ServiceTile — small flat-icon square + label, 4-per-row grid,                  │
+│   replacing the pastel-circle card pattern in dashboard/page.tsx.                │
+│ - BannerHeader — the color-block diagonal header, wraps page headers             │
+│   across dashboard/services/vault/profile.                                       │
+│ - SummaryCard — numbers-forward stat card (active structures, next               │
+│   renewal, documents pending) sitting at the top of the dashboard.               │
+│ - PipelineStepTracker — the single most business-critical new                    │
+│   component: a circular, checkmarked step tracker driven directly by             │
+│   companies.status/milestones, giving clients the visible case-status            │
+│   view that's the whole point of this rebuild (directly answers the "why         │
+│   does it take 10-15 days and I have no idea what's happening" problem).         │
+│ - ConnectSheet — "how do you want to connect" bottom-sheet                       │
+│   (email/call/WhatsApp pills), built on the existing Sheet primitive             │
+│   (already supports side="bottom"), replacing the dead Support Chat              │
+│   button with no handler.                                                        │
+│ - Bottom nav restyle in src/app/(authenticated)/layout.tsx: fix the              │
+│   active-tab color (currently blue, off-brand) to orange, and give               │
+│   "Support" its own tab that opens ConnectSheet.                                 │
+│                                                                                  │
+│ ---                                                                              │
+│                                                                                  │
+│ Phase 4 — Reskin the flagship screens                                            │
+│                                                                                  │
+│ dashboard/page.tsx first (every session starts here; proves out                  │
+│ BannerHeader + SummaryCard + PipelineStepTracker + ServiceTile                   │
+│ together), then the bottom nav + ConnectSheet wiring.                            │
+│                                                                                  │
+│ Phase 5 — Reskin remaining screens                                               │
+│                                                                                  │
+│ In priority order (revenue path before support path): services                   │
+│ catalog/detail, checkout, vault, profile, auth page, onboarding, the three       │
+│ micro-tools. Along the way, sweep off-brand raw blue-600 buttons (services       │
+│ detail CTA, checkout buttons, current bottom-nav active state) to the theme's    │
+│ orange --primary.                                                                │
+│                                                                                  │
+│ Phase 6 — Cleanup and polish                                                     │
+│                                                                                  │
+│ - Restyle src/app/error.tsx, loading.tsx, not-found.tsx — they                   │
+│   currently reference CSS classes/vars that don't exist in the current           │
+│   globals.css and render unstyled.                                               │
+│ - Correct README.md's stack section: it currently claims Supabase,               │
+│   PostHog, and Cal.com, none of which exist anywhere in the code — the real      │
+│   stack is Neon Postgres + Drizzle + Cloudflare R2.                              │
+│                                                                                  │
+│ ---                                                                              │
+│                                                                                  │
+│ Scope guardrail — explicitly deferred past v1                                    │
+│                                                                                  │
+│ The planning docs describe a much larger 10-module "Global Befiler" vision.      │
+│ Keep v1 bounded to the routes that already exist, made real and reskinned:       │
+│                                                                                  │
+│ - Full admin/operations command center (src/app/admin/*) — leave                 │
+│   unwired beyond the Phase 1 middleware fix; it's a distinct staff-facing        │
+│   product surface deserving its own requirements pass.                           │
+│ - Renewals as a standalone UI — keep the renewals table in schema                │
+│   (cheap, other tables reference it) but no dedicated screens yet.               │
+│ - Shareable links, biometric login, push notifications, native-app               │
+│   features — schema/UI left out or hidden.                                       │
+│ - Magic-link email login — plumbing already exists (lib/email.ts                 │
+│   templates, generateMagicToken), can be re-enabled later as an                  │
+│   additional channel without schema changes.                                     │
+│ - Dynamic pricing/CMS, PostHog analytics, Cal.com scheduling — not in            │
+│   code today; don't build now, just stop the docs claiming they exist.           │
+│                                                                                  │
+│ ---                                                                              │
+│                                                                                  │
+│ Verification                                                                     │
+│                                                                                  │
+│ - Phase 1: confirm npx drizzle-kit generate/migrate succeeds against             │
+│   a real Neon DATABASE_URL; manually run the OTP flow end-to-end                 │
+│   (request code → receive on WhatsApp → verify → confirm gcc_session             │
+│   cookie is set and /dashboard is reachable); confirm /dashboard and             │
+│   /admin both redirect to / when logged out.                                     │
+│ - Phase 2: run a real Stripe test-mode checkout end-to-end and confirm,          │
+│   via the Stripe CLI webhook forwarder, that the orders/companies rows           │
+│   actually update and a WhatsApp welcome message is dispatched; confirm the      │
+│   dashboard/vault/profile pages render real data for a real logged-in user       │
+│   instead of hardcoded names.                                                    │
+│ - Phase 3-5: npm run dev -- --port 3005, walk through every reskinned            │
+│   screen in a browser (mobile viewport, since the bottom nav is                  │
+│   mobile-first) checking against the reference screenshots' density/boldness,    │
+│   and confirm no page still shows the old pastel-circle-card style.              │
+│ - Phase 6: npm run build clean, and a final grep for Supabase/                   │
+│   PostHog/Cal.com in README.md to confirm the doc correction landed.             │
+╰──────────────────────────────────────────────────────────────────────────────────╯
