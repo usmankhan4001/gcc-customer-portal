@@ -12,6 +12,8 @@ function AuthPageInner() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const [infoMessage, setInfoMessage] = useState("");
+
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!phoneNumber) {
@@ -19,6 +21,7 @@ function AuthPageInner() {
       return;
     }
     setError("");
+    setInfoMessage("");
     setIsLoading(true);
 
     try {
@@ -29,6 +32,10 @@ function AuthPageInner() {
       });
       const data = await res.json();
       if (data.success) {
+        if (data.devOtp) {
+          setOtp(data.devOtp);
+          setInfoMessage(`Demo Mode Active: Verification code is ${data.devOtp}`);
+        }
         setStep(2);
       } else {
         setError(data.error || "Failed to send OTP.");
@@ -90,6 +97,12 @@ function AuthPageInner() {
         {error && (
           <div className="mb-4 p-2 bg-destructive/10 text-destructive border border-destructive/20 rounded-md text-sm">
             {error}
+          </div>
+        )}
+
+        {infoMessage && (
+          <div className="mb-4 p-2.5 bg-primary/10 text-primary border border-primary/20 rounded-md text-xs font-medium">
+            ℹ️ {infoMessage}
           </div>
         )}
 

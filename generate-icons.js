@@ -29,7 +29,23 @@ async function main() {
   for (const size of sizes) {
     await generateIcon(size);
   }
-  console.log('All icons generated!');
+
+  // Generate favicon.ico and app icon
+  const svgFavicon = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 512 512">
+      <rect width="512" height="512" rx="100" fill="#14204A"/>
+      <text x="256" y="320" font-family="Arial, Helvetica, sans-serif" font-size="280" font-weight="bold" fill="#F26522" text-anchor="middle">G</text>
+    </svg>
+  `;
+
+  const faviconBuf = await sharp(Buffer.from(svgFavicon)).resize(32, 32).png().toBuffer();
+  fs.writeFileSync(path.join(__dirname, 'public', 'favicon.ico'), faviconBuf);
+  fs.writeFileSync(path.join(__dirname, 'src', 'app', 'favicon.ico'), faviconBuf);
+  
+  const iconBuf = await sharp(Buffer.from(svgFavicon)).resize(192, 192).png().toBuffer();
+  fs.writeFileSync(path.join(__dirname, 'src', 'app', 'icon.png'), iconBuf);
+
+  console.log('All icons and favicons generated!');
 }
 
 main().catch(console.error);

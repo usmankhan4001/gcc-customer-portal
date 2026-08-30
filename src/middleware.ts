@@ -9,6 +9,8 @@ const PUBLIC_PATHS = [
   '/api/',
   '/_next/',
   '/icons/',
+  '/favicon.ico',
+  '/icon.png',
   '/manifest.json',
   '/sw.js',
   '/robots.txt',

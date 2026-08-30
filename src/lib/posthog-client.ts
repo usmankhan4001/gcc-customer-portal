@@ -13,14 +13,25 @@ let initialized = false;
 export function initPostHog() {
   if (initialized || typeof window === 'undefined') return;
   const key = process.env.NEXT_PUBLIC_POSTHOG_KEY;
-  if (!key) return;
+  if (!key || key === 'phc_xxx' || key === 'xxx' || key.trim() === '') return;
 
-  posthog.init(key, {
-    api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://us.i.posthog.com',
-    capture_pageview: true,
-    capture_pageleave: true,
-  });
-  initialized = true;
+  try {
+    posthog.init(key, {
+      api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://us.i.posthog.com',
+      capture_pageview: true,
+      capture_pageleave: true,
+      loaded: (ph) => {
+        if (process.env.NODE_ENV === 'development') {
+          ph.debug(false);
+        }
+      },
+    });
+    initialized = true;
+  } catch (err) {
+    // Ad-blockers often block PostHog scripts/endpoints with ERR_BLOCKED_BY_CLIENT.
+    // Suppress silently so user experience is not affected.
+    console.debug('[PostHog] Analytics blocked by client/ad-blocker:', err);
+  }
 }
 
 export { posthog };

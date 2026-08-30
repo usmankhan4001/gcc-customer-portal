@@ -7,6 +7,11 @@ export const metadata: Metadata = {
   description:
     'Form companies in UAE, Hong Kong, Singapore & Bahrain with guaranteed banking, 0% tax structures, and complete nominee privacy.',
   manifest: '/manifest.json',
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    apple: '/icons/icon-192.png',
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
