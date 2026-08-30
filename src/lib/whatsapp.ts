@@ -1,8 +1,13 @@
 import { createHmac, timingSafeEqual } from 'crypto';
 
 const GRAPH_API_URL = 'https://graph.facebook.com/v20.0';
-const PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID;
-const ACCESS_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
+
+export function getWhatsAppConfig() {
+  const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID?.trim() || '';
+  const accessToken = process.env.WHATSAPP_ACCESS_TOKEN?.trim() || '';
+  const isConfigured = Boolean(phoneNumberId && accessToken && phoneNumberId !== 'xxx' && accessToken !== 'xxx');
+  return { phoneNumberId, accessToken, isConfigured };
+}
 
 export const HSM_TEMPLATES = {
   order_confirmed: {
@@ -39,17 +44,23 @@ export async function sendWhatsAppMessage(
   parameters?: { type: string; text: string }[]
 ): Promise<{ success: boolean; messageId?: string; error?: any }> {
   try {
+    const { phoneNumberId, accessToken, isConfigured } = getWhatsAppConfig();
+    if (!isConfigured) {
+      console.warn('[WhatsApp] Credentials not configured in process.env');
+      return { success: false, error: 'Credentials not configured' };
+    }
+
     const recipient = to.replace(/\D/g, '');
     const components = parameters
       ? [{ type: 'body', parameters }]
       : [];
 
     const response = await fetch(
-      `${GRAPH_API_URL}/${PHONE_NUMBER_ID}/messages`,
+      `${GRAPH_API_URL}/${phoneNumberId}/messages`,
       {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${ACCESS_TOKEN}`,
+          Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -85,13 +96,19 @@ export async function sendTextMessage(
   text: string
 ): Promise<{ success: boolean; messageId?: string; error?: any }> {
   try {
+    const { phoneNumberId, accessToken, isConfigured } = getWhatsAppConfig();
+    if (!isConfigured) {
+      console.warn('[WhatsApp] Credentials not configured in process.env');
+      return { success: false, error: 'Credentials not configured' };
+    }
+
     const recipient = to.replace(/\D/g, '');
     const response = await fetch(
-      `${GRAPH_API_URL}/${PHONE_NUMBER_ID}/messages`,
+      `${GRAPH_API_URL}/${phoneNumberId}/messages`,
       {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${ACCESS_TOKEN}`,
+          Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
