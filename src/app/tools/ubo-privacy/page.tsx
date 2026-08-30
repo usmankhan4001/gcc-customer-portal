@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import BannerHeader from '@/components/portal/BannerHeader';
 import { ShieldCheck, ShieldWarning, ArrowRight } from "@phosphor-icons/react";
+import { COUNTRIES } from '@/lib/countries';
 
 interface PrivacyResult {
   jurisdiction: string;
@@ -85,11 +86,11 @@ export default function UBOPrivacyChecker() {
                 onChange={(e) => setCitizenship(e.target.value)}
                 className="flex-1 border-gray-300 rounded-lg shadow-sm focus:border-primary focus:ring-1 focus:ring-primary p-2 text-sm border outline-none bg-white text-gray-900"
               >
-                <option value="US">United States</option>
-                <option value="UK">United Kingdom</option>
-                <option value="EU">European Union</option>
-                <option value="CA">Canada</option>
-                <option value="Other">Other Citizenship</option>
+                {COUNTRIES.map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.flag} {c.name}
+                  </option>
+                ))}
               </select>
             </div>
 

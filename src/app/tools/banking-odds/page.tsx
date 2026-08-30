@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import BannerHeader from '@/components/portal/BannerHeader';
 import { industryRiskTier, type IndustryRiskTier } from '@/lib/persona';
+import { COUNTRIES } from '@/lib/countries';
 
 interface BankResult {
   bank: string;
@@ -57,12 +58,11 @@ export default function BankingOddsMatcher() {
                 className="flex-1 border-gray-300 rounded-lg shadow-sm focus:border-primary focus:ring-1 focus:ring-primary p-2 text-sm border outline-none transition-colors bg-white text-gray-900"
               >
                 <option value="">Select Nationality</option>
-                <option value="US">United States</option>
-                <option value="UK">United Kingdom</option>
-                <option value="EU">European Union</option>
-                <option value="IN">India</option>
-                <option value="AE">UAE</option>
-                <option value="Other">Other</option>
+                {COUNTRIES.map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.flag} {c.name}
+                  </option>
+                ))}
               </select>
             </div>
 

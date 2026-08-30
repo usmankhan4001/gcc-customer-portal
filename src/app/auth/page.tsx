@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { WhatsappLogo, LockKey, EnvelopeSimple, CircleNotch, ArrowRight } from "@phosphor-icons/react";
+import PhoneInputWithCountry from "@/components/ui/PhoneInputWithCountry";
 
 function AuthPageInner() {
   const router = useRouter();
@@ -184,18 +185,13 @@ function AuthPageInner() {
                   <label htmlFor="phone" className="block text-xs font-semibold text-gray-700 mb-1">
                     WhatsApp Phone Number
                   </label>
-                  <div className="relative">
-                    <WhatsappLogo className="w-4 h-4 text-emerald-600 absolute left-3 top-1/2 -translate-y-1/2" />
-                    <input
-                      id="phone"
-                      type="tel"
-                      value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value)}
-                      placeholder="+971501234567"
-                      className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
-                      disabled={isLoading}
-                    />
-                  </div>
+                  <PhoneInputWithCountry
+                    id="phone"
+                    value={phoneNumber}
+                    onChange={(val) => setPhoneNumber(val)}
+                    placeholder="50 123 4567"
+                    disabled={isLoading}
+                  />
                 </div>
                 <button
                   type="submit"
