@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { DollarSign, Save } from 'lucide-react';
+import { DollarSign, Save, Megaphone, Plus } from 'lucide-react';
 
 interface PricingRow {
   id: string;
@@ -9,6 +9,14 @@ interface PricingRow {
   tier: string;
   price_usd: number;
   updated_at: string;
+}
+
+interface BannerRow {
+  id: string;
+  title: string;
+  body: string;
+  link_url: string | null;
+  active: boolean;
 }
 
 const TIER_LABELS: Record<string, string> = {
@@ -23,12 +31,52 @@ export default function AdminPricingPage() {
   const [savingId, setSavingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const [banners, setBanners] = useState<BannerRow[]>([]);
+  const [newBanner, setNewBanner] = useState({ title: '', body: '', link_url: '' });
+  const [creatingBanner, setCreatingBanner] = useState(false);
+
   useEffect(() => {
     fetch('/api/admin/pricing')
       .then((res) => res.json())
       .then((data) => setRows(data.pricing ?? []))
       .finally(() => setLoading(false));
+
+    fetch('/api/admin/promo-banners')
+      .then((res) => res.json())
+      .then((data) => setBanners(data.banners ?? []));
   }, []);
+
+  const handleCreateBanner = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newBanner.title || !newBanner.body) return;
+    setCreatingBanner(true);
+    try {
+      const res = await fetch('/api/admin/promo-banners', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newBanner),
+      });
+      const data = await res.json();
+      if (data.banner) {
+        setBanners((prev) => [data.banner, ...prev]);
+        setNewBanner({ title: '', body: '', link_url: '' });
+      }
+    } finally {
+      setCreatingBanner(false);
+    }
+  };
+
+  const handleToggleBanner = async (id: string, active: boolean) => {
+    const res = await fetch(`/api/admin/promo-banners/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ active }),
+    });
+    const data = await res.json();
+    if (data.banner) {
+      setBanners((prev) => prev.map((b) => (b.id === id ? data.banner : b)));
+    }
+  };
 
   const handleSave = async (id: string) => {
     const draft = drafts[id];
@@ -134,6 +182,69 @@ export default function AdminPricingPage() {
               })}
             </tbody>
           </table>
+        </div>
+      </div>
+
+      <div className="mt-8 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
+          <Megaphone className="w-5 h-5 text-gray-500" />
+          <h2 className="text-lg font-semibold text-gray-800">Dashboard Announcements</h2>
+        </div>
+
+        <form onSubmit={handleCreateBanner} className="p-6 border-b border-gray-100 space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <input
+              type="text"
+              placeholder="Title (e.g. Finish your KYC)"
+              value={newBanner.title}
+              onChange={(e) => setNewBanner((prev) => ({ ...prev, title: e.target.value }))}
+              className="px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-slate-900 focus:border-slate-900"
+            />
+            <input
+              type="text"
+              placeholder="Link URL (optional)"
+              value={newBanner.link_url}
+              onChange={(e) => setNewBanner((prev) => ({ ...prev, link_url: e.target.value }))}
+              className="px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-slate-900 focus:border-slate-900"
+            />
+          </div>
+          <textarea
+            placeholder="Body text"
+            value={newBanner.body}
+            onChange={(e) => setNewBanner((prev) => ({ ...prev, body: e.target.value }))}
+            rows={2}
+            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-slate-900 focus:border-slate-900"
+          />
+          <button
+            type="submit"
+            disabled={creatingBanner || !newBanner.title || !newBanner.body}
+            className="inline-flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed text-white px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            {creatingBanner ? 'Creating...' : 'Create banner'}
+          </button>
+        </form>
+
+        <div className="divide-y divide-gray-100">
+          {banners.length === 0 && (
+            <p className="p-6 text-center text-sm text-gray-400">No announcements yet.</p>
+          )}
+          {banners.map((banner) => (
+            <div key={banner.id} className="p-4 flex items-center justify-between gap-4">
+              <div>
+                <p className="text-sm font-semibold text-gray-900">{banner.title}</p>
+                <p className="text-xs text-gray-500">{banner.body}</p>
+              </div>
+              <button
+                onClick={() => handleToggleBanner(banner.id, !banner.active)}
+                className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-colors shrink-0 ${
+                  banner.active ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                }`}
+              >
+                {banner.active ? 'Active' : 'Inactive'}
+              </button>
+            </div>
+          ))}
         </div>
       </div>
     </div>

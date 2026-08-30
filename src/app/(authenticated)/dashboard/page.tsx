@@ -1,14 +1,15 @@
 import React from 'react';
 import Link from 'next/link';
-import { desc, eq, ne, and } from 'drizzle-orm';
+import { desc, eq, ne, and, or, isNull, gte, lte } from 'drizzle-orm';
 import BannerHeader from '@/components/portal/BannerHeader';
 import SummaryCard from '@/components/portal/SummaryCard';
 import ServiceTile from '@/components/portal/ServiceTile';
 import PipelineStepTracker from '@/components/portal/PipelineStepTracker';
 import ComplianceSnapshot from '@/components/portal/ComplianceSnapshot';
+import PromoBanner from '@/components/portal/PromoBanner';
 import { getServerSession } from '@/lib/session';
 import { db } from '@/lib/db';
-import { companies, notifications, users } from '@/lib/db/schema';
+import { companies, notifications, promoBanners, users } from '@/lib/db/schema';
 import { Calculator, Search, Building, FileText, Receipt, Calendar, Users as UsersIcon, LayoutDashboard, Bell } from 'lucide-react';
 
 const STAGE_LABELS = ['Onboarding', 'Official KYC', 'Government Filing', 'Bank Setup', 'Active'];
@@ -49,12 +50,39 @@ export default async function DashboardPage() {
         .limit(5)
     : [];
 
+  const now = new Date();
+  const activeBanners = session
+    ? await db
+        .select()
+        .from(promoBanners)
+        .where(
+          and(
+            eq(promoBanners.active, true),
+            lte(promoBanners.starts_at, now),
+            or(isNull(promoBanners.ends_at), gte(promoBanners.ends_at, now))
+          )
+        )
+        .orderBy(desc(promoBanners.starts_at))
+        .limit(3)
+    : [];
+
   const unreadCount = recentNotifications.filter((n) => !n.is_read).length;
   const firstName = user?.full_name?.split(' ')[0] || 'there';
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 pb-8">
       <BannerHeader title="PERSONALIZED DASHBOARD" subtitle={`Welcome back, ${firstName}`} />
+
+      {activeBanners.length > 0 && (
+        <div className="px-4 -mt-4 relative z-10 max-w-4xl mx-auto w-full space-y-2">
+          {activeBanners.map((banner) => (
+            <PromoBanner
+              key={banner.id}
+              banner={{ id: banner.id, title: banner.title, body: banner.body, link_url: banner.link_url }}
+            />
+          ))}
+        </div>
+      )}
 
       {activeCompany ? (
         <>
