@@ -13,6 +13,7 @@ const PUBLIC_PATHS = [
   '/sw.js',
   '/robots.txt',
   '/sitemap.xml',
+  '/vault/shared/', // token-authenticated shareable links — not session-gated
 ];
 
 function isPublicPath(pathname: string): boolean {

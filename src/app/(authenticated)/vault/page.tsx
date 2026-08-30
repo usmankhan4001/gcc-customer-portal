@@ -3,6 +3,7 @@ import { Folder, FileText } from 'lucide-react';
 import BannerHeader from '@/components/portal/BannerHeader';
 import VaultUploader from '@/components/portal/VaultUploader';
 import DownloadButton from '@/components/portal/DownloadButton';
+import ShareButton from '@/components/portal/ShareButton';
 import { getServerSession } from '@/lib/session';
 import { db } from '@/lib/db';
 import { documents } from '@/lib/db/schema';
@@ -102,7 +103,10 @@ export default async function Vault() {
                         {new Date(file.created_at).toLocaleDateString()}
                       </td>
                       <td className="px-4 py-2 text-right">
-                        <DownloadButton documentId={file.id} />
+                        <div className="flex justify-end gap-1">
+                          <ShareButton documentId={file.id} />
+                          <DownloadButton documentId={file.id} />
+                        </div>
                       </td>
                     </tr>
                   ))}
