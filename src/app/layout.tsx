@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import '@/styles/globals.css';
-import AppChrome from '@/components/layout/AppChrome';
+import Providers from '@/components/layout/Providers';
 
 export const metadata: Metadata = {
   title: 'GCCStartup',
@@ -37,7 +37,7 @@ export default function RootLayout({
         <a href="#main-content" className="skip-link">
           Skip to main content
         </a>
-        <AppChrome>{children}</AppChrome>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
