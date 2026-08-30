@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm';
-import { User, Bell, Shield } from 'lucide-react';
+import { User, Bell, ShieldCheck } from '@phosphor-icons/react/dist/ssr';
 import BannerHeader from '@/components/portal/BannerHeader';
 import LogoutButton from '@/components/portal/LogoutButton';
 import PushNotificationToggle from '@/components/portal/PushNotificationToggle';
@@ -29,7 +29,7 @@ export default async function Profile() {
       <div className="max-w-4xl mx-auto px-4 md:px-6 -mt-8 relative z-10">
         {/* User Card */}
         <div className="bg-white p-5 rounded-md shadow-sm border border-gray-200 flex items-center gap-4 mb-6">
-          <div className="w-14 h-14 bg-gradient-to-br from-primary to-orange-700 rounded-full flex items-center justify-center shadow-inner shrink-0">
+          <div className="w-14 h-14 bg-gradient-to-br from-primary-500 to-primary-700 rounded-full flex items-center justify-center shadow-inner shrink-0">
             <span className="text-white text-xl font-bold">{initials(user?.full_name ?? null, displayPhone || 'GC')}</span>
           </div>
           <div>
@@ -42,7 +42,7 @@ export default async function Profile() {
         <section className="bg-white rounded-md shadow-sm border border-gray-200 overflow-hidden mb-6">
           <button className="w-full p-4 flex items-center gap-4 hover:bg-gray-50 transition-colors border-b border-gray-100">
             <div className="bg-gray-100 p-2 rounded-md text-gray-600">
-              <User className="w-4 h-4" />
+              <User size={16} weight="duotone" />
             </div>
             <div className="text-left">
               <h4 className="font-bold text-gray-900 text-sm">Personal Information</h4>
@@ -53,7 +53,7 @@ export default async function Profile() {
           <div className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors border-b border-gray-100">
             <div className="flex items-center gap-4">
               <div className="bg-gray-100 p-2 rounded-md text-gray-600">
-                <Bell className="w-4 h-4" />
+                <Bell size={16} weight="duotone" />
               </div>
               <div className="text-left">
                 <h4 className="font-bold text-gray-900 text-sm">Push Notifications</h4>
@@ -65,7 +65,7 @@ export default async function Profile() {
 
           <button className="w-full p-4 flex items-center gap-4 hover:bg-gray-50 transition-colors">
             <div className="bg-gray-100 p-2 rounded-md text-gray-600">
-              <Shield className="w-4 h-4" />
+              <ShieldCheck size={16} weight="duotone" />
             </div>
             <div className="text-left">
               <h4 className="font-bold text-gray-900 text-sm">Security</h4>

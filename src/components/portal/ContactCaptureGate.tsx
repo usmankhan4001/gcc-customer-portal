@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Mail, MessageCircle, Loader2 } from 'lucide-react';
+import { Envelope, ChatCircle, CircleNotch } from '@phosphor-icons/react';
 
 interface ContactCaptureGateProps {
   title?: string;
@@ -47,36 +47,36 @@ export default function ContactCaptureGate({ title, subtitle, onCapture }: Conta
       </p>
 
       {error && (
-        <div className="mb-4 p-2 bg-red-50 text-red-700 border border-red-200 rounded-md text-sm">{error}</div>
+        <div className="mb-4 p-2 bg-destructive/10 text-destructive border border-destructive/20 rounded-md text-sm">{error}</div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-3 max-w-sm mx-auto text-left">
         <div className="relative">
-          <Mail className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <Envelope className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="email"
             placeholder="you@email.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500"
+            className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
           />
         </div>
         <div className="relative">
-          <MessageCircle className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <ChatCircle className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="tel"
             placeholder="WhatsApp number"
             value={whatsapp}
             onChange={(e) => setWhatsapp(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500"
+            className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
           />
         </div>
         <button
           type="submit"
           disabled={submitting}
-          className="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 disabled:opacity-60 text-white text-sm font-semibold py-2.5 px-4 rounded-md transition-colors"
+          className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary-700 disabled:opacity-60 text-white text-sm font-semibold py-2.5 px-4 rounded-md transition-colors"
         >
-          {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+          {submitting ? <CircleNotch className="w-4 h-4 animate-spin" /> : null}
           {submitting ? 'Sending...' : 'Show my result'}
         </button>
       </form>

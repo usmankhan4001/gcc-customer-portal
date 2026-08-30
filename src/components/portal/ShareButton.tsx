@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Link as LinkIcon, Loader2, Check } from 'lucide-react';
+import { LinkSimple as LinkIcon, CircleNotch, Check } from '@phosphor-icons/react';
 
 export default function ShareButton({ documentId }: { documentId: string }) {
   const [loading, setLoading] = useState(false);
@@ -31,13 +31,13 @@ export default function ShareButton({ documentId }: { documentId: string }) {
     <button
       onClick={handleShare}
       disabled={loading}
-      className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
+      className="p-1.5 text-gray-400 hover:text-primary hover:bg-primary-50 rounded-md transition-colors"
       title="Create shareable link (copies to clipboard, expires in 7 days)"
     >
       {loading ? (
-        <Loader2 className="w-4 h-4 animate-spin" />
+        <CircleNotch className="w-4 h-4 animate-spin" />
       ) : copied ? (
-        <Check className="w-4 h-4 text-green-600" />
+        <Check className="w-4 h-4 text-success" />
       ) : (
         <LinkIcon className="w-4 h-4" />
       )}

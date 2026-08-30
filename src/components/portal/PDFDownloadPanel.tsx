@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Download, Mail, Loader2 } from 'lucide-react';
+import { DownloadSimple, Envelope, CircleNotch } from '@phosphor-icons/react';
 import type { PDFRow } from '@/lib/pdf';
 
 interface PDFDownloadPanelProps {
@@ -42,7 +42,7 @@ export default function PDFDownloadPanel({ leadId, title, subtitle, rows, hasEma
         disabled={loading !== null}
         className="flex items-center gap-1.5 bg-white border border-gray-300 hover:bg-gray-50 disabled:opacity-60 text-gray-700 text-xs font-semibold px-3 py-2 rounded-md transition-colors"
       >
-        {loading === 'download' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
+        {loading === 'download' ? <CircleNotch className="w-3.5 h-3.5 animate-spin" /> : <DownloadSimple className="w-3.5 h-3.5" />}
         Download PDF
       </button>
       {hasEmail && (
@@ -51,7 +51,7 @@ export default function PDFDownloadPanel({ leadId, title, subtitle, rows, hasEma
           disabled={loading !== null || emailed}
           className="flex items-center gap-1.5 bg-white border border-gray-300 hover:bg-gray-50 disabled:opacity-60 text-gray-700 text-xs font-semibold px-3 py-2 rounded-md transition-colors"
         >
-          {loading === 'email' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Mail className="w-3.5 h-3.5" />}
+          {loading === 'email' ? <CircleNotch className="w-3.5 h-3.5 animate-spin" /> : <Envelope className="w-3.5 h-3.5" />}
           {emailed ? 'Emailed' : 'Email me this'}
         </button>
       )}

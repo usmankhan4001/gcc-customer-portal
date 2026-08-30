@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { LogOut } from 'lucide-react';
+import { SignOut } from '@phosphor-icons/react';
 
 export default function LogoutButton({ className }: { className?: string }) {
   const router = useRouter();
@@ -25,10 +25,10 @@ export default function LogoutButton({ className }: { className?: string }) {
       disabled={isLoggingOut}
       className={
         className ??
-        'flex items-center justify-center gap-2 w-full p-4 text-red-600 bg-white border border-red-100 hover:bg-red-50 rounded-md font-bold transition-colors shadow-sm disabled:opacity-60'
+        'flex items-center justify-center gap-2 w-full p-4 text-destructive bg-white border border-destructive/20 hover:bg-destructive/5 rounded-md font-bold transition-colors shadow-sm disabled:opacity-60'
       }
     >
-      <LogOut className="w-4 h-4" />
+      <SignOut className="w-4 h-4" />
       {isLoggingOut ? 'Logging out...' : 'Log Out'}
     </button>
   );

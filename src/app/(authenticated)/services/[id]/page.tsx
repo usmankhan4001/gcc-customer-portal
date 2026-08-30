@@ -2,7 +2,7 @@
 
 import { use } from 'react';
 import Link from 'next/link';
-import { CheckCircle2, Clock, Wallet } from 'lucide-react';
+import { CheckCircle, Clock, Wallet } from '@phosphor-icons/react';
 import { notFound } from 'next/navigation';
 import BannerHeader from '@/components/portal/BannerHeader';
 import CountryFlag from '@/components/ui/CountryFlag';
@@ -26,7 +26,7 @@ export default function JurisdictionDetails({ params }: { params: Promise<{ id: 
           <div>
             <h2 className="text-2xl font-black text-gray-900 tracking-tight">{data.name}</h2>
             <div className="flex items-center gap-2 mt-1">
-              <span className="bg-red-50 text-red-700 font-bold px-2 py-0.5 rounded-sm text-xs border border-red-100 uppercase tracking-wide">
+              <span className="bg-primary-50 text-primary-600 font-bold px-2 py-0.5 rounded-sm text-xs border border-primary-100 uppercase tracking-wide">
                 {data.tax}
               </span>
             </div>
@@ -42,12 +42,12 @@ export default function JurisdictionDetails({ params }: { params: Promise<{ id: 
         <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Fast Facts</h3>
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-white p-3 rounded-sm shadow-sm border border-gray-200 flex flex-col gap-1">
-            <Wallet className="w-5 h-5 text-gray-500" />
+            <Wallet size={20} weight="duotone" className="text-gray-500" />
             <span className="text-[10px] text-gray-400 font-bold uppercase">Starting Price</span>
             <span className="font-bold text-gray-900 text-base">{data.price}</span>
           </div>
           <div className="bg-white p-3 rounded-sm shadow-sm border border-gray-200 flex flex-col gap-1">
-            <Clock className="w-5 h-5 text-gray-500" />
+            <Clock size={20} weight="duotone" className="text-gray-500" />
             <span className="text-[10px] text-gray-400 font-bold uppercase">Timeline</span>
             <span className="font-bold text-gray-900 text-base">{data.timeline}</span>
           </div>
@@ -60,7 +60,7 @@ export default function JurisdictionDetails({ params }: { params: Promise<{ id: 
         <div className="bg-white rounded-sm shadow-sm border border-gray-200 overflow-hidden">
           {data.features.map((feature: string, idx: number) => (
             <div key={idx} className={`p-3 flex items-start gap-2 ${idx !== data.features.length - 1 ? 'border-b border-gray-100' : ''}`}>
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+              <CheckCircle size={16} weight="duotone" className="text-success shrink-0 mt-0.5" />
               <span className="text-sm font-medium text-gray-800">{feature}</span>
             </div>
           ))}

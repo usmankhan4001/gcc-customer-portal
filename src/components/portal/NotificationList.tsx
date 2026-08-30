@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { CheckCheck } from 'lucide-react';
+import { Checks } from '@phosphor-icons/react';
 
 interface NotificationItem {
   id: string;
@@ -16,10 +16,10 @@ interface NotificationItem {
 }
 
 const TYPE_DOT: Record<NotificationItem['type'], string> = {
-  action_required: 'bg-red-500',
-  success: 'bg-green-500',
-  warning: 'bg-amber-500',
-  info: 'bg-blue-400',
+  action_required: 'bg-destructive',
+  success: 'bg-success',
+  warning: 'bg-warning',
+  info: 'bg-info',
 };
 
 export default function NotificationList({ initial }: { initial: NotificationItem[] }) {
@@ -45,7 +45,7 @@ export default function NotificationList({ initial }: { initial: NotificationIte
             onClick={markAllRead}
             className="flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-primary/80"
           >
-            <CheckCheck className="w-3.5 h-3.5" /> Mark all as read
+            <Checks className="w-3.5 h-3.5" /> Mark all as read
           </button>
         </div>
       )}

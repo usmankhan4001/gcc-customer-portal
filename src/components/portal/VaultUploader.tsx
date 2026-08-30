@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Upload, Loader2 } from 'lucide-react';
+import { UploadSimple, CircleNotch } from '@phosphor-icons/react';
 
 const CATEGORIES = [
   { value: 'trade_license', label: 'Trade License' },
@@ -78,14 +78,14 @@ export default function VaultUploader() {
         <button
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
-          className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 disabled:opacity-60 transition-colors font-bold text-sm shadow-sm"
+          className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-md hover:bg-primary-700 disabled:opacity-60 transition-colors font-bold text-sm shadow-sm"
         >
-          {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+          {uploading ? <CircleNotch className="w-4 h-4 animate-spin" /> : <UploadSimple className="w-4 h-4" />}
           {uploading ? 'UPLOADING...' : 'UPLOAD'}
         </button>
         <input ref={inputRef} type="file" className="hidden" onChange={handleFileChange} />
       </div>
-      {error && <p className="text-xs text-red-600">{error}</p>}
+      {error && <p className="text-xs text-destructive">{error}</p>}
     </div>
   );
 }

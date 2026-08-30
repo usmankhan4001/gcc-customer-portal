@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { AlertCircle, Loader2 } from 'lucide-react';
+import { WarningCircle, CircleNotch } from '@phosphor-icons/react';
 
 interface TaxRule {
   tax_type: 'corporate' | 'vat' | 'other';
@@ -71,7 +71,7 @@ export default function ComplianceSnapshot({ jurisdiction, annualRevenueEstimate
   if (rules === null) {
     return (
       <div className="bg-white rounded-md border border-gray-200 p-4 flex items-center justify-center text-gray-400 text-sm">
-        <Loader2 className="w-4 h-4 animate-spin mr-2" /> Loading compliance data...
+        <CircleNotch className="w-4 h-4 animate-spin mr-2" /> Loading compliance data...
       </div>
     );
   }
@@ -124,7 +124,7 @@ export default function ComplianceSnapshot({ jurisdiction, annualRevenueEstimate
       )}
 
       <div className="mt-3 pt-3 border-t border-gray-100 flex items-start gap-2">
-        <AlertCircle className="w-3.5 h-3.5 text-gray-400 shrink-0 mt-0.5" />
+        <WarningCircle className="w-3.5 h-3.5 text-gray-400 shrink-0 mt-0.5" />
         <p className="text-xs text-gray-400">
           Estimate only, not filed tax advice — consult your advisor before relying on this.
         </p>

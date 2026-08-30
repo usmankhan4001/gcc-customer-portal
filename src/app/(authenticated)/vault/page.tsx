@@ -1,9 +1,10 @@
 import { and, desc, eq } from 'drizzle-orm';
-import { Folder, FileText } from 'lucide-react';
+import { FolderOpen, FileText } from '@phosphor-icons/react/dist/ssr';
 import BannerHeader from '@/components/portal/BannerHeader';
 import VaultUploader from '@/components/portal/VaultUploader';
 import DownloadButton from '@/components/portal/DownloadButton';
 import ShareButton from '@/components/portal/ShareButton';
+import EmptyState from '@/components/portal/EmptyState';
 import { getServerSession } from '@/lib/session';
 import { db } from '@/lib/db';
 import { documents } from '@/lib/db/schema';
@@ -46,14 +47,18 @@ export default async function Vault() {
         <section className="mb-10">
           <h2 className="text-lg font-bold text-gray-800 mb-4 px-1 tracking-tight">FOLDERS</h2>
           {Object.keys(byCategory).length === 0 ? (
-            <div className="bg-white rounded-md border border-gray-200 p-6 text-center text-sm text-gray-400">
-              No documents yet. Upload your first one above.
-            </div>
+            <EmptyState
+              icon={<FolderOpen size={22} weight="duotone" />}
+              title="No documents yet"
+              description="Upload your first one above."
+            />
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {Object.entries(byCategory).map(([category, count]) => (
-                <div key={category} className="bg-white p-4 rounded-md shadow-sm border border-gray-200 hover:border-red-600 hover:shadow-md transition-all cursor-pointer group flex items-center gap-3">
-                  <Folder className="w-8 h-8 text-red-600 shrink-0 group-hover:scale-105 transition-transform" />
+                <div key={category} className="bg-white p-4 rounded-[var(--radius-tile)] shadow-sm border border-gray-200 hover:border-primary-200 hover:shadow-md transition-all cursor-pointer group flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-[var(--radius-tile)] bg-primary-50 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                    <FolderOpen size={20} weight="duotone" className="text-primary" />
+                  </div>
                   <div>
                     <h3 className="font-bold text-gray-900 text-sm uppercase">{CATEGORY_LABELS[category] ?? category}</h3>
                     <p className="text-xs text-gray-500 font-medium">{count} FILE{count === 1 ? '' : 'S'}</p>
@@ -69,7 +74,9 @@ export default async function Vault() {
           <h2 className="text-lg font-bold text-gray-800 mb-4 px-1 tracking-tight">RECENT FILES</h2>
           <div className="bg-white rounded-md shadow-sm border border-gray-200 overflow-hidden">
             {rows.length === 0 ? (
-              <div className="p-6 text-center text-sm text-gray-400">No files uploaded yet.</div>
+              <div className="p-6">
+                <EmptyState icon={<FileText size={22} weight="duotone" />} title="No files uploaded yet" />
+              </div>
             ) : (
               <table className="w-full text-left border-collapse">
                 <thead>
@@ -85,7 +92,7 @@ export default async function Vault() {
                     <tr key={file.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors last:border-b-0">
                       <td className="px-4 py-2 flex items-center gap-3">
                         <div className="bg-gray-100 p-1.5 rounded-md shrink-0">
-                          <FileText className="w-4 h-4 text-gray-600" />
+                          <FileText size={16} weight="duotone" className="text-gray-600" />
                         </div>
                         <div>
                           <div className="font-bold text-gray-900 text-sm truncate">{file.file_name}</div>
