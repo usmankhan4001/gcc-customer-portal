@@ -12,8 +12,5 @@ elif [ -f .env ]; then
   set +a
 fi
 
-echo "Running database migrations..."
-npx drizzle-kit migrate
-
-echo "Starting server..."
+echo "Starting Next.js Server on port 3005..."
 exec node server.js
