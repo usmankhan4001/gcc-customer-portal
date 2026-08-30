@@ -4,6 +4,7 @@ import { use } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, CheckCircle2, Clock, ShieldCheck, Wallet } from 'lucide-react';
 import { notFound } from 'next/navigation';
+import BannerHeader from '@/components/portal/BannerHeader';
 
 const jurisdictionData: Record<string, any> = {
   'uae': {
@@ -50,72 +51,66 @@ export default function JurisdictionDetails({ params }: { params: Promise<{ id: 
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 pb-8">
-      {/* Top Header / Nav */}
-      <header className="bg-white border-b border-gray-200 px-4 py-4 flex items-center sticky top-0 z-10">
-        <Link href="/services" className="p-2 -ml-2 rounded-full hover:bg-gray-100 transition-colors">
-          <ArrowLeft className="w-6 h-6 text-gray-700" />
-        </Link>
-        <h1 className="ml-2 text-lg font-bold text-gray-900">Jurisdiction Details</h1>
-      </header>
+    <div className="flex flex-col min-h-screen bg-gray-50 pb-20">
+      <BannerHeader title="JURISDICTION DETAILS" />
 
       {/* Hero Section */}
-      <div className="bg-white px-6 py-8 border-b border-gray-100">
-        <div className="flex items-center gap-5">
+      <div className="bg-white px-4 py-4 border-b border-gray-200">
+        <div className="flex items-center gap-4">
           <img 
             src={data.flagUrl} 
             alt={`${data.name} Flag`} 
-            className="w-20 h-20 rounded-full object-cover border-4 border-gray-50 shadow-sm"
+            className="w-16 h-16 rounded-sm object-cover border border-gray-200 shadow-sm"
           />
           <div>
-            <h2 className="text-3xl font-black text-gray-900 tracking-tight">{data.name}</h2>
-            <div className="flex items-center gap-2 mt-2">
-              <span className="bg-blue-50 text-blue-700 font-bold px-3 py-1 rounded-full text-sm border border-blue-100">
+            <h2 className="text-2xl font-black text-gray-900 tracking-tight">{data.name}</h2>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="bg-red-50 text-red-700 font-bold px-2 py-0.5 rounded-sm text-xs border border-red-100 uppercase tracking-wide">
                 {data.tax}
               </span>
             </div>
           </div>
         </div>
-        <p className="mt-6 text-gray-600 font-medium leading-relaxed">
+        <p className="mt-4 text-sm text-gray-700 font-medium leading-snug">
           {data.description}
         </p>
       </div>
 
       {/* Fast Facts Grid */}
-      <div className="px-6 py-8">
-        <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Fast Facts</h3>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col gap-2">
-            <Wallet className="w-6 h-6 text-orange-500" />
-            <span className="text-xs text-gray-500 font-medium uppercase">Starting Price</span>
-            <span className="font-bold text-gray-900 text-lg">{data.price}</span>
+      <div className="px-4 py-4 border-b border-gray-200 bg-gray-50">
+        <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Fast Facts</h3>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="bg-white p-3 rounded-sm shadow-sm border border-gray-200 flex flex-col gap-1">
+            <Wallet className="w-5 h-5 text-gray-500" />
+            <span className="text-[10px] text-gray-400 font-bold uppercase">Starting Price</span>
+            <span className="font-bold text-gray-900 text-base">{data.price}</span>
           </div>
-          <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col gap-2">
-            <Clock className="w-6 h-6 text-blue-500" />
-            <span className="text-xs text-gray-500 font-medium uppercase">Timeline</span>
-            <span className="font-bold text-gray-900 text-lg">{data.timeline}</span>
+          <div className="bg-white p-3 rounded-sm shadow-sm border border-gray-200 flex flex-col gap-1">
+            <Clock className="w-5 h-5 text-gray-500" />
+            <span className="text-[10px] text-gray-400 font-bold uppercase">Timeline</span>
+            <span className="font-bold text-gray-900 text-base">{data.timeline}</span>
           </div>
         </div>
       </div>
 
       {/* Benefits List */}
-      <div className="px-6 pb-24">
-        <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">What's Included</h3>
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="px-4 py-4">
+        <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">What's Included</h3>
+        <div className="bg-white rounded-sm shadow-sm border border-gray-200 overflow-hidden">
           {data.features.map((feature: string, idx: number) => (
-            <div key={idx} className={`p-4 flex items-start gap-3 ${idx !== data.features.length - 1 ? 'border-b border-gray-100' : ''}`}>
-              <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
-              <span className="font-medium text-gray-800">{feature}</span>
+            <div key={idx} className={`p-3 flex items-start gap-2 ${idx !== data.features.length - 1 ? 'border-b border-gray-100' : ''}`}>
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+              <span className="text-sm font-medium text-gray-800">{feature}</span>
             </div>
           ))}
         </div>
       </div>
 
       {/* Sticky Bottom CTA */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.05)]">
+      <div className="fixed bottom-0 left-0 right-0 p-3 bg-white border-t border-gray-200 shadow-sm z-10">
         <Link 
           href={`/checkout/${resolvedParams.id}`}
-          className="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-xl shadow-md transition duration-200 text-lg"
+          className="block w-full text-center bg-primary hover:bg-primary/90 text-white font-bold py-3 px-4 rounded-sm shadow-sm transition duration-200 text-sm uppercase tracking-wide"
         >
           Start Incorporation
         </Link>

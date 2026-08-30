@@ -1,8 +1,8 @@
 import React from 'react';
-import { BannerHeader } from '@/components/portal/BannerHeader';
-import { SummaryCard } from '@/components/portal/SummaryCard';
-import { ServiceTile } from '@/components/portal/ServiceTile';
-import { PipelineStepTracker } from '@/components/portal/PipelineStepTracker';
+import BannerHeader from '@/components/portal/BannerHeader';
+import SummaryCard from '@/components/portal/SummaryCard';
+import ServiceTile from '@/components/portal/ServiceTile';
+import PipelineStepTracker from '@/components/portal/PipelineStepTracker';
 import { FileText, Building, Calculator, Search, Receipt, LayoutDashboard } from 'lucide-react';
 
 export default function DashboardPage() {
