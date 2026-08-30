@@ -2,6 +2,7 @@ import { eq } from 'drizzle-orm';
 import { User, Bell, Shield } from 'lucide-react';
 import BannerHeader from '@/components/portal/BannerHeader';
 import LogoutButton from '@/components/portal/LogoutButton';
+import PushNotificationToggle from '@/components/portal/PushNotificationToggle';
 import { getServerSession } from '@/lib/session';
 import { db } from '@/lib/db';
 import { users } from '@/lib/db/schema';
@@ -55,14 +56,11 @@ export default async function Profile() {
                 <Bell className="w-4 h-4" />
               </div>
               <div className="text-left">
-                <h4 className="font-bold text-gray-900 text-sm">Notifications</h4>
-                <p className="text-xs text-gray-500 mt-0.5">Push and email alerts</p>
+                <h4 className="font-bold text-gray-900 text-sm">Push Notifications</h4>
+                <p className="text-xs text-gray-500 mt-0.5">Browser/PWA alerts, alongside WhatsApp and email</p>
               </div>
             </div>
-            {/* Simple toggle switch UI */}
-            <div className={`w-10 h-5 rounded-full relative cursor-pointer ${user?.whatsapp_alerts_enabled !== false ? 'bg-primary' : 'bg-gray-300'}`}>
-              <div className="absolute right-1 top-0.5 bg-white w-4 h-4 rounded-full transition-transform"></div>
-            </div>
+            <PushNotificationToggle />
           </div>
 
           <button className="w-full p-4 flex items-center gap-4 hover:bg-gray-50 transition-colors">

@@ -3,6 +3,7 @@ import { createHmac, timingSafeEqual } from 'crypto';
 import { and, desc, eq } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { companies, notifications, users } from '@/lib/db/schema';
+import { sendPushToUser } from '@/lib/push';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -116,13 +117,19 @@ async function handleKycReference(fromPhone: string, kycRef: string): Promise<vo
     })
     .where(eq(companies.id, company.id));
 
+  const notifTitle = 'KYC Verified';
+  const notifMessage = `Your KYC reference (${kycRef}) for ${company.company_name} has been received. We're now proceeding with government filing.`;
+
   await db.insert(notifications).values({
     user_id: user.id,
-    title: 'KYC Verified',
-    message: `Your KYC reference (${kycRef}) for ${company.company_name} has been received. We're now proceeding with government filing.`,
+    title: notifTitle,
+    message: notifMessage,
     type: 'success',
     category: 'kyc',
+    link_url: '/dashboard',
   });
+
+  await sendPushToUser(user.id, { title: notifTitle, body: notifMessage, url: '/dashboard' });
 
   console.log(`[webhooks/whatsapp] Company ${company.id} advanced to filing_in_progress via KYC ref ${kycRef}`);
 }

@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { eq } from 'drizzle-orm';
 import { db } from '@/lib/db';
-import { companies, orders, users } from '@/lib/db/schema';
+import { companies, notifications, orders, users } from '@/lib/db/schema';
 import { sendWhatsAppMessage } from '@/lib/whatsapp';
+import { sendPushToUser } from '@/lib/push';
 
 let _stripe: Stripe | null = null;
 function getStripe(): Stripe {
@@ -73,6 +74,21 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             { type: 'text', text: user.full_name || 'there' },
             { type: 'text', text: company.company_name },
           ]);
+
+          const notifTitle = 'Payment Confirmed';
+          const notifMessage = `Your payment for ${company.company_name} is confirmed. We're now processing your incorporation.`;
+
+          await db.insert(notifications).values({
+            user_id: user.id,
+            title: notifTitle,
+            message: notifMessage,
+            type: 'success',
+            category: 'payment',
+            link_url: '/dashboard',
+            whatsapp_status: 'sent',
+          });
+
+          await sendPushToUser(user.id, { title: notifTitle, body: notifMessage, url: '/dashboard' });
         }
       } else {
         console.error(`[webhooks/stripe] order ${orderId} or company ${companyId} not found`);
