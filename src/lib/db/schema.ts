@@ -8,6 +8,8 @@ export const ORDERS_TABLE = 'orders';
 export const RENEWALS_TABLE = 'renewals';
 export const NOTIFICATIONS_TABLE = 'notifications';
 export const SHAREABLE_LINKS_TABLE = 'shareable_links';
+export const WHATSAPP_MESSAGES_TABLE = 'whatsapp_messages';
+export const TAX_FILINGS_TABLE = 'tax_filings';
 
 // ─── Enum Types ─────────────────────────────────────────────────────────────
 
@@ -61,6 +63,10 @@ export type DeliveryStatus =
   | 'delivered'
   | 'read'
   | 'failed';
+export type MessageDirection = 'inbound' | 'outbound';
+export type MessageStatus = 'queued' | 'sent' | 'delivered' | 'read' | 'failed' | 'received';
+export type TaxPeriodType = 'vat_quarterly' | 'corporate_tax_annual';
+export type TaxFilingStatus = 'upcoming' | 'filed' | 'overdue';
 
 // ─── Row Interfaces ─────────────────────────────────────────────────────────
 
@@ -186,4 +192,30 @@ export interface ShareableLink {
   views_count: number;
   expires_at: Date;
   created_at: Date;
+}
+
+export interface WhatsAppMessageRow {
+  id: string;
+  company_id: string | null;
+  phone_number: string;
+  direction: MessageDirection;
+  message_type: string;
+  body: string;
+  template_name: string | null;
+  whatsapp_message_id: string | null;
+  status: MessageStatus;
+  created_at: Date;
+}
+
+export interface TaxFiling {
+  id: string;
+  company_id: string;
+  period_type: TaxPeriodType;
+  period_label: string;
+  due_date: Date;
+  filed_date: Date | null;
+  amount_due: number;
+  status: TaxFilingStatus;
+  created_at: Date;
+  updated_at: Date;
 }

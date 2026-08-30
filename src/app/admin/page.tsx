@@ -124,8 +124,8 @@ export default function AdminDashboardPage() {
         }
 
         .admin-stat-card {
-          background: var(--color-card);
-          border: 1px solid var(--color-border);
+          background: var(--card);
+          border: 1px solid var(--border);
           border-radius: var(--radius-md);
           padding: 16px;
           display: flex;
@@ -175,8 +175,8 @@ export default function AdminDashboardPage() {
           align-items: center;
           gap: 12px;
           padding: 14px 16px;
-          background: var(--color-card);
-          border: 1px solid var(--color-border);
+          background: var(--card);
+          border: 1px solid var(--border);
           border-radius: var(--radius-md);
           text-decoration: none;
           transition: all 0.15s ease;

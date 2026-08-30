@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createHmac, timingSafeEqual } from 'crypto';
+import { query, queryOne } from '@/lib/db';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -110,71 +111,55 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       for (const change of entry.changes) {
         if (change.field !== 'messages') continue;
 
-        const { messages, statuses, metadata } = change.value;
+        const { messages, statuses } = change.value;
 
         // Handle incoming messages
         if (messages) {
           for (const message of messages) {
-            console.log(
-              `[webhooks/whatsapp] Message from ${message.id}: type=${message.type}`
+            const body =
+              message.type === 'text'
+                ? message.text?.body ?? ''
+                : `[${message.type}]`;
+
+            // A company may already be linked to this phone number via an
+            // existing company owner — best-effort match, not required.
+            const owner = await queryOne<{ id: string }>(
+              `SELECT c.id FROM companies c
+               JOIN users u ON u.id = c.user_id
+               WHERE u.whatsapp_number = $1
+               ORDER BY c.created_at DESC LIMIT 1`,
+              [message.from]
             );
 
-            // Check for KYC reference in text messages
+            await query(
+              `INSERT INTO whatsapp_messages (id, company_id, phone_number, direction, message_type, body, whatsapp_message_id, status, created_at)
+               VALUES ($1, $2, $3, 'inbound', $4, $5, $6, 'received', NOW())
+               ON CONFLICT (whatsapp_message_id) DO NOTHING`,
+              [crypto.randomUUID(), owner?.id ?? null, message.from, message.type, body, message.id]
+            );
+
+            // Check for a self-reported KYC reference in text messages
             if (message.type === 'text' && message.text?.body) {
               const kycRef = extractKYCReference(message.text.body);
 
-              if (kycRef) {
-                console.log(`[webhooks/whatsapp] KYC reference detected: ${kycRef}`);
-
-                // TODO: Look up document by reference and update status
-                // const document = await queryOne(
-                //   `SELECT d.*, c.id as company_id
-                //    FROM documents d
-                //    JOIN companies c ON d.company_id = c.id
-                //    WHERE d.reference_number = $1 OR d.id = $1`,
-                //   [kycRef]
-                // );
-                //
-                // if (document) {
-                //   await query(
-                //     `UPDATE documents SET status = 'uploaded', updated_at = NOW() WHERE id = $1`,
-                //     [document.id]
-                //   );
-                // }
-
-                console.log(`[webhooks/whatsapp] Mock DB: KYC reference ${kycRef} processed`);
+              if (kycRef && owner) {
+                await query(
+                  `UPDATE companies SET official_kyc_reference = $1, updated_at = NOW() WHERE id = $2`,
+                  [kycRef, owner.id]
+                );
+                console.log(`[webhooks/whatsapp] KYC reference ${kycRef} recorded for company ${owner.id}`);
               }
             }
-
-            // TODO: Log notification in database
-            // await query(
-            //   `INSERT INTO notifications (id, channel, direction, phone_number, message_id, content, metadata, created_at)
-            //    VALUES ($1, 'whatsapp', 'inbound', $2, $3, $4, $5, NOW())`,
-            //   [
-            //     crypto.randomUUID(),
-            //     message.from,
-            //     message.id,
-            //     message.text?.body ?? `[${message.type}]`,
-            //     JSON.stringify({ type: message.type, phone_number_id: metadata.phone_number_id }),
-            //   ]
-            // );
-
-            console.log(`[webhooks/whatsapp] Mock DB: notification logged for ${message.from}`);
           }
         }
 
-        // Handle status updates
+        // Handle status updates for messages we sent
         if (statuses) {
           for (const status of statuses) {
-            console.log(
-              `[webhooks/whatsapp] Status update: ${status.id} → ${status.status}`
+            await query(
+              `UPDATE whatsapp_messages SET status = $1 WHERE whatsapp_message_id = $2`,
+              [status.status, status.id]
             );
-
-            // TODO: Update notification status in database
-            // await query(
-            //   `UPDATE notifications SET status = $1, updated_at = NOW() WHERE message_id = $2`,
-            //   [status.status, status.id]
-            // );
           }
         }
       }

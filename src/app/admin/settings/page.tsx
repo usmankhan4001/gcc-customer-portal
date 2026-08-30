@@ -151,8 +151,8 @@ export default function AdminSettingsPage() {
         }
 
         .admin-settings-card {
-          background: var(--color-card);
-          border: 1px solid var(--color-border);
+          background: var(--card);
+          border: 1px solid var(--border);
           border-radius: var(--radius-md);
           overflow: hidden;
         }
@@ -166,7 +166,7 @@ export default function AdminSettingsPage() {
         }
 
         .admin-settings-row + .admin-settings-row {
-          border-top: 1px solid var(--color-border);
+          border-top: 1px solid var(--border);
         }
 
         .admin-settings-label {

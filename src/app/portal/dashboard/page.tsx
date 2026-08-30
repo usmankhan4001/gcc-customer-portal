@@ -9,8 +9,8 @@ import ListItem from '@/components/design-system/ListItem';
 import ProgressSteps from '@/components/design-system/ProgressSteps';
 import StickyFooter from '@/components/ui/StickyFooter';
 import CountryFlag from '@/components/ui/CountryFlag';
-import Badge from '@/components/ui/Badge';
-import Card from '@/components/ui/Card';
+import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
 import {
   ShieldCheck,
   ArrowRight,

@@ -67,7 +67,7 @@ export default function InstallPrompt() {
 
   return (
     <div className="fixed bottom-4 left-4 right-4 z-50 sm:left-auto sm:right-4 sm:w-96">
-      <div className="rounded-xl border border-[var(--color-border,#E5E7EB)] bg-white p-4 shadow-lg">
+      <div className="rounded-xl border border-[var(--border,#E5E7EB)] bg-white p-4 shadow-lg">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#14204A]">

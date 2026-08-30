@@ -5,8 +5,8 @@ import Link from 'next/link';
 import { usePortalStore } from '@/lib/store';
 import PageHeader from '@/components/design-system/PageHeader';
 import ProgressSteps from '@/components/design-system/ProgressSteps';
-import Card from '@/components/ui/Card';
-import Badge from '@/components/ui/Badge';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import StickyFooter from '@/components/ui/StickyFooter';
 import CountryFlag from '@/components/ui/CountryFlag';
 import {

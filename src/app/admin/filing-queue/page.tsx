@@ -262,14 +262,14 @@ export default function FilingQueuePage() {
           font-weight: 600;
           background: var(--color-surface);
           color: var(--color-text-secondary);
-          border: 1.5px solid var(--color-border);
+          border: 1.5px solid var(--border);
           cursor: pointer;
           transition: all 0.15s ease;
           font-family: var(--font-sans);
         }
 
         .admin-chip:hover {
-          border-color: var(--color-border-hover);
+          border-color: var(--color-line-hover);
           background: var(--color-surface-alt);
         }
 
@@ -302,7 +302,7 @@ export default function FilingQueuePage() {
           height: 44px;
           padding: 0 40px 0 40px;
           background: var(--color-surface-alt);
-          border: 1.5px solid var(--color-border);
+          border: 1.5px solid var(--border);
           border-radius: var(--radius-md);
           font-size: 13px;
           font-family: var(--font-sans);
@@ -331,7 +331,7 @@ export default function FilingQueuePage() {
           align-items: center;
           justify-content: center;
           border: none;
-          background: var(--color-border);
+          background: var(--border);
           border-radius: 50%;
           color: var(--color-text-secondary);
           cursor: pointer;
@@ -344,8 +344,8 @@ export default function FilingQueuePage() {
         }
 
         .admin-queue-card {
-          background: var(--color-card);
-          border: 1px solid var(--color-border);
+          background: var(--card);
+          border: 1px solid var(--border);
           border-radius: var(--radius-md);
           padding: 16px;
           display: flex;
@@ -435,7 +435,7 @@ export default function FilingQueuePage() {
           justify-content: space-between;
           gap: 12px;
           padding-top: 10px;
-          border-top: 1px solid var(--color-border);
+          border-top: 1px solid var(--border);
           flex-wrap: wrap;
         }
 

@@ -232,8 +232,8 @@ export default function AdminWhatsAppPage() {
 
         .admin-wa-form-card,
         .admin-wa-logs-card {
-          background: var(--color-card);
-          border: 1px solid var(--color-border);
+          background: var(--card);
+          border: 1px solid var(--border);
           border-radius: var(--radius-md);
           padding: 20px;
           display: flex;
@@ -281,7 +281,7 @@ export default function AdminWhatsAppPage() {
           height: 42px;
           padding: 0 12px 0 38px;
           background: var(--color-surface);
-          border: 1.5px solid var(--color-border);
+          border: 1.5px solid var(--border);
           border-radius: var(--radius-sm);
           font-size: 13px;
           font-family: var(--font-sans);
@@ -304,7 +304,7 @@ export default function AdminWhatsAppPage() {
           height: 42px;
           padding: 0 12px;
           background: var(--color-surface);
-          border: 1.5px solid var(--color-border);
+          border: 1.5px solid var(--border);
           border-radius: var(--radius-sm);
           font-size: 13px;
           font-family: var(--font-sans);
@@ -325,7 +325,7 @@ export default function AdminWhatsAppPage() {
         .admin-preview-box {
           padding: 12px;
           background: var(--color-surface-alt);
-          border: 1px solid var(--color-border);
+          border: 1px solid var(--border);
           border-radius: var(--radius-sm);
           font-size: 12px;
           line-height: 1.6;

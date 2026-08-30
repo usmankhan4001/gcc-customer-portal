@@ -92,6 +92,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
+    // whatsapp_number is NOT NULL on users — only required the first time a
+    // given email signs in, since an existing user already has one on file.
+    const existingByEmail = await queryOne<{ id: string }>(`SELECT id FROM users WHERE email = $1`, [email]);
+    if (!existingByEmail && !whatsapp_number) {
+      return NextResponse.json(
+        { error: 'Missing required field: whatsapp_number (required for first-time sign in)' },
+        { status: 400 }
+      );
+    }
+
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
@@ -110,8 +120,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (!user) {
       const newId = crypto.randomUUID();
       user = await queryOne<{ id: string; email: string; whatsapp_number: string | null; full_name: string }>(
-        `INSERT INTO users (id, email, full_name, role) VALUES ($1, $2, $3, 'client') RETURNING id, email, whatsapp_number, full_name`,
-        [newId, email, email.split('@')[0]]
+        `INSERT INTO users (id, email, whatsapp_number, full_name, role) VALUES ($1, $2, $3, $4, 'client') RETURNING id, email, whatsapp_number, full_name`,
+        [newId, email, whatsapp_number, email.split('@')[0]]
       );
     }
 

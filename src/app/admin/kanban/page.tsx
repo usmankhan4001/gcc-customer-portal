@@ -151,7 +151,7 @@ export default function AdminKanbanPage() {
           overflow-x: auto;
           padding-bottom: 16px;
           scrollbar-width: thin;
-          scrollbar-color: var(--color-border-hover) transparent;
+          scrollbar-color: var(--color-line-hover) transparent;
         }
 
         .admin-kanban-board::-webkit-scrollbar {
@@ -159,7 +159,7 @@ export default function AdminKanbanPage() {
         }
 
         .admin-kanban-board::-webkit-scrollbar-thumb {
-          background: var(--color-border-hover);
+          background: var(--color-line-hover);
           border-radius: 3px;
         }
 
@@ -171,7 +171,7 @@ export default function AdminKanbanPage() {
           flex-direction: column;
           background: var(--color-surface-alt);
           border-radius: var(--radius-md);
-          border: 1px solid var(--color-border);
+          border: 1px solid var(--border);
           overflow: hidden;
         }
 
@@ -180,8 +180,8 @@ export default function AdminKanbanPage() {
           align-items: center;
           justify-content: space-between;
           padding: 12px 14px;
-          border-bottom: 2px solid var(--color-border);
-          background: var(--color-card);
+          border-bottom: 2px solid var(--border);
+          background: var(--card);
         }
 
         .admin-kanban-col-name {
@@ -213,8 +213,8 @@ export default function AdminKanbanPage() {
         }
 
         .admin-kanban-card {
-          background: var(--color-card);
-          border: 1px solid var(--color-border);
+          background: var(--card);
+          border: 1px solid var(--border);
           border-radius: var(--radius-sm);
           padding: 12px;
           display: flex;
@@ -297,7 +297,7 @@ export default function AdminKanbanPage() {
           text-align: center;
           font-size: 11px;
           color: var(--color-text-muted);
-          border: 1px dashed var(--color-border);
+          border: 1px dashed var(--border);
           border-radius: var(--radius-sm);
         }
       `}</style>

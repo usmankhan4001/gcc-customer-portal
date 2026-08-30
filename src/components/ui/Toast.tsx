@@ -67,20 +67,8 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             role="alert"
           >
             {ICONS[toast.type]}
-            <span style={{ flex: 1 }}>{toast.message}</span>
-            <button
-              onClick={() => removeToast(toast.id)}
-              aria-label="Dismiss notification"
-              style={{
-                background: 'none',
-                border: 'none',
-                color: 'inherit',
-                cursor: 'pointer',
-                padding: 2,
-                display: 'flex',
-                opacity: 0.8,
-              }}
-            >
+            <span className="toast-message">{toast.message}</span>
+            <button onClick={() => removeToast(toast.id)} aria-label="Dismiss notification" className="toast-dismiss">
               <X size={14} />
             </button>
           </div>

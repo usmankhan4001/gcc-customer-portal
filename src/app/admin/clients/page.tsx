@@ -276,7 +276,7 @@ export default function AdminClientsPage() {
           height: 44px;
           padding: 0 40px 0 40px;
           background: var(--color-surface-alt);
-          border: 1.5px solid var(--color-border);
+          border: 1.5px solid var(--border);
           border-radius: var(--radius-md);
           font-size: 13px;
           font-family: var(--font-sans);
@@ -305,7 +305,7 @@ export default function AdminClientsPage() {
           align-items: center;
           justify-content: center;
           border: none;
-          background: var(--color-border);
+          background: var(--border);
           border-radius: 50%;
           color: var(--color-text-secondary);
           cursor: pointer;
@@ -323,8 +323,8 @@ export default function AdminClientsPage() {
           justify-content: space-between;
           gap: 16px;
           padding: 14px 16px;
-          background: var(--color-card);
-          border: 1px solid var(--color-border);
+          background: var(--card);
+          border: 1px solid var(--border);
           border-radius: var(--radius-md);
           cursor: pointer;
           transition: all 0.15s ease;
@@ -334,7 +334,7 @@ export default function AdminClientsPage() {
         }
 
         .admin-client-card:hover {
-          border-color: var(--color-border-hover);
+          border-color: var(--color-line-hover);
           box-shadow: var(--shadow-sm);
         }
 
@@ -498,7 +498,7 @@ export default function AdminClientsPage() {
           font-weight: 700;
           color: var(--color-text);
           padding-bottom: 8px;
-          border-bottom: 1px solid var(--color-border);
+          border-bottom: 1px solid var(--border);
         }
 
         .admin-modal-docs {

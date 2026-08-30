@@ -42,7 +42,7 @@ export default function StickyFooter({
         ) : (
           <>
             {/* Left Slot: Secondary Button OR Price Summary */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div className="flex items-center gap-2.5">
               {secondaryAction && secondaryLabel && (
                 <button
                   type="button"
@@ -56,28 +56,10 @@ export default function StickyFooter({
               )}
 
               {priceValue && (
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  {priceLabel && (
-                    <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
-                      {priceLabel}
-                    </span>
-                  )}
-                  <span
-                    style={{
-                      fontFamily: 'var(--font-heading)',
-                      fontSize: '1.25rem',
-                      fontWeight: 800,
-                      color: 'var(--orange)',
-                      lineHeight: 1.1,
-                    }}
-                  >
-                    {priceValue}
-                  </span>
-                  {priceSub && (
-                    <span style={{ fontSize: 10, color: 'var(--text-tertiary)' }}>
-                      {priceSub}
-                    </span>
-                  )}
+                <div className="flex flex-col">
+                  {priceLabel && <span className="sticky-footer-price-label">{priceLabel}</span>}
+                  <span className="sticky-footer-price-value">{priceValue}</span>
+                  {priceSub && <span className="sticky-footer-price-sub">{priceSub}</span>}
                 </div>
               )}
             </div>
@@ -105,44 +87,6 @@ export default function StickyFooter({
           </>
         )}
       </div>
-
-      <style jsx>{`
-        .sticky-footer-wrap {
-          position: fixed;
-          bottom: 0;
-          left: 0;
-          right: 0;
-          z-index: 90;
-          background: var(--header-bg, rgba(255, 255, 255, 0.95));
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
-          border-top: 1px solid var(--border);
-          padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
-          box-shadow: 0 -4px 20px rgba(15, 23, 42, 0.08);
-          animation: slideUp 0.2s ease-out;
-        }
-
-        .sticky-footer-inner {
-          max-width: 520px;
-          margin: 0 auto;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 12px;
-        }
-
-        @media (min-width: 768px) {
-          .sticky-footer-inner {
-            max-width: 760px;
-          }
-        }
-
-        @media (min-width: 1024px) {
-          .sticky-footer-inner {
-            max-width: 1040px;
-          }
-        }
-      `}</style>
     </div>
   );
 }

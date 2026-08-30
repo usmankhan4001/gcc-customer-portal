@@ -1,6 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=Inter:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
-@import "@heroui/styles";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
 
 /* ═══════════════════════════════════════════════════
    GCCStartup v2.0 — Design Tokens & Foundation
@@ -19,13 +22,22 @@
   --color-navy-light: #1E2D5A;
   --color-navy-subtle: #F0F2F8;
 
+  /* Heading/emphasis text — distinct from --color-navy, which also serves as a
+     deliberate dark SURFACE color (admin sidebar, .card-navy) and must stay dark
+     in both themes. Text needs to flip light/dark; a surface color must not. */
+  --color-heading: #14204A;
+
   --color-surface: #FFFFFF;
   --color-surface-alt: #F8FAFC;
   --color-canvas: #F1F3F7;
-  --color-card: #FFFFFF;
 
-  --color-border: #E8ECF1;
-  --color-border-hover: #D1D8E3;
+  /* Named --color-line, not --color-border: shadcn's generated theme mapping
+     (bottom of file) also needs a token named --color-border for its own
+     border-* utilities. Two @theme blocks declaring the same custom property
+     collide (last one wins for ALL usages), so our border-color brand token
+     lives under a different name and --border aliases to it below. */
+  --color-line: #E8ECF1;
+  --color-line-hover: #D1D8E3;
 
   --color-text: #1A1D26;
   --color-text-secondary: #5A6178;
@@ -48,6 +60,8 @@
   --radius-lg: 16px;
   --radius-xl: 20px;
   --radius-2xl: 24px;
+  --radius-3xl: 28px;
+  --radius-4xl: 32px;
   --radius-pill: 9999px;
 
   --shadow-xs: 0 1px 2px rgba(0,0,0,0.04);
@@ -60,25 +74,155 @@
 
   --spacing-page: 20px;
   --spacing-section: 28px;
+
+  /* Icon-tile sizing — the icon-in-rounded-colored-box pattern used throughout
+     (previously hand-duplicated as one-off inline styles on every screen). */
+  --size-icontile-sm: 2rem;
+  --size-icontile-md: 2.5rem;
+  --size-icontile-lg: 3rem;
 }
 
-/* ─── Variable Aliases (for inline var() usage in components) ─── */
+/* ─── Variable Aliases + shadcn semantic token bridge ───────────────────────
+   shadcn/Radix components read --background/--primary/--card/etc (mapped to
+   real Tailwind utilities via the @theme inline block near the end of this
+   file). Every one below is a live var() reference to an already
+   theme-aware brand token, so NONE of them need separate light/dark
+   duplication — they follow whatever --color-* resolves to under the
+   current theme automatically. ─────────────────────────────────────────── */
 :root {
   --navy: var(--color-navy);
+  --heading: var(--color-heading);
   --orange: var(--color-orange);
   --text-secondary: var(--color-text-secondary);
   --text-tertiary: var(--color-text-tertiary);
-  --text-muted: var(--color-text-secondary);
-  --border: var(--color-border);
+  --text-muted: var(--color-text-muted);
+  --border: var(--color-line);
   --surface: var(--color-surface);
   --surface-alt: var(--color-surface-alt);
   --success: var(--color-success);
+  --success-lt: var(--color-success-light);
   --error: var(--color-error);
+  --error-lt: var(--color-error-light);
   --warning: var(--color-warning);
+  --warning-lt: var(--color-warning-light);
   --blue: var(--color-info);
+  --blue-lt: var(--color-info-light);
+  --whatsapp: var(--color-whatsapp);
   --orange-lt: var(--color-orange-light);
   --sand: #F5F0E8;
   --card-hover: rgba(0,0,0,0.03);
+  --card-bg: var(--color-surface);
+  --header-bg: var(--color-surface);
+  --modal-backdrop: rgba(10,12,20,0.5);
+  --radius: var(--radius-sm);
+  --color-brand-orange-lt: var(--color-orange-light);
+
+  /* shadcn semantic tokens, mapped to brand */
+  --background: var(--color-canvas);
+  --foreground: var(--color-text);
+  --card: var(--color-surface);
+  --card-foreground: var(--color-text);
+  --popover: var(--color-surface);
+  --popover-foreground: var(--color-text);
+  --primary: var(--color-orange);
+  --primary-foreground: #FFFFFF;
+  --secondary: var(--color-navy-subtle);
+  --secondary-foreground: var(--color-heading);
+  --muted: var(--color-surface-alt);
+  --muted-foreground: var(--color-text-tertiary);
+  --accent: var(--color-orange-light);
+  --accent-foreground: var(--color-orange);
+  --destructive: var(--color-error);
+  --input: var(--color-line);
+  --ring: var(--color-orange);
+  --chart-1: var(--color-orange);
+  --chart-2: var(--color-navy-light);
+  --chart-3: var(--color-success);
+  --chart-4: var(--color-info);
+  --chart-5: var(--color-warning);
+  /* Sidebar stays a stable dark-navy surface in both themes, matching the
+     admin shell — not something that should flip light in light mode. */
+  --sidebar: var(--color-navy);
+  --sidebar-foreground: #FFFFFF;
+  --sidebar-primary: var(--color-orange);
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: rgba(255,255,255,0.08);
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: rgba(255,255,255,0.08);
+  --sidebar-ring: var(--color-orange);
+}
+
+/* ═══════════════════════════════════════════════════
+   DARK MODE
+   Light values live in @theme above. These blocks override only the
+   underlying custom properties — never redeclare a color inside just one
+   block, or it won't resolve in the other theme state.
+   ═══════════════════════════════════════════════════ */
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    --color-orange: #FF7A45;
+    --color-orange-dark: #C85A28;
+    --color-orange-light: #3A2413;
+    --color-orange-hover: #FF8A52;
+
+    --color-navy-light: #24356B;
+    --color-navy-subtle: #1C2340;
+    --color-heading: #EEF1FB;
+
+    --color-surface: #191D2B;
+    --color-surface-alt: #20263A;
+    --color-canvas: #12151F;
+
+    --color-line: #2B3145;
+    --color-line-hover: #3A4159;
+
+    --color-text: #ECEEF6;
+    --color-text-secondary: #A7AEC4;
+    --color-text-tertiary: #7A82A0;
+    --color-text-muted: #565D78;
+
+    --color-success: #34D399;
+    --color-success-light: #123326;
+    --color-error: #F87171;
+    --color-error-light: #3A1717;
+    --color-warning: #FBBF24;
+    --color-warning-light: #332608;
+    --color-info: #60A5FA;
+    --color-info-light: #16233D;
+  }
+}
+
+.dark {
+  --color-orange: #FF7A45;
+  --color-orange-dark: #C85A28;
+  --color-orange-light: #3A2413;
+  --color-orange-hover: #FF8A52;
+
+  --color-navy-light: #24356B;
+  --color-navy-subtle: #1C2340;
+  --color-heading: #EEF1FB;
+
+  --color-surface: #191D2B;
+  --color-surface-alt: #20263A;
+  --color-canvas: #12151F;
+
+  --color-line: #2B3145;
+  --color-line-hover: #3A4159;
+
+  --color-text: #ECEEF6;
+  --color-text-secondary: #A7AEC4;
+  --color-text-tertiary: #7A82A0;
+  --color-text-muted: #565D78;
+
+  --color-success: #34D399;
+  --color-success-light: #123326;
+  --color-error: #F87171;
+  --color-error-light: #3A1717;
+  --color-warning: #FBBF24;
+  --color-warning-light: #332608;
+  --color-info: #60A5FA;
+  --color-info-light: #16233D;
 }
 
 /* ─── Base Reset ─── */
@@ -136,7 +280,7 @@ body {
 /* ─── Custom Scrollbar ─── */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--color-border-hover); border-radius: 99px; }
+::-webkit-scrollbar-thumb { background: var(--color-line-hover); border-radius: 99px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--color-text-muted); }
 
 /* ═══════════════════════════════════════════════════
@@ -172,7 +316,7 @@ body {
   top: 0;
   z-index: 100;
   background: var(--color-surface);
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--border);
   height: 56px;
   display: flex;
   align-items: center;
@@ -219,7 +363,7 @@ body {
   transition: background 0.15s ease;
   flex-shrink: 0;
 }
-.header-back-btn:hover { background: var(--color-border); }
+.header-back-btn:hover { background: var(--border); }
 
 .header-icon-btn {
   width: 36px;
@@ -260,7 +404,7 @@ body {
   top: 0;
   z-index: 100;
   background: var(--color-surface);
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--border);
   padding: 12px var(--spacing-page) 14px;
 }
 
@@ -277,7 +421,7 @@ body {
   right: 0;
   z-index: 100;
   background: var(--color-surface);
-  border-top: 1px solid var(--color-border);
+  border-top: 1px solid var(--border);
   padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px));
 }
 
@@ -337,7 +481,7 @@ body {
    ═══════════════════════════════════════════════════ */
 
 .card {
-  background: var(--color-card);
+  background: var(--card);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -353,7 +497,7 @@ body {
 .card-orange { background: var(--color-orange-light); box-shadow: none; }
 .card-orange-lt { background: var(--color-orange-light); }
 .card-navy { background: var(--color-navy); color: #FFFFFF; box-shadow: none; }
-.card-bordered { box-shadow: none; border: 1px solid var(--color-border); }
+.card-bordered { box-shadow: none; border: 1px solid var(--border); }
 .card-sand { background: var(--sand); }
 .card-blue-lt { background: var(--color-info-light); }
 
@@ -384,8 +528,8 @@ body {
 .btn-primary:hover { background: var(--color-orange-hover); }
 .btn-primary:active { transform: scale(0.97); }
 
-.btn-secondary { background: var(--color-surface); color: var(--color-text); border: 1.5px solid var(--color-border); }
-.btn-secondary:hover { background: var(--color-surface-alt); border-color: var(--color-border-hover); }
+.btn-secondary { background: var(--color-surface); color: var(--color-text); border: 1.5px solid var(--border); }
+.btn-secondary:hover { background: var(--color-surface-alt); border-color: var(--color-line-hover); }
 
 .btn-ghost { background: transparent; color: var(--color-text-secondary); padding: 8px 16px; }
 .btn-ghost:hover { background: var(--color-surface-alt); }
@@ -406,7 +550,7 @@ body {
 
 .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: var(--radius-pill); font-size: 11px; font-weight: 700; letter-spacing: 0.01em; line-height: 1.3; }
 .badge-orange { background: var(--color-orange-light); color: var(--color-orange); }
-.badge-navy { background: var(--color-navy-subtle); color: var(--color-navy); }
+.badge-navy { background: var(--color-navy-subtle); color: var(--color-heading); }
 .badge-success { background: var(--color-success-light); color: var(--color-success); }
 .badge-error { background: var(--color-error-light); color: var(--color-error); }
 .badge-warning { background: var(--color-warning-light); color: var(--color-warning); }
@@ -422,7 +566,7 @@ body {
   height: 48px;
   padding: 0 16px;
   background: var(--color-surface);
-  border: 1.5px solid var(--color-border);
+  border: 1.5px solid var(--border);
   border-radius: var(--radius-md);
   font-size: 14px;
   font-family: var(--font-sans);
@@ -447,7 +591,7 @@ body {
   height: 48px;
   padding: 0 16px 0 44px;
   background: var(--color-surface-alt);
-  border: 1.5px solid var(--color-border);
+  border: 1.5px solid var(--border);
   border-radius: var(--radius-pill);
   font-size: 14px;
   font-family: var(--font-sans);
@@ -468,7 +612,7 @@ body {
 .modal-content { background: var(--color-surface); border-radius: var(--radius-2xl) var(--radius-2xl) 0 0; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; padding: 20px; }
 @media (min-width: 768px) { .modal-content { border-radius: var(--radius-2xl); max-height: 80vh; } }
 
-.modal-handle { width: 36px; height: 4px; border-radius: 2px; background: var(--color-border-hover); margin: 0 auto 16px; }
+.modal-handle { width: 36px; height: 4px; border-radius: 2px; background: var(--color-line-hover); margin: 0 auto 16px; }
 @media (min-width: 768px) { .modal-handle { display: none; } }
 
 /* ═══════════════════════════════════════════════════
@@ -480,6 +624,9 @@ body {
 .toast-success { background: var(--color-success); }
 .toast-error { background: var(--color-error); }
 .toast-warning { background: var(--color-warning); }
+.toast-message { flex: 1; }
+.toast-dismiss { background: none; border: none; color: inherit; cursor: pointer; padding: 2px; display: flex; opacity: 0.8; }
+.toast-dismiss:hover { opacity: 1; }
 
 @keyframes toastIn { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -487,7 +634,7 @@ body {
    PROGRESS
    ═══════════════════════════════════════════════════ */
 
-.progress-track { width: 100%; height: 6px; background: var(--color-border); border-radius: var(--radius-pill); overflow: hidden; }
+.progress-track { width: 100%; height: 6px; background: var(--border); border-radius: var(--radius-pill); overflow: hidden; }
 .progress-fill { height: 100%; border-radius: var(--radius-pill); background: var(--color-orange); transition: width 0.5s cubic-bezier(0.4,0,0.2,1); }
 
 /* ═══════════════════════════════════════════════════
@@ -556,7 +703,7 @@ body {
   font-family: var(--font-heading);
   font-weight: 700;
   font-size: 16px;
-  color: var(--color-navy);
+  color: var(--color-heading);
   letter-spacing: -0.02em;
 }
 
@@ -585,7 +732,7 @@ body {
   align-items: center;
   justify-content: space-between;
   padding-bottom: 14px;
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--border);
   margin-bottom: 14px;
 }
 
@@ -599,7 +746,7 @@ body {
   font-family: var(--font-heading);
   font-size: 15px;
   font-weight: 700;
-  color: var(--color-navy);
+  color: var(--color-heading);
 }
 
 .notif-bar-actions {
@@ -678,7 +825,7 @@ body {
 
 .notif-item-message {
   font-size: 12px;
-  color: var(--color-navy);
+  color: var(--color-heading);
   line-height: 1.4;
 }
 
@@ -706,7 +853,7 @@ body {
 
 .status-card-default {
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--border);
 }
 
 .status-card-orange {
@@ -754,7 +901,7 @@ body {
   line-height: 1.1;
 }
 
-.status-card-value-default { color: var(--color-navy); }
+.status-card-value-default { color: var(--color-heading); }
 .status-card-value-navy { color: white; }
 
 .status-card-subtitle {
@@ -855,7 +1002,7 @@ body {
 }
 
 .step-connector-v-completed { background: var(--color-success); }
-.step-connector-v-pending { background: var(--color-border); }
+.step-connector-v-pending { background: var(--border); }
 
 .step-content-vertical {
   flex: 1;
@@ -871,7 +1018,7 @@ body {
 }
 
 .step-label-completed { font-weight: 600; color: var(--color-success); }
-.step-label-current { font-weight: 700; color: var(--color-navy); }
+.step-label-current { font-weight: 700; color: var(--color-heading); }
 .step-label-pending { font-weight: 600; color: var(--color-text-muted); }
 
 .step-desc {
@@ -895,7 +1042,7 @@ body {
 }
 
 .step-label-h-completed { font-weight: 600; color: var(--color-success); }
-.step-label-h-current { font-weight: 700; color: var(--color-navy); }
+.step-label-h-current { font-weight: 700; color: var(--color-heading); }
 .step-label-h-pending { font-weight: 600; color: var(--color-text-muted); }
 
 .step-connector-h {
@@ -906,7 +1053,7 @@ body {
 }
 
 .step-connector-h-completed { background: var(--color-success); }
-.step-connector-h-pending { background: var(--color-border); }
+.step-connector-h-pending { background: var(--border); }
 
 /* ═══════════════════════════════════════════════════
    DESIGN SYSTEM — PageHeader
@@ -926,4 +1073,113 @@ body {
 .page-header-action {
   flex-shrink: 0;
   margin-top: 4px;
+}
+
+/* ═══════════════════════════════════════════════════
+   STICKY FOOTER
+   ═══════════════════════════════════════════════════ */
+
+.sticky-footer-wrap {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 90;
+  background: color-mix(in srgb, var(--header-bg) 95%, transparent);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border);
+  padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+  box-shadow: 0 -4px 20px rgba(15, 23, 42, 0.08);
+  animation: slideUp 0.2s ease-out;
+}
+
+.sticky-footer-inner {
+  max-width: 520px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+@media (min-width: 768px) { .sticky-footer-inner { max-width: 760px; } }
+@media (min-width: 1024px) { .sticky-footer-inner { max-width: 1040px; } }
+
+.sticky-footer-price-label { font-size: 10px; font-weight: 700; color: var(--color-text-muted); text-transform: uppercase; }
+.sticky-footer-price-value { font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--color-orange); line-height: 1.1; }
+.sticky-footer-price-sub { font-size: 10px; color: var(--color-text-tertiary); }
+
+/* ═══════════════════════════════════════════════════
+   ICON TILE
+   The icon-in-rounded-colored-box pattern, previously hand-duplicated as
+   one-off inline styles across the onboarding wizard, checkout, diagnostic
+   modal, tools page, and home page.
+   ═══════════════════════════════════════════════════ */
+
+.icon-tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+}
+.icon-tile-sm { width: var(--size-icontile-sm); height: var(--size-icontile-sm); border-radius: var(--radius-sm); }
+.icon-tile-md { width: var(--size-icontile-md); height: var(--size-icontile-md); }
+.icon-tile-lg { width: var(--size-icontile-lg); height: var(--size-icontile-lg); border-radius: var(--radius-lg); }
+
+.icon-tile-orange { background: var(--color-orange-light); color: var(--color-orange); }
+.icon-tile-navy { background: var(--color-navy-subtle); color: var(--color-heading); }
+.icon-tile-success { background: var(--color-success-light); color: var(--color-success); }
+.icon-tile-info { background: var(--color-info-light); color: var(--color-info); }
+.icon-tile-warning { background: var(--color-warning-light); color: var(--color-warning); }
+.icon-tile-navy-solid { background: var(--color-navy); color: #FFFFFF; }
+
+@theme inline {
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  /* --radius-* comes from the brand @theme block above, not a calc() off a
+     single --radius knob — shadcn's default generates these same property
+     names, so leaving both in place would collide the same way --color-border
+     did above. */
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
 }

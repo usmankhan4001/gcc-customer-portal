@@ -13,6 +13,7 @@ function getStripe(): Stripe {
 
 export async function createCheckoutSession(params: {
   orderId: string;
+  companyId: string;
   amount: number;
   currency: string;
   customerEmail: string;
@@ -29,7 +30,6 @@ export async function createCheckoutSession(params: {
             currency: params.currency,
             product_data: {
               name: `GCC Startup — ${params.companyName}`,
-              metadata: { orderId: params.orderId },
             },
             unit_amount: params.amount,
           },
@@ -40,7 +40,9 @@ export async function createCheckoutSession(params: {
       customer_email: params.customerEmail,
       success_url: params.successUrl,
       cancel_url: params.cancelUrl,
-      metadata: { orderId: params.orderId, companyName: params.companyName },
+      // Read by webhooks/stripe/route.ts as session.metadata.order_id /
+      // .company_id — keep these snake_case keys in sync with that route.
+      metadata: { order_id: params.orderId, company_id: params.companyId, company_name: params.companyName },
     });
     return session;
   } catch (error) {
