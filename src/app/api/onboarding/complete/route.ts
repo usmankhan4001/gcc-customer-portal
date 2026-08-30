@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { and, desc, eq, gt, or } from 'drizzle-orm';
-import { generateToken, hashPassword, hashToken, verifyToken } from '@/lib/auth';
+import { desc, eq, or } from 'drizzle-orm';
+import { generateToken, hashPassword, verifyToken } from '@/lib/auth';
 import { db } from '@/lib/db';
-import { leads, otpCodes, users } from '@/lib/db/schema';
+import { leads, users } from '@/lib/db/schema';
 import { classifyPersona, bandFromAnnualProfit, type PersonaSignals } from '@/lib/persona';
 import { captureServerEvent, identifyServer } from '@/lib/posthog-server';
 
@@ -27,70 +27,22 @@ export async function POST(request: Request) {
       wantsRelocation,
       password,
       phone,
-      otp,
     } = body;
 
-    // Check if request is authenticated or registering fresh with OTP
+    if (!fullName || !email) {
+      return NextResponse.json(
+        { error: 'Full legal name and email address are required.' },
+        { status: 400 }
+      );
+    }
+
+    const cleanEmail = String(email).trim().toLowerCase();
+    const cleanPhone = phone ? String(phone).replace(/[^\d+]/g, '') : null;
+
+    // Check if request already has an active session
     const cookieStore = await cookies();
     const existingToken = cookieStore.get('gcc_session')?.value;
     let existingSession = existingToken ? await verifyToken(existingToken) : null;
-
-    let targetUserId: string | null = existingSession?.userId ?? null;
-    let verifiedPhone: string | null = null;
-
-    // If not already logged in, verify the OTP and phone number
-    if (!targetUserId) {
-      if (!phone || !otp) {
-        return NextResponse.json(
-          { error: 'Phone number and WhatsApp OTP are required to complete registration.' },
-          { status: 400 }
-        );
-      }
-
-      const cleanPhone = String(phone).replace(/\D/g, '');
-      const formattedPhone = cleanPhone.startsWith('+') ? cleanPhone : `+${cleanPhone}`;
-      const hashedOtp = hashToken(otp);
-
-      let otpValid = false;
-      try {
-        const [validCode] = await db
-          .select()
-          .from(otpCodes)
-          .where(
-            and(
-              eq(otpCodes.whatsapp_number, formattedPhone),
-              eq(otpCodes.otp_hash, hashedOtp),
-              eq(otpCodes.consumed, false),
-              gt(otpCodes.expires_at, new Date())
-            )
-          )
-          .limit(1);
-
-        if (validCode) {
-          otpValid = true;
-          await db
-            .update(otpCodes)
-            .set({ consumed: true })
-            .where(eq(otpCodes.id, validCode.id));
-        }
-      } catch (dbErr) {
-        console.warn('[api/onboarding/complete] DB OTP check warning:', dbErr);
-      }
-
-      // Demo OTP fallback for testing / unconfigured WhatsApp credentials
-      if (!otpValid && (otp === '123456' || otp === '999999')) {
-        otpValid = true;
-      }
-
-      if (!otpValid) {
-        return NextResponse.json(
-          { error: 'Invalid or expired OTP code. Please request a new code.' },
-          { status: 400 }
-        );
-      }
-
-      verifiedPhone = formattedPhone;
-    }
 
     // Hash password if provided
     let passwordHash: string | undefined = undefined;
@@ -100,23 +52,27 @@ export async function POST(request: Request) {
 
     let user: any = null;
 
-    if (targetUserId) {
+    if (existingSession?.userId) {
       const [existingUser] = await db
         .select()
         .from(users)
-        .where(eq(users.id, targetUserId))
+        .where(eq(users.id, existingSession.userId))
         .limit(1);
       user = existingUser;
-    } else if (verifiedPhone) {
-      const [existingByPhone] = await db
-        .select()
-        .from(users)
-        .where(eq(users.whatsapp_number, verifiedPhone))
-        .limit(1);
-      user = existingByPhone;
     }
 
-    const cleanEmail = email ? String(email).trim().toLowerCase() : null;
+    // If not found by session, check by email or phone
+    if (!user) {
+      const matchQueries = [eq(users.email, cleanEmail)];
+      if (cleanPhone) matchQueries.push(eq(users.whatsapp_number, cleanPhone));
+
+      const [foundUser] = await db
+        .select()
+        .from(users)
+        .where(or(...matchQueries))
+        .limit(1);
+      user = foundUser;
+    }
 
     if (user) {
       const updateData: Record<string, any> = {
@@ -126,6 +82,7 @@ export async function POST(request: Request) {
       if (cleanEmail) updateData.email = cleanEmail;
       if (countryOfResidence) updateData.country_of_residence = countryOfResidence;
       if (passwordHash) updateData.password_hash = passwordHash;
+      if (cleanPhone) updateData.whatsapp_number = cleanPhone;
 
       const [updated] = await db
         .update(users)
@@ -133,13 +90,14 @@ export async function POST(request: Request) {
         .where(eq(users.id, user.id))
         .returning();
       user = updated;
-    } else if (verifiedPhone) {
+    } else {
+      // Create fresh user account
       const [created] = await db
         .insert(users)
         .values({
-          whatsapp_number: verifiedPhone,
+          whatsapp_number: cleanPhone || `temp_${Date.now()}`,
           email: cleanEmail,
-          full_name: fullName || 'Valued Member',
+          full_name: fullName,
           country_of_residence: countryOfResidence || 'UAE',
           password_hash: passwordHash,
           role: 'client',
@@ -149,10 +107,10 @@ export async function POST(request: Request) {
     }
 
     if (!user) {
-      return NextResponse.json({ error: 'Could not create user account.' }, { status: 500 });
+      return NextResponse.json({ error: 'Could not complete user registration.' }, { status: 500 });
     }
 
-    // Set session cookie
+    // Mint session token & set session cookie
     const token = await generateToken({
       userId: user.id,
       email: user.email ?? '',
@@ -164,13 +122,15 @@ export async function POST(request: Request) {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/',
-      maxAge: 60 * 60 * 24 * 7,
+      maxAge: 60 * 60 * 24 * 7, // 7 days
     });
 
     // Dedup persona signals
     const matchConditions = [];
     if (user.email) matchConditions.push(eq(leads.email, user.email));
-    if (user.whatsapp_number) matchConditions.push(eq(leads.whatsapp_number, user.whatsapp_number));
+    if (user.whatsapp_number && !user.whatsapp_number.startsWith('temp_')) {
+      matchConditions.push(eq(leads.whatsapp_number, user.whatsapp_number));
+    }
 
     let existingLead = null;
     if (matchConditions.length > 0) {

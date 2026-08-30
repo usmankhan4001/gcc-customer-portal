@@ -6,12 +6,11 @@ import Link from 'next/link';
 import {
   User,
   EnvelopeSimple,
-  GlobeHemisphereWest,
   LockKey,
-  WhatsappLogo,
   ShieldCheck,
   TrendUp,
   Buildings,
+  GlobeHemisphereWest,
   EyeSlash,
   Compass,
   ArrowRight,
@@ -49,14 +48,14 @@ function OnboardingWizard() {
   const searchParams = useSearchParams();
   const redirectTo = searchParams?.get('redirect') || '/dashboard';
 
-  // Step indicator (1 to 4)
+  // Step indicator (1 to 3)
   const [step, setStep] = useState(1);
-  const totalSteps = 4;
+  const totalSteps = 3;
 
   // Step 1: Personal Profile
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
-  const [countryOfResidence, setCountryOfResidence] = useState('United States');
+  const [countryOfResidence, setCountryOfResidence] = useState('United Arab Emirates');
 
   // Step 2: Objectives & Scale
   const [goal, setGoal] = useState('tax_optimization');
@@ -64,16 +63,10 @@ function OnboardingWizard() {
   const [timeline, setTimeline] = useState('asap');
   const [wantsRelocation, setWantsRelocation] = useState(false);
 
-  // Step 3: Password Setup
+  // Step 3: Security & Contact
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-
-  // Step 4: WhatsApp Verification
   const [phone, setPhone] = useState('');
-  const [otp, setOtp] = useState('');
-  const [otpSent, setOtpSent] = useState(false);
-  const [sendingOtp, setSendingOtp] = useState(false);
-  const [infoMessage, setInfoMessage] = useState('');
 
   // Status & Errors
   const [loading, setLoading] = useState(false);
@@ -90,15 +83,6 @@ function OnboardingWizard() {
         setError('Please provide a valid email address.');
         return;
       }
-    } else if (step === 3) {
-      if (password.length < 6) {
-        setError('Password must be at least 6 characters long.');
-        return;
-      }
-      if (password !== confirmPassword) {
-        setError('Passwords do not match. Please check and try again.');
-        return;
-      }
     }
     setStep((prev) => Math.min(totalSteps, prev + 1));
   };
@@ -108,53 +92,19 @@ function OnboardingWizard() {
     setStep((prev) => Math.max(1, prev - 1));
   };
 
-  const handleSendOtp = async () => {
-    if (!phone.trim() || phone.length < 7) {
-      setError('Please enter a valid WhatsApp phone number with country code (e.g. +971501234567).');
-      return;
-    }
-    setError('');
-    setSendingOtp(true);
-    setInfoMessage('');
-
-    try {
-      const res = await fetch('/api/auth/send-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phoneNumber: phone }),
-      });
-      const data = await res.json();
-
-      if (res.ok) {
-        setOtpSent(true);
-        if (data.devOtp) {
-          setOtp(data.devOtp);
-          setInfoMessage(`Verification code sent! (Demo mode code: ${data.devOtp})`);
-        } else {
-          setInfoMessage('Verification code sent to your WhatsApp!');
-        }
-      } else {
-        setError(data.error || 'Failed to send OTP code. Please try again.');
-      }
-    } catch {
-      setError('Network error while sending verification code.');
-    } finally {
-      setSendingOtp(false);
-    }
-  };
-
   const handleFinalSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!phone.trim()) {
-      setError('Please provide your WhatsApp number.');
+    setError('');
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long.');
       return;
     }
-    if (!otp.trim() || otp.length !== 6) {
-      setError('Please enter the 6-digit verification code sent to your WhatsApp.');
+    if (password !== confirmPassword) {
+      setError('Passwords do not match. Please check and try again.');
       return;
     }
 
-    setError('');
     setLoading(true);
 
     try {
@@ -170,8 +120,7 @@ function OnboardingWizard() {
           timeline,
           wantsRelocation,
           password,
-          phone,
-          otp,
+          phone: phone.trim() || undefined,
         }),
       });
 
@@ -179,7 +128,7 @@ function OnboardingWizard() {
       if (res.ok && data.success) {
         router.push(redirectTo || '/dashboard');
       } else {
-        setError(data.error || 'Verification failed. Please check your code.');
+        setError(data.error || 'Registration failed. Please try again.');
       }
     } catch {
       setError('An error occurred during registration. Please try again.');
@@ -198,8 +147,7 @@ function OnboardingWizard() {
             <h1 className="text-xl font-bold text-gray-900">
               {step === 1 && 'Create Your Member Account'}
               {step === 2 && 'Your Incorporation Goals'}
-              {step === 3 && 'Set Account Password'}
-              {step === 4 && 'WhatsApp Verification'}
+              {step === 3 && 'Account Security & Setup'}
             </h1>
           </div>
           <span className="text-xs font-semibold px-2.5 py-1 bg-primary/10 text-primary rounded-full">
@@ -220,12 +168,6 @@ function OnboardingWizard() {
           {error && (
             <div className="mb-4 p-3 bg-destructive/10 text-destructive border border-destructive/20 rounded-lg text-xs font-medium">
               ⚠️ {error}
-            </div>
-          )}
-
-          {infoMessage && (
-            <div className="mb-4 p-3 bg-primary/10 text-primary border border-primary/20 rounded-lg text-xs font-medium">
-              ℹ️ {infoMessage}
             </div>
           )}
 
@@ -365,11 +307,11 @@ function OnboardingWizard() {
             </div>
           )}
 
-          {/* STEP 3: Setup Password */}
+          {/* STEP 3: Security & Phone */}
           {step === 3 && (
             <div className="space-y-4">
               <p className="text-xs text-gray-500 mb-2">
-                Set a secure password so you can sign in directly to your client dashboard anytime.
+                Set your account password and contact phone number.
               </p>
 
               <div>
@@ -405,63 +347,19 @@ function OnboardingWizard() {
                   />
                 </div>
               </div>
-            </div>
-          )}
-
-          {/* STEP 4: WhatsApp Verification (Final Step) */}
-          {step === 4 && (
-            <div className="space-y-4">
-              <p className="text-xs text-gray-500 mb-2">
-                Verify your WhatsApp number to activate real-time corporate status alerts, KYC milestones, and instant sign-in.
-              </p>
 
               <div>
                 <label htmlFor="whatsappPhone" className="block text-xs font-semibold text-gray-700 mb-1">
-                  WhatsApp Phone Number
+                  WhatsApp Phone Number (Optional)
                 </label>
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <div className="flex-1">
-                    <PhoneInputWithCountry
-                      id="whatsappPhone"
-                      value={phone}
-                      onChange={(val) => setPhone(val)}
-                      placeholder="50 123 4567"
-                      disabled={sendingOtp || loading}
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleSendOtp}
-                    disabled={sendingOtp || loading || !phone.trim()}
-                    className="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-60 text-white text-xs font-semibold rounded-lg transition-colors flex items-center justify-center gap-1.5 whitespace-nowrap shadow-xs h-[38px]"
-                  >
-                    {sendingOtp ? (
-                      <CircleNotch className="w-3.5 h-3.5 animate-spin" />
-                    ) : otpSent ? (
-                      'Resend Code'
-                    ) : (
-                      'Send Verification Code'
-                    )}
-                  </button>
-                </div>
+                <PhoneInputWithCountry
+                  id="whatsappPhone"
+                  value={phone}
+                  onChange={(val) => setPhone(val)}
+                  placeholder="50 123 4567"
+                  disabled={loading}
+                />
               </div>
-
-              {otpSent && (
-                <div className="pt-2">
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">
-                    Enter 6-Digit WhatsApp Verification Code
-                  </label>
-                  <input
-                    type="text"
-                    maxLength={6}
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                    placeholder="123456"
-                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-center tracking-widest text-lg font-bold focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
-                    disabled={loading}
-                  />
-                </div>
-              )}
             </div>
           )}
 
@@ -499,13 +397,13 @@ function OnboardingWizard() {
               <button
                 type="button"
                 onClick={() => handleFinalSubmit()}
-                disabled={loading || !otpSent || otp.length !== 6}
+                disabled={loading || !password || password.length < 6}
                 className="ml-auto px-5 py-2.5 bg-primary hover:bg-primary-700 disabled:opacity-60 text-white text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 shadow-sm"
               >
                 {loading ? (
                   <>
                     <CircleNotch className="w-3.5 h-3.5 animate-spin" />
-                    Registering...
+                    Completing Registration...
                   </>
                 ) : (
                   <>
