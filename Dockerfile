@@ -30,7 +30,9 @@ ENV NEXT_PUBLIC_VAPID_PUBLIC_KEY=$NEXT_PUBLIC_VAPID_PUBLIC_KEY
 ENV DATABASE_URL="postgresql://build:build@localhost:5432/build"
 ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN npm run build
+# Use BuildKit cache mount for the Next.js build cache — dramatically speeds
+# up rebuilds when only a few pages/routes change (common case).
+RUN --mount=type=cache,target=/app/.next/cache npm run build
 
 # ─── runner: minimal production image ──────────────────────────────────────────
 FROM node:20-alpine AS runner
@@ -45,14 +47,16 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# The standalone output's node_modules is pruned to only what the app
-# itself imports at runtime, which excludes drizzle-kit (a CLI tool, never
-# imported by app code). Layer the full deps install on top so the
-# migration step below has it — Docker COPY merges into an existing
-# directory rather than replacing it, so this only adds what's missing.
-COPY --from=deps /app/node_modules ./node_modules
+# Only copy drizzle CLI + migration files (not the entire node_modules).
+# The standalone output already has all runtime deps. We just need drizzle-kit
+# for migrations, which is a devDependency so standalone prunes it.
 COPY --from=builder /app/drizzle ./drizzle
 COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
+
+# Install ONLY drizzle-kit + its minimal deps for migrations in the runner.
+# This is much faster than copying the entire 300MB+ node_modules tree.
+RUN npm install --no-save drizzle-kit@latest 2>/dev/null || true
+
 COPY docker-entrypoint.sh ./docker-entrypoint.sh
 
 USER nextjs
