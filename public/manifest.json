@@ -65,19 +65,19 @@
     {
       "name": "Tax Calculator",
       "short_name": "Tax Calc",
+      "url": "/tools/tax-calculator",
+      "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "All Tools",
+      "short_name": "Tools",
       "url": "/tools",
       "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }]
     },
     {
-      "name": "Setup Wizard",
-      "short_name": "Setup",
-      "url": "/setup",
-      "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }]
-    },
-    {
-      "name": "Client Portal",
-      "short_name": "Portal",
-      "url": "/portal/dashboard",
+      "name": "Client Dashboard",
+      "short_name": "Dashboard",
+      "url": "/dashboard",
       "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }]
     }
   ]

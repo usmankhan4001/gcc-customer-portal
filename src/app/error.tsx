@@ -16,34 +16,30 @@ export default function Error({
   }, [error]);
 
   return (
-    <div
-      style={{
-        minHeight: '50vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '24px 0',
-      }}
-    >
-      <div className="card card-padded" style={{ maxWidth: 480, width: '100%', textAlign: 'center' }}>
-        <div className="empty-state" style={{ padding: '24px 0' }}>
-          <div className="empty-state-icon" style={{ background: 'var(--color-error-light)', color: 'var(--color-error)' }}>
-            <AlertTriangle size={32} />
-          </div>
-          <h2 className="empty-state-title">Something Went Wrong</h2>
-          <p className="empty-state-desc">
-            {error.message || 'An unexpected error occurred. Please try again.'}
-          </p>
-          <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
-            <button onClick={() => reset()} className="btn btn-primary btn-sm">
-              <RefreshCw size={14} />
-              <span>Try Again</span>
-            </button>
-            <Link href="/" className="btn btn-secondary btn-sm" style={{ textDecoration: 'none' }}>
-              <Home size={14} />
-              <span>Go Home</span>
-            </Link>
-          </div>
+    <div className="min-h-[50vh] flex items-center justify-center px-4 py-6">
+      <div className="bg-white rounded-md shadow-sm border border-gray-200 p-8 max-w-md w-full text-center">
+        <div className="mx-auto flex items-center justify-center w-14 h-14 rounded-full bg-red-50 text-red-600 mb-4">
+          <AlertTriangle size={28} />
+        </div>
+        <h2 className="text-lg font-bold text-gray-900 mb-1">Something Went Wrong</h2>
+        <p className="text-sm text-gray-500 mb-6">
+          {error.message || 'An unexpected error occurred. Please try again.'}
+        </p>
+        <div className="flex gap-2 justify-center">
+          <button
+            onClick={() => reset()}
+            className="flex items-center gap-1.5 bg-primary hover:bg-primary/90 text-white text-sm font-semibold px-4 py-2 rounded-md transition-colors"
+          >
+            <RefreshCw size={14} />
+            Try Again
+          </button>
+          <Link
+            href="/"
+            className="flex items-center gap-1.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-semibold px-4 py-2 rounded-md transition-colors"
+          >
+            <Home size={14} />
+            Go Home
+          </Link>
         </div>
       </div>
     </div>
