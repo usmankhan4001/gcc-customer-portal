@@ -1,12 +1,14 @@
 import Link from 'next/link';
-import { 
-  LayoutDashboard, 
-  Users, 
-  RefreshCcw, 
-  Settings, 
-  Search, 
-  Bell, 
-  UserCircle 
+import {
+  LayoutDashboard,
+  Users,
+  RefreshCcw,
+  Settings,
+  Search,
+  Bell,
+  UserCircle,
+  DollarSign,
+  Contact2,
 } from 'lucide-react';
 
 export default function AdminLayout({
@@ -40,6 +42,18 @@ export default function AdminLayout({
               <Link href="/admin/renewals" className="flex items-center px-3 py-2 rounded-md hover:bg-slate-800 hover:text-white transition-colors">
                 <RefreshCcw className="w-5 h-5 mr-3" />
                 <span className="text-sm font-medium">Renewals & Billing</span>
+              </Link>
+            </li>
+            <li>
+              <Link href="/admin/pricing" className="flex items-center px-3 py-2 rounded-md hover:bg-slate-800 hover:text-white transition-colors">
+                <DollarSign className="w-5 h-5 mr-3" />
+                <span className="text-sm font-medium">Pricing</span>
+              </Link>
+            </li>
+            <li>
+              <Link href="/admin/leads" className="flex items-center px-3 py-2 rounded-md hover:bg-slate-800 hover:text-white transition-colors">
+                <Contact2 className="w-5 h-5 mr-3" />
+                <span className="text-sm font-medium">Leads</span>
               </Link>
             </li>
             <li>
