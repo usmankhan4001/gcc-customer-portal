@@ -1,48 +1,66 @@
-'use client';
-
 import React from 'react';
+import {
+  Card as HeroCard,
+  type CardProps as HeroCardProps,
+} from '@heroui/react';
 
-type CardVariant = 'default' | 'flat' | 'orange' | 'navy' | 'bordered';
-type CardPadded = 'none' | 'sm' | 'md' | 'lg';
+type HeroCardVariant = HeroCardProps['variant'];
 
-interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: CardVariant;
-  padded?: CardPadded;
+export interface CardProps extends Omit<HeroCardProps, 'variant'> {
+  variant?: 'default' | 'flat' | 'bordered' | 'orange' | 'navy';
+  padded?: 'none' | 'sm' | 'md' | 'lg';
   interactive?: boolean;
-  children: React.ReactNode;
+  padding?: 'none' | 'sm' | 'md' | 'lg';
 }
 
-const VARIANT_CLASSES: Record<CardVariant, string> = {
-  default: '',
-  flat: 'card-flat',
-  orange: 'card-orange',
-  navy: 'card-navy',
-  bordered: 'card-bordered',
+const variantMap: Record<string, HeroCardVariant> = {
+  default: 'default',
+  flat: 'transparent',
+  bordered: 'secondary',
+  orange: 'default',
+  navy: 'secondary',
 };
 
-const PADDED_CLASSES: Record<CardPadded, string> = {
+const paddedClass: Record<string, string> = {
   none: '',
-  sm: 'card-padded-sm',
-  md: 'card-padded',
-  lg: 'card-padded-lg',
+  sm: 'p-3',
+  md: 'p-4',
+  lg: 'p-6',
 };
 
-export default function Card({
+export function Card({
   variant = 'default',
-  padded = 'md',
+  padded,
+  padding,
   interactive = false,
   className = '',
   children,
   ...props
 }: CardProps) {
+  const resolvedPadded = padded || padding || 'md';
+  const extraClass = [
+    paddedClass[resolvedPadded] || '',
+    interactive ? 'cursor-pointer hover:shadow-md transition-shadow' : '',
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ');
+
   return (
-    <div
-      className={`card ${VARIANT_CLASSES[variant]} ${PADDED_CLASSES[padded]} ${interactive ? 'card-interactive' : ''} ${className}`}
+    <HeroCard
       {...props}
+      variant={variantMap[variant] || 'default'}
+      className={extraClass}
     >
       {children}
-    </div>
+    </HeroCard>
   );
 }
 
-export { Card };
+Card.Header = HeroCard.Header;
+Card.Title = HeroCard.Title;
+Card.Description = HeroCard.Description;
+Card.Content = HeroCard.Content;
+Card.Footer = HeroCard.Footer;
+
+export default Card;

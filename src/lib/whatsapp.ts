@@ -8,27 +8,27 @@ export const HSM_TEMPLATES = {
   order_confirmed: {
     name: 'order_confirmed',
     language: 'en',
-    description: '🎉 Congratulations {name}! Your order for {company} is confirmed. We will begin processing your request shortly.',
+    description: 'Congratulations {name}! Your order for {company} is confirmed. We will begin processing your request shortly.',
   },
   kyc_reminder: {
     name: 'kyc_reminder',
     language: 'en',
-    description: '📋 Action Required: Please complete your identity scan to proceed with your registration. This is a mandatory step.',
+    description: 'Action Required: Please complete your identity scan to proceed with your registration. This is a mandatory step.',
   },
   kyc_verified: {
     name: 'kyc_verified',
     language: 'en',
-    description: '✅ Official Portal Reference ({ref}) received for {company}. Your KYC verification is complete.',
+    description: 'Official Portal Reference ({ref}) received for {company}. Your KYC verification is complete.',
   },
   milestone_complete: {
     name: 'milestone_complete',
     language: 'en',
-    description: '🚀 Milestone reached: {stage} for {company} has been completed successfully.',
+    description: 'Milestone reached: {stage} for {company} has been completed successfully.',
   },
   renewal_notice: {
     name: 'renewal_notice',
     language: 'en',
-    description: '⏰ Renewal Reminder: Your {entity} license expires in {days} days. Please renew to avoid service interruption.',
+    description: 'Renewal Reminder: Your {entity} license expires in {days} days. Please renew to avoid service interruption.',
   },
 } as const;
 

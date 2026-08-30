@@ -1,23 +1,51 @@
-'use client';
-
 import React from 'react';
+import { Badge as HeroBadge, type BadgeProps as HeroBadgeProps } from '@heroui/react';
 
-type BadgeVariant = 'orange' | 'navy' | 'success' | 'error' | 'warning' | 'info';
+type HeroBadgeColor = HeroBadgeProps['color'];
+type HeroBadgeVariant = HeroBadgeProps['variant'];
 
-interface BadgeProps {
-  variant?: BadgeVariant;
+export interface BadgeProps extends Omit<HeroBadgeProps, 'color' | 'variant'> {
+  variant?: 'orange' | 'navy' | 'success' | 'error' | 'warning' | 'info';
   size?: 'sm' | 'md';
   children: React.ReactNode;
-  className?: string;
 }
 
-export default function Badge({ variant = 'navy', size = 'md', children, className = '' }: BadgeProps) {
-  const sizeClass = size === 'sm' ? 'badge-sm' : '';
+const colorMap: Record<string, HeroBadgeColor> = {
+  orange: 'warning',
+  navy: 'default',
+  success: 'success',
+  error: 'danger',
+  warning: 'warning',
+  info: 'accent',
+};
+
+const variantMap: Record<string, HeroBadgeVariant> = {
+  orange: 'soft',
+  navy: 'soft',
+  success: 'soft',
+  error: 'soft',
+  warning: 'soft',
+  info: 'soft',
+};
+
+export function Badge({
+  variant = 'orange',
+  size = 'sm',
+  children,
+  className = '',
+  ...props
+}: BadgeProps) {
   return (
-    <span className={`badge badge-${variant} ${sizeClass} ${className}`}>
+    <HeroBadge
+      {...props}
+      color={colorMap[variant] || 'default'}
+      variant={variantMap[variant] || 'soft'}
+      size={size}
+      className={className}
+    >
       {children}
-    </span>
+    </HeroBadge>
   );
 }
 
-export { Badge };
+export default Badge;

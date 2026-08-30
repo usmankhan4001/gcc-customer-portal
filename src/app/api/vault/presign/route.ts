@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { jwtVerify } from 'jose';
+import { query } from '@/lib/db';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -111,14 +112,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // 6. Create document record in database
     const documentId = crypto.randomUUID();
 
-    // TODO: Insert document record into database
-    // await query(
-    //   `INSERT INTO documents (id, company_id, category, file_name, file_size, mime_type, r2_key, status, created_at)
-    //    VALUES ($1, $2, $3, $4, $5, $6, $7, 'pending', NOW())`,
-    //   [documentId, company_id, category, file_name, file_size, mime_type, r2Key]
-    // );
-
-    console.log(`[vault/presign] Mock DB insert: document ${documentId} for company ${company_id}`);
+    await query(
+      `INSERT INTO documents (id, company_id, user_id, category, file_name, r2_key, mime_type, file_size_bytes, status, uploaded_by, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'active', $3, NOW(), NOW())`,
+      [documentId, company_id, user.sub, category, file_name, r2Key, mime_type, file_size]
+    );
 
     // 7. Generate presigned PUT URL
     const command = new PutObjectCommand({

@@ -132,7 +132,7 @@ export default function MasterDiagnosticModal({ isOpen, onClose }: MasterDiagnos
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <Sparkles size={18} color="var(--orange)" />
-            <span className="badge badge-orange">AI STRUCTURING DIAGNOSTIC</span>
+            <span className="badge badge-orange">QUICK ASSESSMENT</span>
           </div>
           <button
             onClick={onClose}

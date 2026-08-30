@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import confetti from 'canvas-confetti';
 import { usePortalStore } from '@/lib/store';
 import CountryFlag from '@/components/ui/CountryFlag';
 import StickyFooter from '@/components/ui/StickyFooter';
@@ -70,9 +69,6 @@ export default function CheckoutForm() {
     setTimeout(() => {
       setIsProcessing(false);
       setIsSuccess(true);
-      try {
-        confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
-      } catch (err) {}
 
       createOrderAndEntity({
         companyName,

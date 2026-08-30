@@ -11,20 +11,21 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1121.0",
     "@aws-sdk/s3-request-presigner": "^3.1121.0",
+    "@heroui/react": "^3.2.4",
+    "@heroui/styles": "^3.2.4",
     "@neondatabase/serverless": "^1.1.0",
-    "canvas-confetti": "^1.9.4",
     "jose": "^6.2.10",
-    "jsonwebtoken": "^9.0.3",
     "lucide-react": "^1.16.0",
     "next": "^15.2.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "resend": "^6.25.0",
-    "stripe": "^22.6.0"
+    "stripe": "^22.6.0",
+    "tailwind-merge": "^3.6.0",
+    "tailwind-variants": "^3.3.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",
-    "@types/canvas-confetti": "^1.9.0",
     "@types/node": "^22.13.9",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",

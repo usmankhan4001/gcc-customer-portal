@@ -17,53 +17,39 @@ interface ProgressStepsProps {
 export default function ProgressSteps({ steps, currentStep, orientation = 'horizontal' }: ProgressStepsProps) {
   if (orientation === 'vertical') {
     return (
-      <ol style={{ display: 'flex', flexDirection: 'column', gap: 0, margin: 0, padding: 0, listStyle: 'none' }}>
+      <ol className="steps-list steps-list-vertical">
         {steps.map((step, i) => {
           const isCompleted = i < currentStep;
           const isCurrent = i === currentStep;
 
           return (
-            <li key={i} style={{ display: 'flex', gap: 12 }}>
-              {/* Line + dot */}
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 24 }}>
+            <li key={i} className="step-item-vertical">
+              <div className="step-dot-col">
                 <div
                   className={isCompleted ? 'step-dot completed' : isCurrent ? 'step-dot active' : 'step-dot'}
-                  style={{ flexShrink: 0, zIndex: 1 }}
                 />
                 {i < steps.length - 1 && (
                   <div
-                    style={{
-                      width: 2,
-                      flex: 1,
-                      minHeight: 24,
-                      background: isCompleted ? 'var(--color-success)' : 'var(--color-border)',
-                      borderRadius: 2,
-                    }}
+                    className={`step-connector-v ${
+                      isCompleted ? 'step-connector-v-completed' : 'step-connector-v-pending'
+                    }`}
                   />
                 )}
               </div>
-              {/* Content */}
-              <div style={{ paddingBottom: i < steps.length - 1 ? 20 : 0, flex: 1 }}>
+              <div className={`step-content-vertical ${i < steps.length - 1 ? 'step-content-vertical-pad' : ''}`}>
                 <div
-                  style={{
-                    fontSize: 14,
-                    fontWeight: isCurrent ? 700 : 600,
-                    color: isCompleted
-                      ? 'var(--color-success)'
+                  className={`step-label ${
+                    isCompleted
+                      ? 'step-label-completed'
                       : isCurrent
-                      ? 'var(--color-brand-navy)'
-                      : 'var(--color-text-muted)',
-                    lineHeight: 1.3,
-                  }}
+                      ? 'step-label-current'
+                      : 'step-label-pending'
+                  }`}
                 >
-                  {isCompleted && <Check size={14} style={{ marginRight: 4, verticalAlign: -2 }} />}
+                  {isCompleted && <Check size={14} className="step-check-icon" />}
                   {step.label}
                 </div>
-                {step.description && (
-                  <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)', marginTop: 2 }}>
-                    {step.description}
-                  </div>
-                )}
+                {step.description && <div className="step-desc">{step.description}</div>}
               </div>
             </li>
           );
@@ -72,42 +58,33 @@ export default function ProgressSteps({ steps, currentStep, orientation = 'horiz
     );
   }
 
-  // Horizontal
   return (
-    <ol style={{ display: 'flex', alignItems: 'center', gap: 0, width: '100%', margin: 0, padding: 0, listStyle: 'none' }}>
+    <ol className="steps-list steps-list-horizontal">
       {steps.map((step, i) => {
         const isCompleted = i < currentStep;
         const isCurrent = i === currentStep;
 
         return (
           <React.Fragment key={i}>
-            <li style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, flex: 1 }}>
+            <li className="step-item-horizontal">
               <div className={isCompleted ? 'step-dot completed' : isCurrent ? 'step-dot active' : 'step-dot'} />
               <span
-                style={{
-                  fontSize: 10,
-                  fontWeight: isCurrent ? 700 : 600,
-                  color: isCompleted
-                    ? 'var(--color-success)'
+                className={`step-label-h ${
+                  isCompleted
+                    ? 'step-label-h-completed'
                     : isCurrent
-                    ? 'var(--color-brand-navy)'
-                    : 'var(--color-text-muted)',
-                  textAlign: 'center',
-                  lineHeight: 1.2,
-                }}
+                    ? 'step-label-h-current'
+                    : 'step-label-h-pending'
+                }`}
               >
                 {step.label}
               </span>
             </li>
             {i < steps.length - 1 && (
               <div
-                style={{
-                  flex: 1,
-                  height: 2,
-                  background: isCompleted ? 'var(--color-success)' : 'var(--color-border)',
-                  borderRadius: 2,
-                  marginTop: -14,
-                }}
+                className={`step-connector-h ${
+                  isCompleted ? 'step-connector-h-completed' : 'step-connector-h-pending'
+                }`}
               />
             )}
           </React.Fragment>

@@ -179,7 +179,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* 3-Minute AI Diagnostic Card */}
+      {/* Quick Diagnostic Card */}
       <div
         className="card card-navy animate-slide-up"
         style={{
@@ -209,7 +209,7 @@ export default function HomePage() {
             </div>
             <div>
               <span className="badge badge-orange" style={{ fontSize: 10 }}>
-                AI STRUCTURING
+                SMART DIAGNOSTIC
               </span>
               <div style={{ fontSize: 15, fontWeight: 800, color: 'white' }}>
                 3-Minute Tax & Entity Diagnostic

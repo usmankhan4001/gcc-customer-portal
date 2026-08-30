@@ -1,12 +1,10 @@
-'use client';
-
 import React from 'react';
 
-interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
+export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
-  placeholder: string;
-  value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  placeholder?: string;
+  value?: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   error?: string;
   helper?: string;
   icon?: React.ReactNode;
@@ -14,7 +12,7 @@ interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, '
   className?: string;
 }
 
-export default function Input({
+export function Input({
   label,
   placeholder,
   value,
@@ -33,23 +31,15 @@ export default function Input({
   const describedBy = error ? errorId : helper ? helperId : undefined;
 
   return (
-    <div className={className} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+    <div className={`flex flex-col gap-1.5 ${className}`}>
       {label && (
-        <label htmlFor={inputId} className="input-label">{label}</label>
+        <label htmlFor={inputId} className="input-label">
+          {label}
+        </label>
       )}
-      <div style={{ position: 'relative' }}>
+      <div className="relative">
         {icon && (
-          <span
-            style={{
-              position: 'absolute',
-              left: 14,
-              top: '50%',
-              transform: 'translateY(-50%)',
-              color: 'var(--color-text-muted)',
-              display: 'flex',
-              pointerEvents: 'none',
-            }}
-          >
+          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] flex pointer-events-none">
             {icon}
           </span>
         )}
@@ -61,15 +51,22 @@ export default function Input({
           onChange={onChange}
           aria-invalid={!!error || undefined}
           aria-describedby={describedBy}
-          className={`input-field ${error ? 'input-error' : ''}`}
-          style={icon ? { paddingLeft: 42 } : undefined}
+          className={`input-field ${error ? 'border-[var(--color-error)]! focus:shadow-none!' : ''} ${icon ? 'pl-[42px]' : ''}`}
           {...props}
         />
       </div>
-      {error && <span id={errorId} className="input-error" role="alert">{error}</span>}
-      {helper && !error && <span id={helperId} className="input-helper">{helper}</span>}
+      {error && (
+        <span id={errorId} className="input-error" role="alert">
+          {error}
+        </span>
+      )}
+      {helper && !error && (
+        <span id={helperId} className="input-helper">
+          {helper}
+        </span>
+      )}
     </div>
   );
 }
 
-export { Input };
+export default Input;

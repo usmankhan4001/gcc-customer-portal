@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
+import { query, queryOne } from '@/lib/db';
+import { sendWhatsAppMessage } from '@/lib/whatsapp';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -37,56 +39,23 @@ function getWebhookSecret(): string {
 // Helpers
 // ---------------------------------------------------------------------------
 
-async function generateMagicToken(): Promise<string> {
-  return crypto.randomUUID();
-}
-
 async function dispatchWhatsAppWelcome(
   phoneNumber: string,
   companyName: string,
   magicToken: string
 ): Promise<string | null> {
-  const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID!;
-  const accessToken = process.env.WHATSAPP_ACCESS_TOKEN!;
+  const portalUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/verify?token=${magicToken}`;
 
-  const portalUrl = `${process.env.NEXT_PUBLIC_APP_URL}/auth/verify?token=${magicToken}`;
-
-  const body = {
-    messaging_product: 'whatsapp',
-    to: phoneNumber,
-    type: 'template',
-    template: {
-      name: 'payment_received_onboarding',
-      language: { code: 'en' },
-      components: [
-        {
-          type: 'body',
-          parameters: [
-            { type: 'text', text: companyName },
-            { type: 'text', text: portalUrl },
-          ],
-        },
-      ],
-    },
-  };
-
-  // TODO: Uncomment when WhatsApp integration is live
-  // const res = await fetch(
-  //   `https://graph.facebook.com/v20.0/${phoneNumberId}/messages`,
-  //   {
-  //     method: 'POST',
-  //     headers: {
-  //       Authorization: `Bearer ${accessToken}`,
-  //       'Content-Type': 'application/json',
-  //     },
-  //     body: JSON.stringify(body),
-  //   }
-  // );
-  // const data = await res.json();
-  // return data.messages?.[0]?.id ?? null;
-
-  console.log('[webhooks/stripe] Mock WhatsApp welcome:', JSON.stringify(body));
-  return `wamid.mock.${Date.now()}`;
+  try {
+    const result = await sendWhatsAppMessage(phoneNumber, 'payment_received_onboarding', 'en', [
+      { type: 'text', text: companyName },
+      { type: 'text', text: portalUrl },
+    ]);
+    return result.messageId ?? null;
+  } catch (error) {
+    console.error('[webhooks/stripe] WhatsApp welcome dispatch failed:', error);
+    return null;
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -135,40 +104,34 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       };
 
       // 3. Update order status to 'paid'
-      // TODO: Uncomment when database is connected
-      // await query(
-      //   `UPDATE orders SET status = 'paid', stripe_session_id = $1, paid_at = NOW() WHERE id = $2`,
-      //   [session.id, orderId]
-      // );
-
-      console.log(`[webhooks/stripe] Mock DB: order ${orderId} → paid`);
+      await query(
+        `UPDATE orders SET payment_status = 'paid', stripe_session_id = $1, paid_at = NOW() WHERE id = $2`,
+        [session.id, orderId]
+      );
 
       // 4. Transition company status from 'lead' to 'onboarding'
-      // TODO: Uncomment when database is connected
-      // await query(
-      //   `UPDATE companies SET status = 'onboarding', updated_at = NOW() WHERE id = $1`,
-      //   [companyId]
-      // );
+      await query(
+        `UPDATE companies SET status = 'onboarding', updated_at = NOW() WHERE id = $1`,
+        [companyId]
+      );
 
-      console.log(`[webhooks/stripe] Mock DB: company ${companyId} → onboarding`);
-
-      // 5. Generate magic login token
-      const magicToken = await generateMagicToken();
+      // 5. Generate magic login token and store on user
+      const magicToken = crypto.randomUUID();
       const tokenExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
 
-      // TODO: Uncomment when database is connected
-      // await query(
-      //   `INSERT INTO magic_tokens (id, user_id, token, expires_at, created_at)
-      //    VALUES ($1, (SELECT owner_id FROM companies WHERE id = $2), $3, $4, NOW())`,
-      //   [crypto.randomUUID(), companyId, magicToken, tokenExpiry.toISOString()]
-      // );
-
-      console.log(`[webhooks/stripe] Mock DB: magic token stored for company ${companyId}`);
+      await query(
+        `UPDATE users SET magic_token = $1, magic_token_expires_at = $2
+         WHERE id = (SELECT user_id FROM companies WHERE id = $3)`,
+        [magicToken, tokenExpiry.toISOString(), companyId]
+      );
 
       // 6. Dispatch WhatsApp welcome message
       if (orderUpdate.customer_phone) {
-        // TODO: Fetch company name from database
-        const companyName = 'Your Company'; // Placeholder
+        const company = await queryOne<{ company_name: string }>(
+          `SELECT company_name FROM companies WHERE id = $1`,
+          [companyId]
+        );
+        const companyName = company?.company_name ?? 'Your Company';
         await dispatchWhatsAppWelcome(orderUpdate.customer_phone, companyName, magicToken);
       }
 

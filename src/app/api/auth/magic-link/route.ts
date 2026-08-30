@@ -1,4 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { query, queryOne } from '@/lib/db';
+import { generateMagicToken } from '@/lib/auth';
+import { sendWhatsAppMessage } from '@/lib/whatsapp';
+import { Resend } from 'resend';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -22,43 +26,15 @@ async function sendWhatsAppMagicLink(
   phoneNumber: string,
   magicUrl: string
 ): Promise<boolean> {
-  const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID!;
-  const accessToken = process.env.WHATSAPP_ACCESS_TOKEN!;
-
-  const body = {
-    messaging_product: 'whatsapp',
-    to: phoneNumber,
-    type: 'template',
-    template: {
-      name: 'magic_login_link',
-      language: { code: 'en' },
-      components: [
-        {
-          type: 'body',
-          parameters: [
-            { type: 'text', text: magicUrl },
-          ],
-        },
-      ],
-    },
-  };
-
-  // TODO: Uncomment when WhatsApp integration is live
-  // const res = await fetch(
-  //   `https://graph.facebook.com/v20.0/${phoneNumberId}/messages`,
-  //   {
-  //     method: 'POST',
-  //     headers: {
-  //       Authorization: `Bearer ${accessToken}`,
-  //       'Content-Type': 'application/json',
-  //     },
-  //     body: JSON.stringify(body),
-  //   }
-  // );
-  // return res.ok;
-
-  console.log('[auth/magic-link] Mock WhatsApp dispatch:', JSON.stringify(body));
-  return true;
+  try {
+    const result = await sendWhatsAppMessage(phoneNumber, 'magic_login_link', 'en', [
+      { type: 'text', text: magicUrl },
+    ]);
+    return result.success;
+  } catch (error) {
+    console.error('[auth/magic-link] WhatsApp dispatch failed:', error);
+    return false;
+  }
 }
 
 async function sendEmailMagicLink(
@@ -73,31 +49,31 @@ async function sendEmailMagicLink(
     return false;
   }
 
-  // TODO: Uncomment when Resend integration is live
-  // const { Resend } = await import('resend');
-  // const resend = new Resend(resendApiKey);
-  //
-  // await resend.emails.send({
-  //   from: fromEmail,
-  //   to: email,
-  //   subject: 'Your GCCStartup Login Link',
-  //   html: `
-  //     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-  //       <h2>Your Login Link</h2>
-  //       <p>Click below to access your GCCStartup portal:</p>
-  //       <a href="${magicUrl}"
-  //          style="display: inline-block; padding: 12px 24px; background: #00C896; color: #fff; text-decoration: none; border-radius: 8px;">
-  //         Access Portal
-  //       </a>
-  //       <p style="color: #666; margin-top: 24px; font-size: 14px;">
-  //         This link expires in 15 minutes. If you didn't request this, ignore this email.
-  //       </p>
-  //     </div>
-  //   `,
-  // });
-
-  console.log(`[auth/magic-link] Mock email to ${email}: ${magicUrl}`);
-  return true;
+  try {
+    const resend = new Resend(resendApiKey);
+    await resend.emails.send({
+      from: fromEmail,
+      to: email,
+      subject: 'Your GCCStartup Login Link',
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2>Your Login Link</h2>
+          <p>Click below to access your GCCStartup portal:</p>
+          <a href="${magicUrl}"
+             style="display: inline-block; padding: 12px 24px; background: #00C896; color: #fff; text-decoration: none; border-radius: 8px;">
+            Access Portal
+          </a>
+          <p style="color: #666; margin-top: 24px; font-size: 14px;">
+            This link expires in 15 minutes. If you didn't request this, ignore this email.
+          </p>
+        </div>
+      `,
+    });
+    return true;
+  } catch (error) {
+    console.error('[auth/magic-link] Email dispatch failed:', error);
+    return false;
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -125,41 +101,35 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // 1. Look up user by email
-    // TODO: Uncomment when database is connected
-    // const user = await queryOne(
-    //   `SELECT u.id, u.email, u.whatsapp_number, c.id as company_id
-    //    FROM users u
-    //    LEFT JOIN companies c ON u.id = c.owner_id
-    //    WHERE u.email = $1`,
-    //   [email]
-    // );
+    // 1. Look up user by email, create if not found
+    let user = await queryOne<{ id: string; email: string; whatsapp_number: string | null; full_name: string }>(
+      `SELECT id, email, whatsapp_number, full_name FROM users WHERE email = $1`,
+      [email]
+    );
 
-    const mockUserId = crypto.randomUUID();
-    const mockCompanyId = crypto.randomUUID();
+    if (!user) {
+      const newId = crypto.randomUUID();
+      user = await queryOne<{ id: string; email: string; whatsapp_number: string | null; full_name: string }>(
+        `INSERT INTO users (id, email, full_name, role) VALUES ($1, $2, $3, 'client') RETURNING id, email, whatsapp_number, full_name`,
+        [newId, email, email.split('@')[0]]
+      );
+    }
 
-    console.log(`[auth/magic-link] Mock user lookup for ${email}`);
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Failed to create or find user' },
+        { status: 500 }
+      );
+    }
 
     // 2. Generate magic token
-    const magicToken = crypto.randomUUID();
+    const magicToken = generateMagicToken();
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
 
-    // 3. Store token in database
-    // TODO: Uncomment when database is connected
-    // Invalidate any existing tokens for this user first
-    // await query(
-    //   `UPDATE magic_tokens SET used = true WHERE user_id = $1 AND used = false`,
-    //   [user.id]
-    // );
-    //
-    // await query(
-    //   `INSERT INTO magic_tokens (id, user_id, token, expires_at, created_at)
-    //    VALUES ($1, $2, $3, $4, NOW())`,
-    //   [crypto.randomUUID(), user.id, magicToken, expiresAt.toISOString()]
-    // );
-
-    console.log(
-      `[auth/magic-link] Mock DB: token stored for user ${mockUserId}, expires ${expiresAt.toISOString()}`
+    // 3. Store token on user record
+    await query(
+      `UPDATE users SET magic_token = $1, magic_token_expires_at = $2 WHERE id = $3`,
+      [magicToken, expiresAt.toISOString(), user.id]
     );
 
     // 4. Build magic link URL
@@ -168,7 +138,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // 5. Dispatch via WhatsApp
     let whatsappSent = false;
-    const phone = whatsapp_number; // TODO: fallback to user.whatsapp_number from DB
+    const phone = whatsapp_number ?? user.whatsapp_number;
     if (phone) {
       whatsappSent = await sendWhatsAppMagicLink(phone, magicUrl);
     }

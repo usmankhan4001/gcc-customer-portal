@@ -1,52 +1,31 @@
 'use client';
 
 import React from 'react';
+import { Button as HeroButton, type ButtonProps as HeroButtonProps } from '@heroui/react';
+import { Loader2 } from 'lucide-react';
 
-type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'navy';
-type ButtonSize = 'sm' | 'md' | 'lg';
+type HeroButtonVariant = HeroButtonProps['variant'];
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: ButtonVariant;
-  size?: ButtonSize;
+export interface ButtonProps extends Omit<HeroButtonProps, 'variant' | 'isDisabled'> {
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'navy';
+  size?: 'sm' | 'md' | 'lg';
   fullWidth?: boolean;
   isLoading?: boolean;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
+  disabled?: boolean;
   children: React.ReactNode;
 }
 
-function Spinner() {
-  return (
-    <span
-      style={{
-        width: 16,
-        height: 16,
-        border: '2px solid rgba(255,255,255,0.3)',
-        borderTopColor: '#FFFFFF',
-        borderRadius: '50%',
-        animation: 'btnSpin 0.7s linear infinite',
-        display: 'inline-block',
-        flexShrink: 0,
-      }}
-      aria-hidden="true"
-    />
-  );
-}
-
-const VARIANT_CLASSES: Record<ButtonVariant, string> = {
-  primary: 'btn-primary',
-  secondary: 'btn-secondary',
-  ghost: 'btn-ghost',
-  navy: 'btn-navy',
+const variantMap: Record<string, HeroButtonVariant> = {
+  primary: 'primary',
+  secondary: 'secondary',
+  ghost: 'ghost',
+  danger: 'danger',
+  navy: 'primary',
 };
 
-const SIZE_CLASSES: Record<ButtonSize, string> = {
-  sm: 'btn-sm',
-  md: '',
-  lg: 'btn-lg',
-};
-
-export default function Button({
+export function Button({
   variant = 'primary',
   size = 'md',
   fullWidth = false,
@@ -59,25 +38,25 @@ export default function Button({
   ...props
 }: ButtonProps) {
   return (
-    <>
-      <style>{`@keyframes btnSpin { to { transform: rotate(360deg); } }`}</style>
-      <button
-        className={`btn ${VARIANT_CLASSES[variant]} ${SIZE_CLASSES[size]} ${fullWidth ? 'btn-full' : ''} ${className}`}
-        disabled={disabled || isLoading}
-        {...props}
-      >
-        {isLoading ? (
-          <Spinner />
-        ) : (
-          <>
-            {leftIcon && <span style={{ display: 'inline-flex', alignItems: 'center' }}>{leftIcon}</span>}
-            <span>{children}</span>
-            {rightIcon && <span style={{ display: 'inline-flex', alignItems: 'center' }}>{rightIcon}</span>}
-          </>
-        )}
-      </button>
-    </>
+    <HeroButton
+      {...props}
+      variant={variantMap[variant] || 'primary'}
+      size={size}
+      fullWidth={fullWidth}
+      isDisabled={disabled || isLoading}
+      className={className}
+    >
+      {isLoading ? (
+        <Loader2 size={16} className="animate-spin" />
+      ) : (
+        <>
+          {leftIcon}
+          {children}
+          {rightIcon}
+        </>
+      )}
+    </HeroButton>
   );
 }
 
-export { Button };
+export default Button;

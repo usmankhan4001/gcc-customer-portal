@@ -2,6 +2,7 @@
 const nextConfig = {
   output: 'standalone',
   reactStrictMode: true,
+  transpilePackages: ['@heroui/react', '@heroui/styles'],
   images: {
     remotePatterns: [
       {

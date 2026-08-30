@@ -20,10 +20,6 @@ import {
 import CountryFlag from '@/components/ui/CountryFlag';
 import StickyFooter from '@/components/ui/StickyFooter';
 
-/* ──────────────────────────────────────────────
-   DATA (De-slopified with zero emojis)
-   ────────────────────────────────────────────── */
-
 const ACTIVITIES = [
   { id: 'ecommerce', label: 'E-Commerce', icon: Globe, desc: 'Amazon, Shopify, cross-border dropshipping' },
   { id: 'saas', label: 'SaaS & Software', icon: Sparkles, desc: 'Digital products, APIs, cloud subscriptions' },

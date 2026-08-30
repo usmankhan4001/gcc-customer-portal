@@ -1,5 +1,3 @@
-'use client';
-
 import React from 'react';
 
 export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
@@ -9,7 +7,7 @@ export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElemen
   options?: { value: string; label: string }[];
 }
 
-export default function Select({
+export function Select({
   label,
   helperText,
   error,
@@ -25,7 +23,7 @@ export default function Select({
   const describedBy = error ? errorId : helperText ? helperId : undefined;
 
   return (
-    <div className="select-field-wrapper">
+    <div className="flex flex-col gap-1 w-full">
       {label && (
         <label htmlFor={selectId} className="input-label">
           {label}
@@ -36,7 +34,7 @@ export default function Select({
         id={selectId}
         aria-invalid={error ? true : undefined}
         aria-describedby={describedBy}
-        className={`input-field ${error ? 'select-error' : ''} ${className}`}
+        className={`input-field ${error ? 'border-[var(--color-error)]! focus:shadow-none!' : ''} ${className}`}
         {...props}
       >
         {options
@@ -48,31 +46,18 @@ export default function Select({
           : children}
       </select>
 
-      {error && <span id={errorId} className="select-error-msg" role="alert">{error}</span>}
-      {helperText && !error && <span id={helperId} className="select-helper-msg">{helperText}</span>}
-
-      <style jsx>{`
-        .select-field-wrapper {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-          width: 100%;
-        }
-        .select-error {
-          border-color: var(--error) !important;
-        }
-        .select-error-msg {
-          font-size: 12px;
-          color: var(--error);
-          font-weight: 600;
-          margin-top: 2px;
-        }
-        .select-helper-msg {
-          font-size: 12px;
-          color: var(--text-tertiary);
-          margin-top: 2px;
-        }
-      `}</style>
+      {error && (
+        <span id={errorId} className="text-xs text-[var(--color-error)] font-semibold mt-0.5" role="alert">
+          {error}
+        </span>
+      )}
+      {helperText && !error && (
+        <span id={helperId} className="text-xs text-[var(--color-text-tertiary)] mt-0.5">
+          {helperText}
+        </span>
+      )}
     </div>
   );
 }
+
+export default Select;

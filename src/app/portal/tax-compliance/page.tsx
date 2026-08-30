@@ -2,6 +2,11 @@
 
 import React, { useState } from 'react';
 import { usePortalStore } from '@/lib/store';
+import PageHeader from '@/components/design-system/PageHeader';
+import ProgressSteps from '@/components/design-system/ProgressSteps';
+import Card from '@/components/ui/Card';
+import Badge from '@/components/ui/Badge';
+import StickyFooter from '@/components/ui/StickyFooter';
 import Modal from '@/components/ui/Modal';
 import {
   Receipt,
@@ -9,6 +14,7 @@ import {
   ShieldCheck,
   Plus,
   ArrowRight,
+  ArrowLeft,
   TrendingUp,
   Percent,
   CheckCircle2,
@@ -16,14 +22,25 @@ import {
   AlertCircle,
 } from 'lucide-react';
 
+const WIZARD_STEPS = [
+  { label: 'Tax Overview' },
+  { label: 'Returns & Expenses' },
+  { label: 'Add Entry' },
+];
+
 export default function TaxCompliancePage() {
   const { taxRecords, expenses, addExpense, fileTaxReturn } = usePortalStore();
 
-  const [activeTab, setActiveTab] = useState<'returns' | 'expenses' | 'rules'>('returns');
+  const [currentStep, setCurrentStep] = useState(0);
+  const [activeTab, setActiveTab] = useState<'returns' | 'expenses'>('returns');
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
   const [expenseDesc, setExpenseDesc] = useState('');
   const [expenseCat, setExpenseCat] = useState('Software & IT');
   const [expenseAmount, setExpenseAmount] = useState('');
+
+  const totalSteps = WIZARD_STEPS.length;
+  const isFirstStep = currentStep === 0;
+  const isLastStep = currentStep === totalSteps - 1;
 
   const totalDeductible = expenses.reduce((s, e) => s + e.amountAed, 0);
   const estimatedRevenue = 650000;
@@ -47,164 +64,210 @@ export default function TaxCompliancePage() {
     setIsExpenseModalOpen(false);
   };
 
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-      {/* Header */}
-      <div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-          <span className="badge badge-navy">FEDERAL TAX AUTHORITY</span>
-          <span className="badge badge-success">9% CORPORATE TAX & VAT</span>
-        </div>
-        <h1
-          style={{
-            fontFamily: 'var(--font-heading)',
-            fontSize: '1.65rem',
-            fontWeight: 800,
-            color: 'var(--navy)',
-            letterSpacing: '-0.02em',
-          }}
-        >
-          Tax & 9% FTA <span style={{ color: 'var(--orange)' }}>Compliance Hub</span>
-        </h1>
-        <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 2 }}>
-          Manage UAE corporate tax exemptions, track deductible business expenses, and submit quarterly VAT returns.
-        </p>
-      </div>
+  const renderStep = () => {
+    switch (currentStep) {
+      case 0:
+        return (
+          <div className="flex flex-col gap-4 animate-slide-up">
+            <div className="section-title">Tax Summary</div>
+            <div className="grid grid-cols-2 gap-2.5">
+              <Card padding="md">
+                <div className="text-[11px] text-tertiary">Total Deductibles Logged</div>
+                <div className="text-xl font-extrabold text-navy mt-0.5">
+                  AED {totalDeductible.toLocaleString()}
+                </div>
+                <div className="text-[10px] text-success mt-0.5">
+                  4 verified receipts
+                </div>
+              </Card>
 
-      {/* Tax Summary Metrics Band */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-        <div className="card app-card" style={{ padding: 14 }}>
-          <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>Total Deductibles Logged</div>
-          <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--navy)', marginTop: 2 }}>
-            AED {totalDeductible.toLocaleString()}
-          </div>
-          <div style={{ fontSize: 10, color: 'var(--success)', marginTop: 2 }}>
-            4 verified receipts
-          </div>
-        </div>
+              <Card padding="md">
+                <div className="text-[11px] text-tertiary">Estimated 9% Corp Tax</div>
+                <div className="text-xl font-extrabold text-orange mt-0.5">
+                  AED {corporateTaxLiability.toLocaleString()}
+                </div>
+                <div className="text-[10px] text-tertiary mt-0.5">
+                  AED 375k threshold applied
+                </div>
+              </Card>
+            </div>
 
-        <div className="card app-card" style={{ padding: 14 }}>
-          <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>Estimated 9% Corp Tax</div>
-          <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--orange)', marginTop: 2 }}>
-            AED {corporateTaxLiability.toLocaleString()}
-          </div>
-          <div style={{ fontSize: 10, color: 'var(--text-tertiary)', marginTop: 2 }}>
-            AED 375k threshold applied
-          </div>
-        </div>
-      </div>
-
-      {/* Segmented Tab Navigation */}
-      <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4 }}>
-        {[
-          { id: 'returns', label: 'Tax Returns Schedule' },
-          { id: 'expenses', label: 'Deductible Expense Ledger' },
-          { id: 'rules', label: 'UAE 9% Corporate Tax Rules' },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
-            className={`btn ${activeTab === tab.id ? 'btn-primary' : 'btn-secondary'}`}
-            style={{ flexShrink: 0, fontSize: 12, padding: '7px 14px' }}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Tab 1: Tax Returns */}
-      {activeTab === 'returns' && (
-        <div className="animate-slide-up" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {taxRecords.map((rec) => (
-            <div key={rec.id} className="card app-card" style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Card padding="md">
+              <div className="section-title mb-2">UAE Federal Corporate Tax Framework</div>
+              <div className="flex flex-col gap-2 text-xs text-secondary leading-relaxed">
                 <div>
-                  <h3 style={{ fontSize: 14, fontWeight: 800, color: 'var(--navy)' }}>{rec.title}</h3>
-                  <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>{rec.period} • TRN: {rec.trnNumber}</div>
+                  <strong className="text-navy">1. 0% Tax on First AED 375,000:</strong> Taxable net profit up to AED 375,000 (approx. $102,000 USD) is taxed at exactly 0%.
                 </div>
-                <span
-                  className={`badge ${
-                    rec.status === 'filed'
-                      ? 'badge-success'
-                      : rec.status === 'exempt_0_percent'
-                      ? 'badge-blue'
-                      : 'badge-orange'
-                  }`}
-                >
-                  {rec.status === 'filed'
-                    ? 'Filed with FTA'
-                    : rec.status === 'exempt_0_percent'
-                    ? '0% QFZP Exempt'
-                    : 'Ready to Submit'}
-                </span>
+                <div>
+                  <strong className="text-navy">2. 9% Tax on Excess:</strong> Only profits above AED 375,000 are subject to 9% corporate tax.
+                </div>
+                <div>
+                  <strong className="text-navy">3. Qualifying Free Zone Person (QFZP):</strong> 0% corporate tax applies indefinitely on foreign transactions and qualifying intra-freezone trade.
+                </div>
               </div>
+            </Card>
+          </div>
+        );
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 8, borderTop: '1px solid var(--border)' }}>
-                <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
-                  Due Date: <strong>{rec.dueDate}</strong>
-                </div>
+      case 1:
+        return (
+          <div className="flex flex-col gap-3 animate-slide-up">
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              <button
+                onClick={() => setActiveTab('returns')}
+                className={`btn ${activeTab === 'returns' ? 'btn-primary' : 'btn-secondary'} shrink-0 text-xs py-1.5 px-3.5`}
+              >
+                Tax Returns
+              </button>
+              <button
+                onClick={() => setActiveTab('expenses')}
+                className={`btn ${activeTab === 'expenses' ? 'btn-primary' : 'btn-secondary'} shrink-0 text-xs py-1.5 px-3.5`}
+              >
+                Expense Ledger
+              </button>
+            </div>
 
-                {rec.status !== 'filed' && rec.status !== 'exempt_0_percent' && (
-                  <button
-                    onClick={() => fileTaxReturn(rec.id)}
-                    className="btn btn-primary btn-sm"
-                  >
-                    <span>Submit & File</span>
-                    <ArrowRight size={13} />
+            {activeTab === 'returns' && (
+              <div className="flex flex-col gap-2.5 animate-slide-up">
+                {taxRecords.map((rec) => (
+                  <div key={rec.id} className="card flex flex-col gap-2.5 p-4">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <h3 className="text-sm font-extrabold text-navy">{rec.title}</h3>
+                        <div className="text-[11px] text-tertiary">{rec.period} - TRN: {rec.trnNumber}</div>
+                      </div>
+                      <Badge
+                        variant={
+                          rec.status === 'filed'
+                            ? 'success'
+                            : rec.status === 'exempt_0_percent'
+                            ? 'info'
+                            : 'warning'
+                        }
+                      >
+                        {rec.status === 'filed'
+                          ? 'Filed with FTA'
+                          : rec.status === 'exempt_0_percent'
+                          ? '0% QFZP Exempt'
+                          : 'Ready to Submit'}
+                      </Badge>
+                    </div>
+
+                    <div className="flex justify-between items-center pt-2 border-t border-border">
+                      <div className="text-[11px] text-tertiary">
+                        Due Date: <strong>{rec.dueDate}</strong>
+                      </div>
+                      {rec.status !== 'filed' && rec.status !== 'exempt_0_percent' && (
+                        <button
+                          onClick={() => fileTaxReturn(rec.id)}
+                          className="btn btn-primary btn-sm"
+                        >
+                          <span>Submit & File</span>
+                          <ArrowRight size={13} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {activeTab === 'expenses' && (
+              <div className="flex flex-col gap-3 animate-slide-up">
+                <div className="flex justify-between items-center">
+                  <div className="section-title mb-0">Logged Business Expenses</div>
+                  <button onClick={() => setIsExpenseModalOpen(true)} className="btn btn-primary btn-sm">
+                    <Plus size={14} /> Add Receipt
                   </button>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Tab 2: Expense Ledger */}
-      {activeTab === 'expenses' && (
-        <div className="animate-slide-up" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div className="section-title" style={{ marginBottom: 0 }}>Logged Business Expenses</div>
-            <button onClick={() => setIsExpenseModalOpen(true)} className="btn btn-primary btn-sm">
-              <Plus size={14} /> Add Receipt
-            </button>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {expenses.map((exp) => (
-              <div key={exp.id} className="card" style={{ padding: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--navy)' }}>{exp.description}</div>
-                  <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>{exp.category} • {exp.date}</div>
                 </div>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--navy)' }}>AED {exp.amountAed.toLocaleString()}</div>
-                  <span className="badge badge-success" style={{ fontSize: 9 }}>DEDUCTIBLE</span>
+
+                <div className="flex flex-col gap-2">
+                  {expenses.map((exp) => (
+                    <div key={exp.id} className="card flex justify-between items-center p-3">
+                      <div>
+                        <div className="text-[13px] font-bold text-navy">{exp.description}</div>
+                        <div className="text-[11px] text-tertiary">{exp.category} - {exp.date}</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm font-extrabold text-navy">AED {exp.amountAed.toLocaleString()}</div>
+                        <Badge variant="success" size="sm">DEDUCTIBLE</Badge>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-            ))}
+            )}
           </div>
-        </div>
-      )}
+        );
 
-      {/* Tab 3: Tax Rules */}
-      {activeTab === 'rules' && (
-        <div className="card card-sand animate-slide-up" style={{ padding: 18, display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <div className="section-title">UAE Federal Corporate Tax Framework (Cabinet Decision No. 55/2023)</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.45 }}>
-            <div>
-              <strong style={{ color: 'var(--navy)' }}>1. 0% Tax on First AED 375,000:</strong> Taxable net profit up to AED 375,000 (approx. $102,000 USD) is taxed at exactly 0%.
+      case 2:
+        return (
+          <div className="flex flex-col gap-4 animate-slide-up">
+            <div className="section-title">Add Entry</div>
+
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              <button
+                onClick={() => setIsExpenseModalOpen(true)}
+                className="btn btn-primary shrink-0 gap-2"
+              >
+                <Plus size={14} />
+                Add Expense Receipt
+              </button>
             </div>
-            <div>
-              <strong style={{ color: 'var(--navy)' }}>2. 9% Tax on Excess:</strong> Only profits above AED 375,000 are subject to 9% corporate tax.
-            </div>
-            <div>
-              <strong style={{ color: 'var(--navy)' }}>3. Qualifying Free Zone Person (QFZP):</strong> 0% corporate tax applies indefinitely on foreign transactions and qualifying intra-freezone trade.
-            </div>
+
+            <Card padding="md">
+              <div className="section-title mb-2">Quick Reference</div>
+              <div className="flex flex-col gap-2 text-xs text-secondary">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 size={14} className="text-success shrink-0" />
+                  <span>Expenses over AED 10,000 may require additional documentation</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 size={14} className="text-success shrink-0" />
+                  <span>All receipts must be dated within the current tax period</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 size={14} className="text-success shrink-0" />
+                  <span>Keep original receipts for 5 years per FTA requirements</span>
+                </div>
+              </div>
+            </Card>
           </div>
-        </div>
-      )}
+        );
 
-      {/* Expense Modal */}
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="flex flex-col gap-5 pb-24">
+      <PageHeader
+        eyebrow="FEDERAL TAX AUTHORITY"
+        title="Tax & 9% FTA Compliance Hub"
+        subtitle="Manage UAE corporate tax exemptions, track deductible business expenses, and submit quarterly VAT returns."
+      />
+
+      <div className="flex gap-2 mb-1">
+        <Badge variant="success">9% CORPORATE TAX & VAT</Badge>
+      </div>
+
+      <div className="card card-sand px-4 py-3">
+        <ProgressSteps steps={WIZARD_STEPS} currentStep={currentStep} />
+      </div>
+
+      {renderStep()}
+
+      <StickyFooter
+        primaryLabel={isLastStep ? 'Done' : 'Next'}
+        primaryAction={() => {
+          if (!isLastStep) setCurrentStep((s) => s + 1);
+        }}
+        primaryIcon={isLastStep ? <CheckCircle2 size={16} /> : <ArrowRight size={16} />}
+        secondaryLabel={isFirstStep ? undefined : 'Back'}
+        secondaryAction={isFirstStep ? undefined : () => setCurrentStep((s) => s - 1)}
+      />
+
       <Modal
         isOpen={isExpenseModalOpen}
         onClose={() => setIsExpenseModalOpen(false)}
@@ -212,7 +275,7 @@ export default function TaxCompliancePage() {
         badge="TAX DEDUCTION"
         badgeVariant="orange"
       >
-        <form onSubmit={handleAddExpense} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <form onSubmit={handleAddExpense} className="flex flex-col gap-3">
           <div>
             <label className="input-label">Expense Description:</label>
             <input
@@ -252,7 +315,7 @@ export default function TaxCompliancePage() {
             />
           </div>
 
-          <button type="submit" className="btn btn-primary" style={{ width: '100%', height: 42, marginTop: 4 }}>
+          <button type="submit" className="btn btn-primary w-full h-[42px] mt-1">
             Record Expense
           </button>
         </form>

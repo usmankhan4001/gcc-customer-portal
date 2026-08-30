@@ -1,13 +1,14 @@
 {
-  "name": "GCCStartup — Global Company Formation",
+  "name": "GCCStartup - Global Company Formation",
   "short_name": "GCCStartup",
   "description": "Form companies in UAE, Hong Kong, Singapore & Bahrain with 0% tax, guaranteed banking & full privacy.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#F9F6F0",
+  "background_color": "#F1F3F7",
   "theme_color": "#14204A",
   "orientation": "portrait-primary",
   "scope": "/",
+  "id": "/",
   "icons": [
     {
       "src": "/icons/icon-72.png",
@@ -59,7 +60,6 @@
     }
   ],
   "categories": ["business", "finance"],
-  "screenshots": [],
   "prefer_related_applications": false,
   "shortcuts": [
     {

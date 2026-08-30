@@ -96,27 +96,10 @@ export default function TopBar({ isHome = false, pathname = '/', title, rightAct
           {isHome ? (
             <>
               <div className="header-left">
-                <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <div
-                    style={{
-                      width: 32,
-                      height: 32,
-                      borderRadius: 'var(--radius-sm)',
-                      background: 'var(--color-orange-light)',
-                      border: '1px solid #FCD9C7',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: 14,
-                      fontWeight: 800,
-                      color: 'var(--color-orange)',
-                      fontFamily: 'var(--font-heading)',
-                    }}
-                  >
-                    G
-                  </div>
-                  <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 16, color: 'var(--color-navy)', letterSpacing: '-0.02em' }}>
-                    GCC<span style={{ color: 'var(--color-orange)' }}>Startup</span>
+                <Link href="/" className="topbar-brand-link">
+                  <div className="topbar-brand-logo">G</div>
+                  <span className="topbar-brand-text">
+                    GCC<span className="topbar-brand-highlight">Startup</span>
                   </span>
                 </Link>
               </div>
@@ -173,33 +156,20 @@ export default function TopBar({ isHome = false, pathname = '/', title, rightAct
           role="dialog"
           aria-modal="true"
           aria-label="Notification Center"
-          className="modal-backdrop"
+          className="modal-backdrop notif-drawer"
           onClick={() => setIsDrawerOpen(false)}
-          style={{ animation: 'fadeIn 0.2s ease-out' }}
         >
           <div
             ref={drawerRef}
-            className="modal-content"
-            style={{ display: 'flex', flexDirection: 'column', animation: 'slideUp 0.25s ease-out' }}
+            className="modal-content notif-drawer-content"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="modal-handle" />
 
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                paddingBottom: 14,
-                borderBottom: '1px solid var(--color-border)',
-                marginBottom: 14,
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div className="notif-drawer-header">
+              <div className="notif-drawer-header-left">
                 <Bell size={18} color="var(--color-orange)" />
-                <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: 15, fontWeight: 700, color: 'var(--color-navy)' }}>
-                  Notification Center
-                </h3>
+                <h3 className="notif-drawer-title">Notification Center</h3>
               </div>
               <button
                 onClick={() => setIsDrawerOpen(false)}
@@ -211,79 +181,47 @@ export default function TopBar({ isHome = false, pathname = '/', title, rightAct
             </div>
 
             {unreadCount > 0 && (
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  marginBottom: 14,
-                }}
-              >
-                <span style={{ fontSize: 12, color: 'var(--color-text-tertiary)' }}>
-                  {unreadCount} unread
-                </span>
-                <button
-                  onClick={markAllNotificationsRead}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: 'var(--color-orange)',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    fontSize: 12,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 4,
-                    fontFamily: 'var(--font-sans)',
-                  }}
-                >
+              <div className="notif-bar-actions">
+                <span className="notif-unread-count">{unreadCount} unread</span>
+                <button onClick={markAllNotificationsRead} className="notif-mark-all-btn">
                   <CheckCheck size={14} /> Mark all read
                 </button>
               </div>
             )}
 
-            <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div className="notif-list">
               {whatsappLogs.length === 0 ? (
-                <div className="empty-state" style={{ padding: '40px 16px' }}>
-                  <p style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>No recent notifications</p>
+                <div className="empty-state notif-empty">
+                  <p className="notif-empty-text">No recent notifications</p>
                 </div>
               ) : (
                 whatsappLogs.map((log) => (
                   <div
                     key={log.id}
                     onClick={() => markNotificationRead(log.id)}
-                    className={`card card-padded-sm ${log.status !== 'read' ? 'card-orange' : 'card-bordered'}`}
-                    style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 6 }}
+                    className={`card card-padded-sm ${log.status !== 'read' ? 'card-orange' : 'card-bordered'} notif-item`}
                   >
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div className="notif-item-header">
                       <span
-                        style={{
-                          fontSize: 11,
-                          fontWeight: 700,
-                          color: log.status === 'read' ? 'var(--color-text-tertiary)' : 'var(--color-orange)',
-                          textTransform: 'uppercase',
-                        }}
+                        className={`notif-item-name ${
+                          log.status === 'read' ? 'notif-item-name-read' : 'notif-item-name-unread'
+                        }`}
                       >
                         {log.templateName.replace(/_/g, ' ')}
                       </span>
-                      <span style={{ fontSize: 10, color: 'var(--color-text-muted)' }}>
-                        {log.sentAt}
-                      </span>
+                      <span className="notif-item-time">{log.sentAt}</span>
                     </div>
-                    <p style={{ fontSize: 12, color: 'var(--color-navy)', lineHeight: 1.4 }}>
-                      {log.messageText}
-                    </p>
+                    <p className="notif-item-message">{log.messageText}</p>
                   </div>
                 ))
               )}
             </div>
 
-            <div style={{ paddingTop: 14, marginTop: 'auto' }}>
+            <div className="notif-footer">
               <Link
                 href="/portal/settings"
                 onClick={() => setIsDrawerOpen(false)}
-                className="btn btn-secondary btn-sm btn-full"
-                style={{ textDecoration: 'none', fontSize: 12 }}
+                className="btn btn-secondary btn-sm btn-full notif-footer-link"
               >
                 Configure Notification Preferences
               </Link>

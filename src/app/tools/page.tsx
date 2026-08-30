@@ -178,7 +178,7 @@ export default function ToolsStudioPage() {
         subtitle="Calculate net savings, evaluate 0% QFZP status, and check banking approval odds."
       />
 
-      {/* AI Diagnostic Card */}
+      {/* Diagnostic Card */}
       <button
         onClick={() => setIsDiagnosticOpen(true)}
         className="card card-navy app-card-navy"
@@ -208,7 +208,7 @@ export default function ToolsStudioPage() {
         </div>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 14, fontWeight: 800, color: 'white' }}>
-            360° AI Structuring Diagnostic
+            360° Structuring Diagnostic
           </div>
           <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)' }}>
             4 questions • Instant 0% entity recommendation & banking odds

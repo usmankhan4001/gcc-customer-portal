@@ -1,9 +1,20 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
+import {
+  Modal as HeroModal,
+  ModalBackdrop,
+  ModalContainer,
+  ModalDialog,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  ModalCloseTrigger,
+  useOverlayState,
+} from '@heroui/react';
 import { X } from 'lucide-react';
 
-interface ModalProps {
+export interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   title?: string;
@@ -13,97 +24,54 @@ interface ModalProps {
   children: React.ReactNode;
 }
 
-const FOCUSABLE =
-  'a[href], button:not([disabled]), textarea, input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
-
-export default function Modal({ isOpen, onClose, title, showHandle = true, badge, badgeVariant, children }: ModalProps) {
-  const contentRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    document.body.style.overflow = 'hidden';
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose();
-        return;
-      }
-      if (e.key === 'Tab' && contentRef.current) {
-        const els = contentRef.current.querySelectorAll<HTMLElement>(FOCUSABLE);
-        if (els.length === 0) return;
-        const first = els[0];
-        const last = els[els.length - 1];
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
-        }
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    requestAnimationFrame(() => {
-      const first = contentRef.current?.querySelector<HTMLElement>(FOCUSABLE);
-      first?.focus();
-    });
-
-    return () => {
-      document.body.style.overflow = '';
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isOpen, onClose]);
-
-  if (!isOpen) return null;
+export function Modal({
+  isOpen,
+  onClose,
+  title,
+  showHandle = true,
+  badge,
+  badgeVariant,
+  children,
+}: ModalProps) {
+  const state = useOverlayState({ isOpen, onOpenChange: (open) => { if (!open) onClose(); } });
 
   return (
-    <div
-      className="modal-backdrop"
-      onClick={onClose}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby={title ? 'modal-title' : undefined}
-    >
-      <div
-        ref={contentRef}
-        className="modal-content"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {showHandle && <div className="modal-handle" aria-hidden="true" />}
-        {title && (
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <h2 id="modal-title" style={{ fontFamily: 'var(--font-heading)', fontSize: '1.15rem', fontWeight: 700, color: 'var(--color-text)', margin: 0 }}>
-                {title}
-              </h2>
-              {badge && (
-                <span
-                  className={`badge ${badgeVariant === 'orange' ? 'badge-orange' : 'badge-green'}`}
-                  style={{ fontSize: '0.65rem' }}
-                >
-                  {badge}
-                </span>
-              )}
-            </div>
-            <button
-              onClick={onClose}
-              aria-label="Close dialog"
-              style={{
-                width: 32, height: 32, borderRadius: 'var(--radius-sm)',
-                background: 'var(--color-surface-alt)', border: '1px solid var(--color-border)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                cursor: 'pointer', color: 'var(--color-text-secondary)', flexShrink: 0,
-              }}
-            >
-              <X size={16} />
-            </button>
-          </div>
-        )}
-        {children}
-      </div>
-    </div>
+    <HeroModal state={state}>
+      <ModalBackdrop isDismissable onClick={onClose}>
+        <ModalContainer placement="bottom">
+          <ModalDialog>
+            {showHandle && (
+              <div className="modal-handle" aria-hidden="true" />
+            )}
+            {title && (
+              <ModalHeader>
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center gap-2">
+                    <span className="font-heading text-[1.15rem] font-bold text-[var(--color-text)]">
+                      {title}
+                    </span>
+                    {badge && (
+                      <span
+                        className={`badge ${badgeVariant === 'orange' ? 'badge-orange' : 'badge-success'} text-[0.65rem]`}
+                      >
+                        {badge}
+                      </span>
+                    )}
+                  </div>
+                  <ModalCloseTrigger className="w-8 h-8 rounded-[var(--radius-sm)] bg-[var(--color-surface-alt)] border border-[var(--color-border)] flex items-center justify-center cursor-pointer text-[var(--color-text-secondary)] shrink-0">
+                    <X size={16} />
+                  </ModalCloseTrigger>
+                </div>
+              </ModalHeader>
+            )}
+            <ModalBody>{children}</ModalBody>
+          </ModalDialog>
+        </ModalContainer>
+      </ModalBackdrop>
+    </HeroModal>
   );
 }
 
-export { Modal };
+Modal.displayName = 'Modal';
+
+export default Modal;

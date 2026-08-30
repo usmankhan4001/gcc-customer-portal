@@ -2,9 +2,11 @@
 
 import React, { useState } from 'react';
 import { usePortalStore, BankingApplication } from '@/lib/store';
+import PageHeader from '@/components/design-system/PageHeader';
+import ProgressSteps from '@/components/design-system/ProgressSteps';
 import Card from '@/components/ui/Card';
 import Badge from '@/components/ui/Badge';
-import Button from '@/components/ui/Button';
+import StickyFooter from '@/components/ui/StickyFooter';
 import Modal from '@/components/ui/Modal';
 import {
   Landmark,
@@ -12,6 +14,7 @@ import {
   CheckCircle2,
   Clock,
   ArrowRight,
+  ArrowLeft,
   ExternalLink,
   UploadCloud,
   FileCheck,
@@ -20,11 +23,24 @@ import {
   Check,
 } from 'lucide-react';
 
+const WIZARD_STEPS = [
+  { label: 'Select Bank' },
+  { label: 'Pre-Flight' },
+  { label: 'Status' },
+];
+
 export default function BankingPortalPage() {
   const { bankingApps } = usePortalStore();
+  const [currentStep, setCurrentStep] = useState(0);
+  const [selectedBankIndex, setSelectedBankIndex] = useState<number | null>(null);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [selectedBank, setSelectedBank] = useState<BankingApplication | null>(null);
   const [copiedBankerLink, setCopiedBankerLink] = useState(false);
+
+  const selected = selectedBankIndex !== null ? bankingApps[selectedBankIndex] : null;
+  const totalSteps = WIZARD_STEPS.length;
+  const isFirstStep = currentStep === 0;
+  const isLastStep = currentStep === totalSteps - 1;
 
   const handleCopyBankerLink = () => {
     navigator.clipboard.writeText('https://gccstartup.com/bank-onboarding/upload?token=b_84920');
@@ -32,101 +48,158 @@ export default function BankingPortalPage() {
     setTimeout(() => setCopiedBankerLink(false), 2000);
   };
 
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-      {/* Header */}
-      <div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-          <span className="badge badge-navy">BANKING ONBOARDING ENGINE</span>
-          <span className="badge badge-orange">100% APPROVAL GUARANTEE</span>
-        </div>
-        <h1
-          style={{
-            fontFamily: 'var(--font-heading)',
-            fontSize: '1.65rem',
-            fontWeight: 800,
-            color: 'var(--navy)',
-            letterSpacing: '-0.02em',
-          }}
-        >
-          Multi-Currency <span style={{ color: 'var(--orange)' }}>Corporate Banking Hub</span>
-        </h1>
-        <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 2 }}>
-          Track real-time bank onboarding across Airwallex, Wio Bank, Wise, and Emirates NBD with automated compliance dispatch.
-        </p>
-      </div>
+  const preFlightItems = [
+    { title: 'Commercial Trade License & E-MoA', desc: 'Auto-synced from your Cloud Locker' },
+    { title: 'Beneficial Owner Passport & Proof of Address', desc: 'Verified utility bill under 3 months' },
+    { title: 'Active Website / Commercial Contract Sample', desc: 'URL demonstrating commercial operations' },
+    { title: 'Source of Wealth & Bank Statements', desc: '3 months personal or corporate statements' },
+  ];
 
-      {/* 2-Column Banking Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 16 }}>
-        {/* Bank Application Cards */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <div className="section-title">Active Banking Channels</div>
+  const canProceedStep0 = selectedBankIndex !== null;
+  const canProceedStep1 = true;
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {bankingApps.map((app) => (
-              <div key={app.id} className="card app-card" style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div
-                      style={{
-                        width: 36,
-                        height: 36,
-                        borderRadius: 10,
-                        background: 'var(--orange-lt)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      <Landmark size={18} color="var(--orange)" />
+  const renderStep = () => {
+    switch (currentStep) {
+      case 0:
+        return (
+          <div className="flex flex-col gap-3 animate-slide-up">
+            <div className="section-title">Choose a Banking Channel</div>
+            {bankingApps.map((app, idx) => (
+              <button
+                key={app.id}
+                onClick={() => setSelectedBankIndex(idx)}
+                className={`card card-hover ${idx === selectedBankIndex ? 'card-sand border-orange' : ''} flex flex-col gap-3 p-4 cursor-pointer`}
+              >
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-[10px] bg-orange-lt flex items-center justify-center">
+                      <Landmark size={18} className="text-orange" />
                     </div>
                     <div>
-                      <h3 style={{ fontSize: 14, fontWeight: 800, color: 'var(--navy)' }}>{app.bankName}</h3>
-                      <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>{app.bankType}</div>
+                      <h3 className="text-sm font-extrabold text-navy">{app.bankName}</h3>
+                      <div className="text-[11px] text-tertiary">{app.bankType}</div>
                     </div>
                   </div>
-
-                  <span
-                    className={`badge ${
+                  <Badge
+                    variant={
                       app.status === 'approved'
-                        ? 'badge-success'
+                        ? 'success'
                         : app.status === 'pre_approved'
-                        ? 'badge-blue'
-                        : 'badge-orange'
-                    }`}
+                        ? 'info'
+                        : 'warning'
+                    }
                   >
                     {app.status === 'approved'
                       ? 'Active & Verified'
                       : app.status === 'pre_approved'
                       ? 'Pre-Approved (98% Odds)'
                       : 'Under Review'}
-                  </span>
+                  </Badge>
                 </div>
 
-                <div className="card card-sand" style={{ padding: 12, display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ color: 'var(--text-tertiary)' }}>Target Entity:</span>
-                    <strong style={{ color: 'var(--navy)' }}>{app.targetEntityName}</strong>
+                <div className="card card-sand p-3 flex flex-col gap-1.5 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-tertiary">Target Entity:</span>
+                    <strong className="text-navy">{app.targetEntityName}</strong>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ color: 'var(--text-tertiary)' }}>Account / IBAN:</span>
-                    <strong style={{ color: 'var(--navy)', fontFamily: 'monospace' }}>{app.ibanOrAccount}</strong>
+                  <div className="flex justify-between">
+                    <span className="text-tertiary">Account / IBAN:</span>
+                    <strong className="text-navy font-mono">{app.ibanOrAccount}</strong>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ color: 'var(--text-tertiary)' }}>Turnaround SLA:</span>
+                  <div className="flex justify-between">
+                    <span className="text-tertiary">Turnaround SLA:</span>
                     <span>{app.turnaroundDays}</span>
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 8, borderTop: '1px solid var(--border)' }}>
-                  <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>
-                    <strong>Next Action:</strong> {app.nextStep}
+                {idx === selectedBankIndex && (
+                  <div className="flex items-center gap-1 text-xs font-bold text-orange">
+                    <CheckCircle2 size={14} />
+                    Selected
                   </div>
+                )}
+              </button>
+            ))}
+          </div>
+        );
 
+      case 1:
+        return (
+          <div className="flex flex-col gap-3 animate-slide-up">
+            <div className="section-title">Banker Pre-Flight Verification</div>
+            <p className="text-xs text-secondary">
+              Ensuring 100% first-attempt approval with global fintech and UAE tier-1 banks.
+            </p>
+            <div className="flex flex-col gap-2">
+              {preFlightItems.map((item, idx) => (
+                <div key={idx} className="card flex items-center gap-2.5 p-2.5">
+                  <CheckCircle2 size={16} className="text-success shrink-0" />
+                  <div>
+                    <div className="text-xs font-bold text-navy">{item.title}</div>
+                    <div className="text-[11px] text-tertiary">{item.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+
+      case 2:
+        return (
+          <div className="flex flex-col gap-4 animate-slide-up">
+            <div className="section-title">Application Status</div>
+            {selected && (
+              <Card padding="md">
+                <div className="flex justify-between items-center mb-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-[10px] bg-orange-lt flex items-center justify-center">
+                      <Landmark size={18} className="text-orange" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-extrabold text-navy">{selected.bankName}</h3>
+                      <div className="text-[11px] text-tertiary">{selected.bankType}</div>
+                    </div>
+                  </div>
+                  <Badge
+                    variant={
+                      selected.status === 'approved'
+                        ? 'success'
+                        : selected.status === 'pre_approved'
+                        ? 'info'
+                        : 'warning'
+                    }
+                  >
+                    {selected.status === 'approved'
+                      ? 'Active & Verified'
+                      : selected.status === 'pre_approved'
+                      ? 'Pre-Approved'
+                      : 'Under Review'}
+                  </Badge>
+                </div>
+
+                <div className="card card-sand p-3 flex flex-col gap-1.5 text-xs mb-3">
+                  <div className="flex justify-between">
+                    <span className="text-tertiary">Target Entity:</span>
+                    <strong className="text-navy">{selected.targetEntityName}</strong>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-tertiary">Account / IBAN:</span>
+                    <strong className="text-navy font-mono">{selected.ibanOrAccount}</strong>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-tertiary">Turnaround SLA:</span>
+                    <span>{selected.turnaroundDays}</span>
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-center pt-2 border-t border-border">
+                  <div className="text-[11px] text-secondary">
+                    <strong>Next Action:</strong> {selected.nextStep}
+                  </div>
                   <button
                     type="button"
                     onClick={() => {
-                      setSelectedBank(app);
+                      setSelectedBank(selected);
                       setIsUploadModalOpen(true);
                     }}
                     className="btn btn-secondary btn-sm"
@@ -135,38 +208,50 @@ export default function BankingPortalPage() {
                     <ArrowRight size={13} />
                   </button>
                 </div>
-              </div>
-            ))}
+              </Card>
+            )}
           </div>
-        </div>
+        );
 
-        {/* Banker Pre-Flight Checklist Card */}
-        <div className="card card-sand" style={{ padding: 18, display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <div className="section-title" style={{ marginBottom: 0 }}>Banker Pre-Flight Verification</div>
-          <p style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
-            Ensuring 100% first-attempt approval with global fintech and UAE tier-1 banks.
-          </p>
+      default:
+        return null;
+    }
+  };
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {[
-              { title: 'Commercial Trade License & E-MoA', desc: 'Auto-synced from your Cloud Locker' },
-              { title: 'Beneficial Owner Passport & Proof of Address', desc: 'Verified utility bill under 3 months' },
-              { title: 'Active Website / Commercial Contract Sample', desc: 'URL demonstrating commercial operations' },
-              { title: 'Source of Wealth & Bank Statements', desc: '3 months personal or corporate statements' },
-            ].map((item, idx) => (
-              <div key={idx} className="card" style={{ padding: 10, display: 'flex', alignItems: 'center', gap: 10 }}>
-                <CheckCircle2 size={16} color="var(--success)" style={{ flexShrink: 0 }} />
-                <div>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--navy)' }}>{item.title}</div>
-                  <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>{item.desc}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+  const canProceed =
+    (currentStep === 0 && canProceedStep0) ||
+    (currentStep === 1 && canProceedStep1) ||
+    currentStep === 2;
+
+  return (
+    <div className="flex flex-col gap-5 pb-24">
+      <PageHeader
+        eyebrow="BANKING ONBOARDING ENGINE"
+        title="Multi-Currency Corporate Banking Hub"
+        subtitle="Track real-time bank onboarding across Airwallex, Wio Bank, Wise, and Emirates NBD with automated compliance dispatch."
+      />
+
+      <div className="flex gap-2 mb-1">
+        <Badge variant="navy">100% APPROVAL GUARANTEE</Badge>
       </div>
 
-      {/* Banker Dossier Modal */}
+      <div className="card card-sand px-4 py-3">
+        <ProgressSteps steps={WIZARD_STEPS} currentStep={currentStep} />
+      </div>
+
+      {renderStep()}
+
+      <StickyFooter
+        primaryLabel={isLastStep ? 'Done' : 'Next'}
+        primaryAction={() => {
+          if (!isLastStep && canProceed) setCurrentStep((s) => s + 1);
+        }}
+        primaryDisabled={!canProceed}
+        primaryIcon={isLastStep ? <CheckCircle2 size={16} /> : <ArrowRight size={16} />}
+        secondaryLabel={isFirstStep ? undefined : 'Back'}
+        secondaryAction={isFirstStep ? undefined : () => setCurrentStep((s) => s - 1)}
+      />
+
       <Modal
         isOpen={isUploadModalOpen}
         onClose={() => setIsUploadModalOpen(false)}
@@ -174,16 +259,15 @@ export default function BankingPortalPage() {
         badge="1-CLICK DISPATCH"
         badgeVariant="orange"
       >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.4 }}>
+        <div className="flex flex-col gap-3.5">
+          <p className="text-[13px] text-secondary leading-relaxed">
             Your legal formation package, Nominee PoA, and KYC verification records are bundled for direct banker review.
           </p>
-
-          <div className="card card-sand" style={{ padding: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
-            <span style={{ fontSize: 11, fontFamily: 'monospace', color: 'var(--navy)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <div className="card card-sand p-3 flex justify-between items-center gap-2">
+            <span className="text-[11px] font-mono text-navy overflow-hidden text-ellipsis whitespace-nowrap">
               https://gccstartup.com/bank-onboarding/upload?token=b_84920
             </span>
-            <button onClick={handleCopyBankerLink} className="btn btn-primary btn-sm" style={{ flexShrink: 0 }}>
+            <button onClick={handleCopyBankerLink} className="btn btn-primary btn-sm shrink-0">
               {copiedBankerLink ? <Check size={14} /> : <Copy size={14} />}
               <span>{copiedBankerLink ? 'Copied' : 'Copy'}</span>
             </button>

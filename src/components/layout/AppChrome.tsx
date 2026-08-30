@@ -6,6 +6,7 @@ import TopBar from '@/components/design-system/TopBar';
 import BottomTabBar from '@/components/design-system/BottomTabBar';
 import ServiceWorkerRegistration from './ServiceWorkerRegistration';
 import Providers from './Providers';
+import InstallPrompt from '@/components/ui/InstallPrompt';
 
 const FULL_SCREEN_ROUTES = ['/setup', '/checkout'];
 
@@ -17,12 +18,12 @@ export default function AppChrome({ children }: { children: React.ReactNode }) {
   return (
     <Providers>
       <ServiceWorkerRegistration />
+      <InstallPrompt />
       <div className="app-shell">
         {!isFullScreen && <TopBar isHome={isHome} pathname={pathname} />}
         <main
           id="main-content"
           className="app-page-content"
-          style={{ paddingTop: isFullScreen ? 0 : undefined }}
         >
           {children}
         </main>

@@ -29,7 +29,7 @@ export default function ListItem({
 }: ListItemProps) {
   const content = (
     <div
-      className={`list-item ${interactive ? 'list-item-interactive' : ''}`}
+      className={`list-item ${interactive ? 'list-item-interactive' : ''} ${onClick || href ? 'cursor-pointer' : ''}`}
       onClick={onClick}
       role={onClick && !href ? 'button' : undefined}
       tabIndex={onClick && !href ? 0 : undefined}
@@ -39,15 +39,14 @@ export default function ListItem({
           onClick();
         }
       } : undefined}
-      style={{ cursor: onClick || href ? 'pointer' : 'default' }}
     >
       {icon && (
-        <div className="list-item-icon" style={{ background: iconBg }}>
+        <div className="list-item-icon" style={{ backgroundColor: iconBg } as React.CSSProperties}>
           {icon}
         </div>
       )}
       <div className="list-item-content">
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div className="list-item-title-row">
           <span className="list-item-title">{title}</span>
           {badge}
         </div>
@@ -61,7 +60,7 @@ export default function ListItem({
 
   if (href) {
     return (
-      <Link href={href} style={{ textDecoration: 'none', color: 'inherit' }}>
+      <Link href={href} className="list-item-link">
         {content}
       </Link>
     );
