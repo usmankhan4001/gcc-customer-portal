@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import BannerHeader from '@/components/portal/BannerHeader';
 import ContactCaptureGate from '@/components/portal/ContactCaptureGate';
+import PDFDownloadPanel from '@/components/portal/PDFDownloadPanel';
 
 interface DeadlineRow {
   requirement: string;
@@ -69,6 +70,8 @@ export default function ComplianceCalendarPage() {
   const [formationDate, setFormationDate] = useState('');
   const [rows, setRows] = useState<DeadlineRow[] | null>(null);
   const [captured, setCaptured] = useState(false);
+  const [leadId, setLeadId] = useState<string | null>(null);
+  const [leadEmail, setLeadEmail] = useState<string | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,7 +82,7 @@ export default function ComplianceCalendarPage() {
 
   const handleCapture = async (contact: { email: string; whatsapp_number: string }) => {
     if (!rows) return;
-    await fetch('/api/leads/capture', {
+    const res = await fetch('/api/leads/capture', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -90,6 +93,9 @@ export default function ComplianceCalendarPage() {
         tool_result: rows,
       }),
     });
+    const data = await res.json();
+    setLeadId(data.lead?.id ?? null);
+    setLeadEmail(contact.email || null);
     setCaptured(true);
   };
 
@@ -163,6 +169,17 @@ export default function ComplianceCalendarPage() {
             <p className="px-6 py-3 text-xs text-gray-400 border-t border-gray-100">
               Estimate only, based on general UAE deadlines — not filed tax advice. Confirm with your advisor.
             </p>
+            {leadId && (
+              <div className="px-6 py-3 border-t border-gray-100">
+                <PDFDownloadPanel
+                  leadId={leadId}
+                  title="Compliance Calendar"
+                  subtitle={`Formation date: ${formationDate}`}
+                  hasEmail={!!leadEmail}
+                  rows={rows.map((r) => ({ label: r.requirement, value: `${r.deadlineLabel} (${r.status})` }))}
+                />
+              </div>
+            )}
           </div>
         )}
       </div>

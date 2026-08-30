@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import BannerHeader from '@/components/portal/BannerHeader';
 import ContactCaptureGate from '@/components/portal/ContactCaptureGate';
+import PDFDownloadPanel from '@/components/portal/PDFDownloadPanel';
 import { bandFromAnnualProfit } from '@/lib/persona';
 
 const HOME_COUNTRIES = [
@@ -43,6 +44,8 @@ export default function TaxCalculatorPage() {
   const [businessModel, setBusinessModel] = useState('remote_services');
   const [result, setResult] = useState<EvaluateResult | null>(null);
   const [captured, setCaptured] = useState(false);
+  const [leadId, setLeadId] = useState<string | null>(null);
+  const [leadEmail, setLeadEmail] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -81,7 +84,7 @@ export default function TaxCalculatorPage() {
 
   const handleCapture = async (contact: { email: string; whatsapp_number: string }) => {
     if (!result) return;
-    await fetch('/api/leads/capture', {
+    const res = await fetch('/api/leads/capture', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -96,6 +99,9 @@ export default function TaxCalculatorPage() {
         },
       }),
     });
+    const data = await res.json();
+    setLeadId(data.lead?.id ?? null);
+    setLeadEmail(contact.email || null);
     setCaptured(true);
   };
 
@@ -184,13 +190,29 @@ export default function TaxCalculatorPage() {
                 </div>
               </div>
             </div>
-            <div className="p-4 border-t border-gray-200">
+            <div className="p-4 border-t border-gray-200 space-y-3">
               <Link
                 href="/services"
                 className="block w-full bg-red-600 hover:bg-red-700 text-white text-center text-sm font-bold py-2 rounded-md shadow hover:shadow-md transition-all"
               >
                 Start 0% Tax Setup Now
               </Link>
+              {leadId && (
+                <PDFDownloadPanel
+                  leadId={leadId}
+                  title="Tax Savings Report"
+                  subtitle={`${countryResidence} vs. ${targetJurisdiction}`}
+                  hasEmail={!!leadEmail}
+                  rows={[
+                    { label: 'Home tax rate', value: `${(result.home_tax_rate * 100).toFixed(1)}%` },
+                    { label: 'Home tax amount', value: `$${result.home_tax_amount.toLocaleString()}` },
+                    { label: 'Optimized tax rate', value: `${(result.optimized_tax_rate * 100).toFixed(1)}%` },
+                    { label: 'Optimized tax amount', value: `$${result.optimized_tax_amount.toLocaleString()}` },
+                    { label: 'Net annual savings', value: `$${result.net_annual_savings.toLocaleString()}` },
+                    { label: 'Recommended tier', value: result.recommended_tier },
+                  ]}
+                />
+              )}
             </div>
           </div>
         )}

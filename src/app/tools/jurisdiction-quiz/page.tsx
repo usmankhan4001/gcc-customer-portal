@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import BannerHeader from '@/components/portal/BannerHeader';
 import ContactCaptureGate from '@/components/portal/ContactCaptureGate';
+import PDFDownloadPanel from '@/components/portal/PDFDownloadPanel';
 import { bandFromAnnualProfit } from '@/lib/persona';
 
 interface Recommendation {
@@ -41,6 +42,8 @@ export default function JurisdictionQuizPage() {
   const [wantsRelocation, setWantsRelocation] = useState(false);
   const [recommendations, setRecommendations] = useState<Recommendation[] | null>(null);
   const [captured, setCaptured] = useState(false);
+  const [leadId, setLeadId] = useState<string | null>(null);
+  const [leadEmail, setLeadEmail] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -62,7 +65,7 @@ export default function JurisdictionQuizPage() {
 
   const handleCapture = async (contact: { email: string; whatsapp_number: string }) => {
     if (!recommendations) return;
-    await fetch('/api/leads/capture', {
+    const res = await fetch('/api/leads/capture', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -80,6 +83,9 @@ export default function JurisdictionQuizPage() {
         },
       }),
     });
+    const data = await res.json();
+    setLeadId(data.lead?.id ?? null);
+    setLeadEmail(contact.email || null);
     setCaptured(true);
   };
 
@@ -175,6 +181,17 @@ export default function JurisdictionQuizPage() {
                 <p className="text-xs text-gray-500">{rec.rationale}</p>
               </div>
             ))}
+            {leadId && (
+              <PDFDownloadPanel
+                leadId={leadId}
+                title="Jurisdiction Fit Report"
+                hasEmail={!!leadEmail}
+                rows={recommendations.map((rec, idx) => ({
+                  label: `#${idx + 1} ${rec.name}`,
+                  value: rec.rationale,
+                }))}
+              />
+            )}
           </div>
         )}
       </main>

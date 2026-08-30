@@ -51,6 +51,25 @@ export async function getPresignedDownloadUrl(
   }
 }
 
+export async function uploadBuffer(
+  key: string,
+  body: Buffer | Uint8Array,
+  contentType: string
+): Promise<void> {
+  try {
+    const command = new PutObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: key,
+      Body: body,
+      ContentType: contentType,
+    });
+    await r2.send(command);
+  } catch (error) {
+    console.error('Failed to upload buffer to R2:', error);
+    throw error;
+  }
+}
+
 export async function deleteFile(key: string): Promise<void> {
   try {
     const command = new DeleteObjectCommand({

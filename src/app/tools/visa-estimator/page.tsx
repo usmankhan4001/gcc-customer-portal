@@ -3,12 +3,15 @@
 import React, { useState } from 'react';
 import BannerHeader from '@/components/portal/BannerHeader';
 import ContactCaptureGate from '@/components/portal/ContactCaptureGate';
+import PDFDownloadPanel from '@/components/portal/PDFDownloadPanel';
 
 export default function VisaEstimatorPage() {
   const [employees, setEmployees] = useState('1');
   const [jurisdiction, setJurisdiction] = useState('Mainland');
   const [showResults, setShowResults] = useState(false);
   const [captured, setCaptured] = useState(false);
+  const [leadId, setLeadId] = useState<string | null>(null);
+  const [leadEmail, setLeadEmail] = useState<string | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,7 +23,7 @@ export default function VisaEstimatorPage() {
   const grandTotal = perEmployeeTotal * (parseInt(employees) || 1);
 
   const handleCapture = async (contact: { email: string; whatsapp_number: string }) => {
-    await fetch('/api/leads/capture', {
+    const res = await fetch('/api/leads/capture', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -32,6 +35,9 @@ export default function VisaEstimatorPage() {
         signals: { primaryInterestJurisdiction: 'uae' },
       }),
     });
+    const data = await res.json();
+    setLeadId(data.lead?.id ?? null);
+    setLeadEmail(contact.email || null);
     setCaptured(true);
   };
 
@@ -137,6 +143,24 @@ export default function VisaEstimatorPage() {
                 <span className="text-red-600">AED {grandTotal.toLocaleString()}</span>
               </div>
             </div>
+            {leadId && (
+              <div className="px-6 py-4 border-t border-gray-200">
+                <PDFDownloadPanel
+                  leadId={leadId}
+                  title="Visa Cost Estimate"
+                  subtitle={`${jurisdiction} — ${employees} employee(s)`}
+                  hasEmail={!!leadEmail}
+                  rows={[
+                    { label: 'Medical Test', value: 'AED 320' },
+                    { label: 'Emirates ID', value: 'AED 370' },
+                    { label: 'Visa Stamping', value: 'AED 500' },
+                    { label: 'Security Deposit', value: jurisdiction === 'Mainland' ? 'AED 3,000' : 'AED 0' },
+                    { label: 'Total per employee', value: `AED ${perEmployeeTotal.toLocaleString()}` },
+                    { label: 'Grand total', value: `AED ${grandTotal.toLocaleString()}` },
+                  ]}
+                />
+              </div>
+            )}
           </div>
         )}
       </div>

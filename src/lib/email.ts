@@ -1,6 +1,17 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazily instantiated — Resend's constructor throws immediately if the API
+// key is missing, which would break `next build`'s static page-data
+// collection for every route that transitively imports this module (it
+// evaluates them at build time) whenever RESEND_API_KEY isn't set.
+let _resend: Resend | null = null;
+function getResend(): Resend {
+  if (!_resend) {
+    _resend = new Resend(process.env.RESEND_API_KEY);
+  }
+  return _resend;
+}
+
 const FROM_ADDRESS = 'noreply@gccstartup.com';
 
 export async function sendWelcomeEmail(
@@ -9,7 +20,7 @@ export async function sendWelcomeEmail(
   companyName: string
 ): Promise<void> {
   try {
-    await resend.emails.send({
+    await getResend().emails.send({
       from: FROM_ADDRESS,
       to,
       subject: `Welcome to GCC Startup — ${companyName}`,
@@ -64,7 +75,7 @@ export async function sendKYCReminder(
   name: string
 ): Promise<void> {
   try {
-    await resend.emails.send({
+    await getResend().emails.send({
       from: FROM_ADDRESS,
       to,
       subject: 'Action Required — Complete Your Identity Verification',
@@ -122,7 +133,7 @@ export async function sendOrderConfirmation(
   }).format(amount / 100);
 
   try {
-    await resend.emails.send({
+    await getResend().emails.send({
       from: FROM_ADDRESS,
       to,
       subject: `Order Confirmed — ${orderNumber}`,
@@ -187,7 +198,7 @@ export async function sendRenewalReminder(
   daysLeft: number
 ): Promise<void> {
   try {
-    await resend.emails.send({
+    await getResend().emails.send({
       from: FROM_ADDRESS,
       to,
       subject: `Renewal Reminder — ${entityName} expires in ${daysLeft} days`,
@@ -229,6 +240,46 @@ export async function sendRenewalReminder(
     });
   } catch (error) {
     console.error('Failed to send renewal reminder email:', error);
+    throw error;
+  }
+}
+
+export async function sendToolResultEmail(
+  to: string,
+  title: string,
+  downloadUrl: string
+): Promise<void> {
+  try {
+    await getResend().emails.send({
+      from: FROM_ADDRESS,
+      to,
+      subject: `Your ${title} — GCC Startup`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+        <body style="margin:0;padding:0;background:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+          <div style="max-width:560px;margin:40px auto;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.1);">
+            <div style="background:#F26522;padding:32px;text-align:center;">
+              <h1 style="color:#fff;font-size:22px;margin:0;">${title}</h1>
+            </div>
+            <div style="padding:32px;text-align:center;">
+              <p style="font-size:16px;color:#18181b;line-height:1.6;">Your result is ready.</p>
+              <div style="margin:32px 0;">
+                <a href="${downloadUrl}"
+                   style="display:inline-block;background:#F26522;color:#fff;padding:12px 32px;border-radius:6px;text-decoration:none;font-weight:600;font-size:16px;">
+                  Download PDF
+                </a>
+              </div>
+              <p style="font-size:12px;color:#a1a1aa;">This link expires in 7 days.</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `,
+    });
+  } catch (error) {
+    console.error('Failed to send tool result email:', error);
     throw error;
   }
 }
