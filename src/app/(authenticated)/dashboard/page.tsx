@@ -9,7 +9,7 @@ import ComplianceSnapshot from '@/components/portal/ComplianceSnapshot';
 import { getServerSession } from '@/lib/session';
 import { db } from '@/lib/db';
 import { companies, notifications, users } from '@/lib/db/schema';
-import { Calculator, Search, Building, FileText, Receipt, Calendar, Users as UsersIcon, LayoutDashboard } from 'lucide-react';
+import { Calculator, Search, Building, FileText, Receipt, Calendar, Users as UsersIcon, LayoutDashboard, Bell } from 'lucide-react';
 
 const STAGE_LABELS = ['Onboarding', 'Official KYC', 'Government Filing', 'Bank Setup', 'Active'];
 
@@ -49,6 +49,7 @@ export default async function DashboardPage() {
         .limit(5)
     : [];
 
+  const unreadCount = recentNotifications.filter((n) => !n.is_read).length;
   const firstName = user?.full_name?.split(' ')[0] || 'there';
 
   return (
@@ -108,7 +109,18 @@ export default async function DashboardPage() {
       </div>
 
       <div className="px-4 mt-8 max-w-4xl mx-auto w-full">
-        <h2 className="text-lg font-semibold text-gray-800 mb-4">Recent Activity</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-gray-800">Recent Activity</h2>
+          <Link href="/notifications" className="flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-primary/80">
+            <Bell className="w-4 h-4" />
+            View all
+            {unreadCount > 0 && (
+              <span className="bg-primary text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                {unreadCount}
+              </span>
+            )}
+          </Link>
+        </div>
         {recentNotifications.length === 0 ? (
           <div className="bg-white rounded-xl border border-gray-200 p-6 text-center text-sm text-gray-400">
             No activity yet.
