@@ -9,7 +9,7 @@ Kanban-driven incorporation pipeline.
 ## Stack
 
 - **Frontend / App:** Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS v4
-- **Backend / DB:** Neon (serverless Postgres) + Drizzle ORM
+- **Backend / DB:** Postgres (self-hosted on Dokploy) + Drizzle ORM, via the standard postgres-js driver
 - **File storage:** Cloudflare R2 (S3-compatible), presigned uploads/downloads
 - **Payments:** Stripe Checkout + webhooks
 - **Messaging:** WhatsApp Business Cloud API (Meta Graph API, direct) + Resend (email) + Web Push
