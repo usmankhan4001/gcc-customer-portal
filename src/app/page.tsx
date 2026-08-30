@@ -2,25 +2,25 @@ import Link from 'next/link';
 
 export default function WelcomeScreen() {
   return (
-    <div className="flex flex-col min-h-screen items-center justify-between p-8 bg-gray-50">
-      <div className="flex-grow flex flex-col items-center justify-center text-center">
-        <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight">
+    <main id="main-content" className="flex flex-col h-[100dvh] max-h-[100dvh] items-center justify-between p-6 bg-gray-50 overflow-hidden select-none">
+      <div className="flex-1 flex flex-col items-center justify-center text-center max-w-md mx-auto px-4">
+        <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight">
           <span className="text-primary">GCC</span>{' '}
           <span className="text-secondary">Startup</span>
         </h1>
-        <p className="mt-6 text-xl md:text-2xl text-gray-600 font-medium max-w-2xl">
+        <p className="mt-4 text-base sm:text-xl text-gray-600 font-medium max-w-sm">
           Everything you need to go global — under one roof.
         </p>
       </div>
 
-      <div className="w-full max-w-md pb-8">
+      <div className="w-full max-w-md mx-auto pb-6">
         <Link
           href="/welcome"
-          className="block w-full text-center bg-primary hover:bg-primary-700 text-white font-semibold py-4 px-8 rounded-xl shadow-md transition duration-200 text-lg"
+          className="block w-full text-center bg-primary hover:bg-primary-700 text-white font-semibold py-3.5 px-6 rounded-xl shadow-md transition duration-200 text-base"
         >
           Launch Your Business
         </Link>
       </div>
-    </div>
+    </main>
   );
 }

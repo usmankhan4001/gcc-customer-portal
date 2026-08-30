@@ -81,8 +81,8 @@ function AuthPageInner() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white p-4">
-      <div className="max-w-md w-full border border-gray-200 rounded-md p-6 shadow-sm">
+    <main id="main-content" className="min-h-[100dvh] flex items-center justify-center bg-gray-50/60 p-4 select-none">
+      <div className="max-w-md w-full bg-white border border-gray-200 rounded-xl p-6 sm:p-8 shadow-sm">
         <div className="mb-6">
           <h1 className="text-xl font-bold text-gray-900 mb-1">
             Welcome to GCC Startup
@@ -173,7 +173,7 @@ function AuthPageInner() {
           </form>
         )}
       </div>
-    </div>
+    </main>
   );
 }
 

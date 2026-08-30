@@ -234,3 +234,27 @@
     @apply bg-background text-foreground font-sans;
   }
 }
+
+.skip-link {
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
+  z-index: 9999;
+  padding: 0.5rem 1rem;
+  background: var(--primary-500);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.875rem;
+  border-radius: 0 0 0.5rem 0.5rem;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s ease;
+}
+
+.skip-link:focus {
+  top: 0;
+  left: 1rem;
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
