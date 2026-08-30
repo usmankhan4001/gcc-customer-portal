@@ -1,75 +1,20 @@
-'use client';
+import * as React from "react"
+import { Input as InputPrimitive } from "@base-ui/react/input"
 
-import React from 'react';
+import { cn } from "@/lib/utils"
 
-interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
-  label?: string;
-  placeholder: string;
-  value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  error?: string;
-  helper?: string;
-  icon?: React.ReactNode;
-  type?: string;
-  className?: string;
-}
-
-export default function Input({
-  label,
-  placeholder,
-  value,
-  onChange,
-  error,
-  helper,
-  icon,
-  type = 'text',
-  className = '',
-  id,
-  ...props
-}: InputProps) {
-  const inputId = id || (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined);
-  const errorId = inputId ? `${inputId}-error` : undefined;
-  const helperId = inputId ? `${inputId}-helper` : undefined;
-  const describedBy = error ? errorId : helper ? helperId : undefined;
-
+function Input({ className, type, ...props }: React.ComponentProps<"input">) {
   return (
-    <div className={className} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-      {label && (
-        <label htmlFor={inputId} className="input-label">{label}</label>
+    <InputPrimitive
+      type={type}
+      data-slot="input"
+      className={cn(
+        "h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base transition-colors outline-none file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40",
+        className
       )}
-      <div style={{ position: 'relative' }}>
-        {icon && (
-          <span
-            style={{
-              position: 'absolute',
-              left: 14,
-              top: '50%',
-              transform: 'translateY(-50%)',
-              color: 'var(--color-text-muted)',
-              display: 'flex',
-              pointerEvents: 'none',
-            }}
-          >
-            {icon}
-          </span>
-        )}
-        <input
-          id={inputId}
-          type={type}
-          placeholder={placeholder}
-          value={value}
-          onChange={onChange}
-          aria-invalid={!!error || undefined}
-          aria-describedby={describedBy}
-          className={`input-field ${error ? 'input-error' : ''}`}
-          style={icon ? { paddingLeft: 42 } : undefined}
-          {...props}
-        />
-      </div>
-      {error && <span id={errorId} className="input-error" role="alert">{error}</span>}
-      {helper && !error && <span id={helperId} className="input-helper">{helper}</span>}
-    </div>
-  );
+      {...props}
+    />
+  )
 }
 
-export { Input };
+export { Input }

@@ -2,12 +2,13 @@
 
 import React from 'react';
 import { PortalProvider } from '@/lib/store';
-import { ToastProvider } from '@/components/ui/Toast';
+import { Toaster } from '@/components/ui/sonner';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <ToastProvider>
+    <>
+      <Toaster />
       <PortalProvider>{children}</PortalProvider>
-    </ToastProvider>
+    </>
   );
 }
