@@ -7,10 +7,22 @@ import ServiceTile from '@/components/portal/ServiceTile';
 import PipelineStepTracker from '@/components/portal/PipelineStepTracker';
 import ComplianceSnapshot from '@/components/portal/ComplianceSnapshot';
 import PromoBanner from '@/components/portal/PromoBanner';
+import EmptyState from '@/components/portal/EmptyState';
 import { getServerSession } from '@/lib/session';
 import { db } from '@/lib/db';
 import { companies, notifications, promoBanners, users } from '@/lib/db/schema';
-import { Calculator, Search, Building, FileText, Receipt, Calendar, Users as UsersIcon, LayoutDashboard, Bell } from 'lucide-react';
+import {
+  Calculator,
+  MagnifyingGlass,
+  Buildings,
+  FolderOpen,
+  Bank,
+  CalendarCheck,
+  Users as UsersIcon,
+  SquaresFour,
+  Bell,
+  Tray,
+} from '@phosphor-icons/react/dist/ssr';
 
 const STAGE_LABELS = ['Onboarding', 'Official KYC', 'Government Filing', 'Bank Setup', 'Active'];
 
@@ -74,7 +86,7 @@ export default async function DashboardPage() {
       <BannerHeader title="PERSONALIZED DASHBOARD" subtitle={`Welcome back, ${firstName}`} />
 
       {activeBanners.length > 0 && (
-        <div className="px-4 -mt-4 relative z-10 max-w-4xl mx-auto w-full space-y-2">
+        <div className="px-4 -mt-4 relative z-10 max-w-4xl mx-auto w-full lg:max-w-none space-y-2">
           {activeBanners.map((banner) => (
             <PromoBanner
               key={banner.id}
@@ -86,7 +98,7 @@ export default async function DashboardPage() {
 
       {activeCompany ? (
         <>
-          <div className="px-4 -mt-8 relative z-10 max-w-4xl mx-auto w-full">
+          <div className="px-4 -mt-8 relative z-10 max-w-4xl mx-auto w-full lg:max-w-none">
             <SummaryCard
               title={activeCompany.company_name}
               balance={activeCompany.status.replace(/_/g, ' ').toUpperCase()}
@@ -95,11 +107,11 @@ export default async function DashboardPage() {
             />
           </div>
 
-          <div className="px-4 mt-6 max-w-4xl mx-auto w-full">
+          <div className="px-4 mt-6 max-w-4xl mx-auto w-full lg:max-w-none">
             <PipelineStepTracker steps={STAGE_LABELS} currentStep={STATUS_TO_STEP[activeCompany.status] ?? 0} />
           </div>
 
-          <div className="px-4 mt-6 max-w-4xl mx-auto w-full">
+          <div className="px-4 mt-6 max-w-4xl mx-auto w-full lg:max-w-none">
             <ComplianceSnapshot
               jurisdiction={activeCompany.jurisdiction}
               annualRevenueEstimate={activeCompany.annual_revenue_estimate}
@@ -108,39 +120,42 @@ export default async function DashboardPage() {
           </div>
         </>
       ) : (
-        <div className="px-4 -mt-8 relative z-10 max-w-4xl mx-auto w-full">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 text-center">
-            <h2 className="text-lg font-bold text-gray-900 mb-1">No active structure yet</h2>
-            <p className="text-sm text-gray-500 mb-4">Start your incorporation to see your progress here.</p>
-            <Link
-              href="/services"
-              className="inline-block bg-primary hover:bg-primary/90 text-white text-sm font-bold py-2 px-6 rounded-md transition-colors"
-            >
-              Browse Jurisdictions
-            </Link>
-          </div>
+        <div className="px-4 -mt-8 relative z-10 max-w-4xl mx-auto w-full lg:max-w-none">
+          <EmptyState
+            icon={<Buildings size={24} weight="duotone" />}
+            title="No active structure yet"
+            description="Start your incorporation to see your progress here."
+            action={
+              <Link
+                href="/services"
+                className="inline-block bg-primary hover:bg-primary/90 text-white text-sm font-bold py-2 px-6 rounded-md transition-colors"
+              >
+                Browse Jurisdictions
+              </Link>
+            }
+          />
         </div>
       )}
 
-      <div className="px-4 mt-8 max-w-4xl mx-auto w-full">
+      <div className="px-4 mt-8 max-w-4xl mx-auto w-full lg:max-w-none">
         <h2 className="text-lg font-semibold text-gray-800 mb-4">Quick Services</h2>
-        <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
-          <ServiceTile icon={<Calculator className="w-6 h-6 text-blue-600" />} title="Tax Calculator" href="/tools/tax-calculator" />
-          <ServiceTile icon={<Search className="w-6 h-6 text-purple-600" />} title="Name Checker" href="/tools/name-checker" />
-          <ServiceTile icon={<Building className="w-6 h-6 text-green-600" />} title="Start a Company" href="/services" />
-          <ServiceTile icon={<FileText className="w-6 h-6 text-orange-600" />} title="Vault" href="/vault" />
-          <ServiceTile icon={<Receipt className="w-6 h-6 text-red-600" />} title="Banking Odds" href="/tools/banking-odds" />
-          <ServiceTile icon={<Calendar className="w-6 h-6 text-teal-600" />} title="Compliance" href="/tools/compliance-calendar" />
-          <ServiceTile icon={<UsersIcon className="w-6 h-6 text-pink-600" />} title="Visa Costs" href="/tools/visa-estimator" />
-          <ServiceTile icon={<LayoutDashboard className="w-6 h-6 text-indigo-600" />} title="More Tools" href="/tools" />
+        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
+          <ServiceTile icon={<Calculator size={22} weight="duotone" className="text-blue-600" />} title="Tax Calculator" href="/tools/tax-calculator" />
+          <ServiceTile icon={<MagnifyingGlass size={22} weight="duotone" className="text-purple-600" />} title="Name Checker" href="/tools/name-checker" />
+          <ServiceTile icon={<Buildings size={22} weight="duotone" className="text-green-600" />} title="Start a Company" href="/services" />
+          <ServiceTile icon={<FolderOpen size={22} weight="duotone" className="text-orange-600" />} title="Vault" href="/vault" />
+          <ServiceTile icon={<Bank size={22} weight="duotone" className="text-red-600" />} title="Banking Odds" href="/tools/banking-odds" />
+          <ServiceTile icon={<CalendarCheck size={22} weight="duotone" className="text-teal-600" />} title="Compliance" href="/tools/compliance-calendar" />
+          <ServiceTile icon={<UsersIcon size={22} weight="duotone" className="text-pink-600" />} title="Visa Costs" href="/tools/visa-estimator" />
+          <ServiceTile icon={<SquaresFour size={22} weight="duotone" className="text-indigo-600" />} title="More Tools" href="/tools" />
         </div>
       </div>
 
-      <div className="px-4 mt-8 max-w-4xl mx-auto w-full">
+      <div className="px-4 mt-8 max-w-4xl mx-auto w-full lg:max-w-none">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-gray-800">Recent Activity</h2>
           <Link href="/notifications" className="flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-primary/80">
-            <Bell className="w-4 h-4" />
+            <Bell size={16} />
             View all
             {unreadCount > 0 && (
               <span className="bg-primary text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
@@ -150,9 +165,7 @@ export default async function DashboardPage() {
           </Link>
         </div>
         {recentNotifications.length === 0 ? (
-          <div className="bg-white rounded-xl border border-gray-200 p-6 text-center text-sm text-gray-400">
-            No activity yet.
-          </div>
+          <EmptyState icon={<Tray size={22} weight="duotone" />} title="No activity yet" />
         ) : (
           <div className="space-y-2">
             {recentNotifications.map((n) => (
@@ -160,12 +173,12 @@ export default async function DashboardPage() {
                 <span
                   className={`mt-0.5 w-2 h-2 rounded-full shrink-0 ${
                     n.type === 'action_required'
-                      ? 'bg-red-500'
+                      ? 'bg-destructive'
                       : n.type === 'success'
-                        ? 'bg-green-500'
+                        ? 'bg-success'
                         : n.type === 'warning'
-                          ? 'bg-amber-500'
-                          : 'bg-blue-400'
+                          ? 'bg-warning'
+                          : 'bg-info'
                   }`}
                 />
                 <div>

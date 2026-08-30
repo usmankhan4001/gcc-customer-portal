@@ -14,7 +14,7 @@ export default function SummaryCard({
   totalExpense = '$0.00' 
 }: SummaryCardProps) {
   return (
-    <div className="bg-gradient-to-br from-red-500 to-red-700 rounded-xl shadow-lg p-6 text-white w-full max-w-md mx-auto">
+    <div className="bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl shadow-lg p-6 text-white w-full max-w-md mx-auto lg:max-w-none">
       <h2 className="text-lg font-medium opacity-90 mb-1">{title}</h2>
       <div className="text-4xl font-bold mb-6">{balance}</div>
       
