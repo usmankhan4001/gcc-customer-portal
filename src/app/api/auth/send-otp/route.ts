@@ -30,7 +30,7 @@ export async function POST(request: Request) {
     const otp = randomInt(100000, 999999).toString();
     const expiresAt = new Date(Date.now() + OTP_TTL_MINUTES * 60 * 1000);
 
-    // Persist OTP in database if DB is reachable
+    // Persist OTP in database — this MUST succeed for verification to work
     try {
       await db.insert(otpCodes).values({
         whatsapp_number: whatsappNumber,
@@ -38,7 +38,11 @@ export async function POST(request: Request) {
         expires_at: expiresAt,
       });
     } catch (dbErr) {
-      console.warn('[Auth] Database insert for OTP failed, continuing with fallback:', dbErr);
+      console.error('[Auth] CRITICAL: Database insert for OTP failed — verification will be impossible:', dbErr);
+      return NextResponse.json(
+        { success: false, error: 'Failed to store verification code. Please try again.' },
+        { status: 500 }
+      );
     }
 
     const isWhatsAppConfigured =

@@ -41,7 +41,8 @@ const PROTECTED_PREFIXES = [
   '/support',
   '/checkout',
   '/notifications',
-  '/onboarding',
+  // NOTE: /onboarding is intentionally NOT protected — it IS the registration
+  // page and must be accessible to unauthenticated users.
 ];
 
 export async function middleware(request: NextRequest) {

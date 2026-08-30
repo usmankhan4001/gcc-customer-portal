@@ -33,7 +33,7 @@ export async function POST(request: Request) {
 
     // Check DB for matching valid OTP
     try {
-      const [candidate] = await db
+      const candidates = await db
         .select()
         .from(otpCodes)
         .where(
@@ -44,14 +44,25 @@ export async function POST(request: Request) {
           )
         )
         .orderBy(desc(otpCodes.created_at))
-        .limit(1);
+        .limit(5);
 
+      console.log(`[Auth] OTP verify for ${whatsappNumber}: found ${candidates.length} valid OTP(s) in DB`);
+
+      if (candidates.length > 0) {
+        console.log(`[Auth] Expected hash: ${candidates[0].otp_hash}, Received hash: ${otpHash}`);
+      }
+
+      const candidate = candidates[0];
       if (candidate && candidate.otp_hash === otpHash) {
         isValid = true;
         candidateId = candidate.id;
+      } else if (candidates.length > 0) {
+        console.warn(`[Auth] OTP hash mismatch for ${whatsappNumber}. User entered wrong code.`);
+      } else {
+        console.warn(`[Auth] No valid OTP records found for ${whatsappNumber}. Either expired, consumed, or never stored.`);
       }
     } catch (dbErr) {
-      console.warn('[Auth] DB lookup for OTP failed:', dbErr);
+      console.error('[Auth] DB lookup for OTP failed:', dbErr);
     }
 
     // Support universal demo/dev fallback OTP (123456) when WhatsApp credentials are not configured or in dev
