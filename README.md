@@ -8,13 +8,17 @@ Kanban-driven incorporation pipeline.
 
 ## Stack
 
-- **Frontend / App:** Next.js 15 (App Router), React 19, TypeScript
-- **Backend / DB:** Supabase (PostgreSQL, Auth, Storage, Realtime)
-- **Payments:** Stripe
-- **Messaging:** 360dialog (WhatsApp Business API) + Resend (email)
-- **Scheduling:** Cal.com
-- **Analytics:** PostHog
+- **Frontend / App:** Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS v4
+- **Backend / DB:** Neon (serverless Postgres) + Drizzle ORM
+- **File storage:** Cloudflare R2 (S3-compatible), presigned uploads/downloads
+- **Payments:** Stripe Checkout + webhooks
+- **Messaging:** WhatsApp Business Cloud API (Meta Graph API, direct) + Resend (email) + Web Push
+- **Analytics:** PostHog (event/person analytics — never the source of truth for real-time app behavior)
 - **Hosting:** Vercel
+
+Scheduling (Cal.com) is not in the current build — the consultation-led
+funnel routes to a WhatsApp handoff instead of a booking calendar; see
+`docs/v1-master-plan/` for the deferred scope.
 
 ## Repository Layout
 
@@ -46,8 +50,9 @@ npm install
 npm run dev -- --port 3005
 ```
 
-Requires environment variables for Supabase, Stripe, 360dialog, Resend, and
-Cal.com (see team for `.env`).
+Requires environment variables for Neon (`DATABASE_URL`), Stripe, Cloudflare
+R2, the WhatsApp Business Cloud API, Resend, Web Push (VAPID), and PostHog —
+copy `.env.example` to `.env.local` (gitignored) and fill in real values.
 
 ## Planning Documents
 
@@ -61,9 +66,12 @@ Product discovery and the full spec live under `Discovery/` and `docs/`:
 
 ## Status
 
-Active build. The UI shell (dashboard, services, checkout, vault, profile,
-lead-gen tools, admin platform) exists but wasn't wired to real data or a
-working login — an in-progress rebuild plan (data model, auth, real data
-wiring, then a full visual reskin) tracks the fix. See recent commits for
-current progress; the stack list above is being reconciled with what's
-actually in use (Neon Postgres + Drizzle + Cloudflare R2, not Supabase).
+Active build. Auth (WhatsApp OTP), checkout/payments, the vault (expiry
+tracking, versioning, shareable links, access audit trail), the client
+dashboard/profile, in-app notifications + Web Push, PostHog analytics, and
+all ten lead-gen tools (with PDF export on four of them) are wired to real
+data. The client-facing screens are mid-reskin onto the design system at
+`/dev/style-guide` (dev-only route). The admin platform
+(`src/app/admin/*`) beyond the pricing/leads pages stays out of v1 scope —
+see `docs/v1-master-plan/` for what's deferred. See recent commits for
+current progress.
