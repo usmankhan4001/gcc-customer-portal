@@ -1,136 +1,146 @@
 "use client";
 
-import React, { useState } from 'react';
-import Link from 'next/link';
-import BannerHeader from '@/components/portal/BannerHeader';
-import ContactCaptureGate from '@/components/portal/ContactCaptureGate';
+import React, { useState } from "react";
+import BannerHeader from "@/components/portal/BannerHeader";
+import { CheckCircle, Warning, ArrowRight, ShieldCheck } from "@phosphor-icons/react";
+import Link from "next/link";
 
 export default function QFZPEligibilityChecker() {
-  const [activity, setActivity] = useState('Tech');
-  const [visas, setVisas] = useState(1);
+  const [activity, setActivity] = useState("Tech");
+  const [visas, setVisas] = useState("1-2");
+  const [hasSubstance, setHasSubstance] = useState(true);
+  const [isForeignClients, setIsForeignClients] = useState(true);
   const [submitted, setSubmitted] = useState(false);
-  const [captured, setCaptured] = useState(false);
 
-  const isLikelyEligible = activity !== 'Crypto' && visas > 0;
+  const isLikelyEligible =
+    activity !== "Excluded" &&
+    hasSubstance &&
+    (activity === "Tech" || activity === "Trading" || activity === "Consulting");
 
-  const handleSubmit = () => {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     setSubmitted(true);
-    setCaptured(false);
-  };
-
-  const handleCapture = async (contact: { email: string; whatsapp_number: string }) => {
-    await fetch('/api/leads/capture', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        source_tool: 'qfzp_eligibility',
-        email: contact.email || undefined,
-        whatsapp_number: contact.whatsapp_number || undefined,
-        tool_input: { activity, visas },
-        tool_result: { isLikelyEligible },
-        signals: { primaryInterestJurisdiction: 'uae' },
-      }),
-    });
-    setCaptured(true);
   };
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
-      <BannerHeader title="QFZP Eligibility Checker" />
+      <BannerHeader title="0% Corporate Tax (QFZP) Checker" />
 
-      <main className="flex-grow p-4 max-w-3xl mx-auto w-full space-y-4">
-        <div className="bg-white p-4 rounded-md shadow-sm border border-gray-200">
+      <main className="flex-grow p-4 max-w-2xl mx-auto w-full space-y-4 pt-6">
+        <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
           <div className="border-b border-gray-100 pb-3 mb-4">
-            <h2 className="text-sm font-semibold text-gray-800">Eligibility Details</h2>
+            <h2 className="text-sm font-bold text-gray-900">Qualifying Free Zone Person (QFZP) Assessment</h2>
+            <p className="text-xs text-gray-500">Under UAE Cabinet Decision No. 55/2023, qualifying free zone income is subject to 0% Corporate Tax.</p>
           </div>
 
-          <div className="space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-              <label htmlFor="activity" className="w-1/3 text-sm font-medium text-gray-700">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+              <label htmlFor="activity" className="w-40 text-xs font-semibold text-gray-700">
                 Business Activity
               </label>
               <select
                 id="activity"
                 value={activity}
                 onChange={(e) => setActivity(e.target.value)}
-                className="w-2/3 border border-gray-300 bg-white rounded-md p-2 text-sm text-gray-700 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-shadow"
+                className="flex-1 border border-gray-300 bg-white rounded-lg p-2 text-sm text-gray-900 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
               >
-                <option value="Tech">Tech</option>
-                <option value="Trading">Trading</option>
-                <option value="Crypto">Crypto</option>
-                <option value="Consulting">Consulting</option>
+                <option value="Tech">Software Development & Cloud Services</option>
+                <option value="Trading">Qualifying Commodity & Goods Trading</option>
+                <option value="Consulting">Headquarter & Holding Company Services</option>
+                <option value="Logistics">Logistics & Freight Forwarding</option>
+                <option value="Excluded">Direct Mainland UAE B2C Retail (Excluded)</option>
               </select>
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-              <label htmlFor="visas" className="w-1/3 text-sm font-medium text-gray-700">
-                Required Visas
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+              <label htmlFor="visas" className="w-40 text-xs font-semibold text-gray-700">
+                Staff / Visas in Free Zone
               </label>
-              <input
-                type="number"
+              <select
                 id="visas"
-                min="0"
                 value={visas}
-                onChange={(e) => setVisas(parseInt(e.target.value) || 0)}
-                className="w-2/3 border border-gray-300 rounded-md p-2 text-sm text-gray-700 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-shadow"
-                placeholder="Enter number of visas"
-              />
+                onChange={(e) => setVisas(e.target.value)}
+                className="flex-1 border border-gray-300 bg-white rounded-lg p-2 text-sm text-gray-900 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+              >
+                <option value="1-2">1 – 2 Visas (Founder / Director)</option>
+                <option value="3-5">3 – 5 Visas (Core Team)</option>
+                <option value="6+">6+ Visas (Full Office)</option>
+              </select>
             </div>
 
-            <div className="flex justify-end border-t border-gray-100 pt-4">
-              <button
-                onClick={handleSubmit}
-                className="py-2 px-6 rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-700 transition-colors"
-              >
-                Check Eligibility
-              </button>
+            <div className="space-y-2 pt-2">
+              <label className="flex items-center gap-2 cursor-pointer bg-gray-50 border border-gray-200 p-2.5 rounded-lg">
+                <input
+                  type="checkbox"
+                  checked={hasSubstance}
+                  onChange={(e) => setHasSubstance(e.target.checked)}
+                  className="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4"
+                />
+                <span className="text-xs text-gray-700 font-medium">
+                  Will maintain physical/flexi office lease in a UAE Free Zone (Adequate Substance)
+                </span>
+              </label>
+
+              <label className="flex items-center gap-2 cursor-pointer bg-gray-50 border border-gray-200 p-2.5 rounded-lg">
+                <input
+                  type="checkbox"
+                  checked={isForeignClients}
+                  onChange={(e) => setIsForeignClients(e.target.checked)}
+                  className="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4"
+                />
+                <span className="text-xs text-gray-700 font-medium">
+                  Primary revenue is derived from foreign clients or Free Zone entities (not mainland UAE individuals)
+                </span>
+              </label>
             </div>
-          </div>
+
+            <button
+              type="submit"
+              className="w-full bg-primary hover:bg-primary-700 text-white font-semibold py-2.5 px-4 rounded-lg text-xs transition-colors shadow-sm"
+            >
+              Evaluate 0% Tax Eligibility
+            </button>
+          </form>
         </div>
 
-        {submitted && !captured && (
-          <ContactCaptureGate
-            title="See your eligibility assessment"
-            subtitle="Enter your contact info to reveal the result."
-            onCapture={handleCapture}
-          />
-        )}
-
-        {submitted && captured && (
-          <>
+        {submitted && (
+          <div className="space-y-4 animate-in fade-in duration-300">
             <div
-              className={`p-4 rounded-md border transition-colors duration-300 ${
-                isLikelyEligible ? 'bg-success-light border-success/30 text-success' : 'bg-primary-50 border-primary-200 text-primary-900'
+              className={`bg-white rounded-xl shadow-sm border p-5 ${
+                isLikelyEligible ? "border-emerald-300 ring-1 ring-emerald-100" : "border-amber-300"
               }`}
             >
-              <div className="flex items-start gap-4 text-sm">
-                <div className="font-medium min-w-[120px]">Preliminary status:</div>
-                <div className="font-semibold">
-                  {isLikelyEligible ? 'Likely eligible for QFZP status' : 'Review required'}
+              <div className="flex items-start gap-3">
+                {isLikelyEligible ? (
+                  <ShieldCheck className="w-7 h-7 text-emerald-600 shrink-0" />
+                ) : (
+                  <Warning className="w-7 h-7 text-amber-600 shrink-0" />
+                )}
+                <div>
+                  <h3 className="text-sm font-bold text-gray-900">
+                    {isLikelyEligible
+                      ? "High Likelihood: Eligible for 0% UAE Corporate Tax"
+                      : "Standard 9% Rate Applies / Non-Qualifying Activity"}
+                  </h3>
+                  <p className="text-xs text-gray-600 mt-1">
+                    {isLikelyEligible
+                      ? "Your business model meets the Qualifying Free Zone Person (QFZP) criteria: Qualifying activity with foreign/FZ counterparties and adequate UAE economic substance."
+                      : "Activities involving direct mainland UAE consumer trade or lacking registered substance are taxed at the standard 9% UAE corporate tax rate (first AED 375k profit still 0%)."}
+                  </p>
                 </div>
               </div>
-              <div className="flex items-start gap-4 text-sm mt-2">
-                <div className="font-medium min-w-[120px]">Notes:</div>
-                <div className="opacity-90">
-                  {isLikelyEligible
-                    ? 'Based on activity and visa inputs alone, this is a positive early signal — real QFZP status also depends on de minimis income, audited financials, and adequate substance requirements not captured here.'
-                    : 'Certain activities (like Crypto) or a lack of visa requirements often restrict QFZP eligibility. Talk to our team for a full assessment.'}
-                </div>
-              </div>
-              <p className="mt-3 pt-3 border-t border-black/10 text-xs opacity-70">
-                Indicative only, not a compliance determination — confirm with your advisor before relying on this.
-              </p>
-            </div>
 
-            <div className="text-right">
-              <Link
-                href="/services"
-                className="inline-block bg-primary hover:bg-primary-700 text-white text-sm font-medium py-2 px-6 rounded-md shadow-sm transition-all duration-200"
-              >
-                Start Freezone Setup
-              </Link>
+              <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
+                <span className="text-xs text-gray-500">Need help structuring your 0% corporate tax return?</span>
+                <Link
+                  href="/services"
+                  className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:text-primary-700"
+                >
+                  Consult Tax Specialist <ArrowRight className="w-3 h-3" />
+                </Link>
+              </div>
             </div>
-          </>
+          </div>
         )}
       </main>
     </div>

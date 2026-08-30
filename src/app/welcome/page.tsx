@@ -98,14 +98,22 @@ export default function WelcomeCarouselPage() {
           ))}
         </div>
 
-        <div className="w-full max-w-sm">
+        <div className="w-full max-w-sm flex flex-col items-center gap-2">
           {currentSlide === slides.length - 1 ? (
-            <Link
-              href="/auth"
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-primary hover:bg-primary-700 focus:outline-none transition-colors"
-            >
-              Get Started
-            </Link>
+            <>
+              <Link
+                href="/onboarding"
+                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-primary hover:bg-primary-700 focus:outline-none transition-colors"
+              >
+                Get Started & Register
+              </Link>
+              <Link
+                href="/auth"
+                className="text-xs text-gray-500 hover:text-primary transition-colors font-medium mt-1"
+              >
+                Already have an account? <span className="underline font-semibold">Sign In</span>
+              </Link>
+            </>
           ) : (
             <button
               type="button"

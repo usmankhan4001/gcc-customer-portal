@@ -1,233 +1,183 @@
-"use client";
+'use client';
 
 import React, { useState } from 'react';
 import Link from 'next/link';
 import BannerHeader from '@/components/portal/BannerHeader';
-import ContactCaptureGate from '@/components/portal/ContactCaptureGate';
-import PDFDownloadPanel from '@/components/portal/PDFDownloadPanel';
-import { bandFromAnnualProfit } from '@/lib/persona';
+import { ArrowRight, CircleNotch, TrendDown } from '@phosphor-icons/react';
 
-const HOME_COUNTRIES = [
-  { code: 'GB', name: 'United Kingdom' },
-  { code: 'DE', name: 'Germany' },
-  { code: 'FR', name: 'France' },
-  { code: 'US', name: 'United States' },
-  { code: 'CA', name: 'Canada' },
-  { code: 'AU', name: 'Australia' },
-  { code: 'NL', name: 'Netherlands' },
-  { code: 'IN', name: 'India' },
+const CURRENT_COUNTRIES = [
+  { code: 'US', name: 'United States (avg 27%)', baseRate: 0.27 },
+  { code: 'UK', name: 'United Kingdom (25%)', baseRate: 0.25 },
+  { code: 'DE', name: 'Germany (30%)', baseRate: 0.30 },
+  { code: 'FR', name: 'France (25%)', baseRate: 0.25 },
+  { code: 'CA', name: 'Canada (26%)', baseRate: 0.26 },
+  { code: 'AU', name: 'Australia (30%)', baseRate: 0.30 },
+  { code: 'IN', name: 'India (25%)', baseRate: 0.25 },
 ];
 
 const TARGET_JURISDICTIONS = [
-  { code: 'uae', name: 'UAE' },
-  { code: 'hong_kong', name: 'Hong Kong' },
-  { code: 'singapore', name: 'Singapore' },
-  { code: 'estonia_e_residency', name: 'Estonia (e-Residency)' },
-  { code: 'bvi', name: 'BVI' },
-  { code: 'cayman', name: 'Cayman Islands' },
+  { code: 'uae', name: 'UAE Free Zone (0% - 9%)', targetRate: 0.045 },
+  { code: 'hong-kong', name: 'Hong Kong (8.25% / 16.5%)', targetRate: 0.0825 },
+  { code: 'singapore', name: 'Singapore (17% with startup exemptions)', targetRate: 0.085 },
+  { code: 'ireland', name: 'Ireland (12.5% Trading)', targetRate: 0.125 },
+  { code: 'bvi', name: 'BVI / Offshore Holding (0%)', targetRate: 0.0 },
 ];
 
-interface EvaluateResult {
-  home_tax_rate: number;
-  home_tax_amount: number;
-  optimized_tax_rate: number;
-  optimized_tax_amount: number;
-  net_annual_savings: number;
-  recommended_tier: string;
-  recommended_package_usd: number;
-}
-
-export default function TaxCalculatorPage() {
-  const [countryResidence, setCountryResidence] = useState(HOME_COUNTRIES[0].code);
-  const [targetJurisdiction, setTargetJurisdiction] = useState(TARGET_JURISDICTIONS[0].code);
-  const [annualProfit, setAnnualProfit] = useState<number | ''>('');
-  const [businessModel, setBusinessModel] = useState('remote_services');
-  const [result, setResult] = useState<EvaluateResult | null>(null);
-  const [captured, setCaptured] = useState(false);
-  const [leadId, setLeadId] = useState<string | null>(null);
-  const [leadEmail, setLeadEmail] = useState<string | null>(null);
+export default function TaxCalculator() {
+  const [countryResidence, setCountryResidence] = useState('US');
+  const [targetJurisdiction, setTargetJurisdiction] = useState('uae');
+  const [annualProfit, setAnnualProfit] = useState<number | ''>(250000);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [result, setResult] = useState<any>(null);
 
   const handleCalculate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!annualProfit || annualProfit <= 0) {
-      setError('Enter your annual profit.');
-      return;
-    }
-    setError('');
+    if (!annualProfit || annualProfit <= 0) return;
     setLoading(true);
-    setCaptured(false);
+
     try {
       const res = await fetch('/api/calculator/evaluate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           country_residence: countryResidence,
-          annual_profit: annualProfit,
-          business_model: businessModel,
           target_jurisdiction: targetJurisdiction,
+          annual_profit: Number(annualProfit),
         }),
       });
       const data = await res.json();
-      if (!res.ok) {
-        setError(data.error ?? 'Could not calculate — try a different jurisdiction.');
-        return;
+      if (res.ok) {
+        setResult(data);
+      } else {
+        // Local calculation fallback
+        const homeRate = CURRENT_COUNTRIES.find((c) => c.code === countryResidence)?.baseRate || 0.25;
+        const targetRate = TARGET_JURISDICTIONS.find((j) => j.code === targetJurisdiction)?.targetRate || 0.05;
+        const profit = Number(annualProfit);
+        const homeTax = profit * homeRate;
+        const targetTax = profit * targetRate;
+        setResult({
+          current_tax: homeTax,
+          target_tax: targetTax,
+          savings: homeTax - targetTax,
+          effective_tax_rate: (targetRate * 100).toFixed(1) + '%',
+        });
       }
-      setResult(data);
     } catch {
-      setError('Something went wrong. Please try again.');
+      const homeRate = CURRENT_COUNTRIES.find((c) => c.code === countryResidence)?.baseRate || 0.25;
+      const targetRate = TARGET_JURISDICTIONS.find((j) => j.code === targetJurisdiction)?.targetRate || 0.05;
+      const profit = Number(annualProfit);
+      const homeTax = profit * homeRate;
+      const targetTax = profit * targetRate;
+      setResult({
+        current_tax: homeTax,
+        target_tax: targetTax,
+        savings: homeTax - targetTax,
+        effective_tax_rate: (targetRate * 100).toFixed(1) + '%',
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleCapture = async (contact: { email: string; whatsapp_number: string }) => {
-    if (!result) return;
-    const res = await fetch('/api/leads/capture', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        source_tool: 'tax_calculator',
-        email: contact.email || undefined,
-        whatsapp_number: contact.whatsapp_number || undefined,
-        tool_input: { countryResidence, targetJurisdiction, annualProfit, businessModel },
-        tool_result: result,
-        signals: {
-          revenueBand: bandFromAnnualProfit(typeof annualProfit === 'number' ? annualProfit : undefined),
-          primaryInterestJurisdiction: mapToSellableJurisdiction(targetJurisdiction),
-        },
-      }),
-    });
-    const data = await res.json();
-    setLeadId(data.lead?.id ?? null);
-    setLeadEmail(contact.email || null);
-    setCaptured(true);
-  };
+  const fmtUSD = (n: number) =>
+    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n);
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center">
       <BannerHeader title="Tax Savings Calculator" />
 
-      <main className="flex-1 w-full max-w-lg mx-auto p-4 mt-4 space-y-4">
-        <div className="bg-white rounded-md shadow-sm border border-gray-200">
-          <form onSubmit={handleCalculate} className="p-4 space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-              <label className="w-40 text-sm font-semibold text-gray-700">Current Country</label>
-              <select
-                className="flex-1 px-2 py-1.5 text-sm rounded-md border border-gray-300 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 bg-gray-50"
-                value={countryResidence}
-                onChange={(e) => setCountryResidence(e.target.value)}
-              >
-                {HOME_COUNTRIES.map((c) => (
-                  <option key={c.code} value={c.code}>{c.name}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-              <label className="w-40 text-sm font-semibold text-gray-700">Annual Profit ($)</label>
-              <input
-                type="number"
-                className="flex-1 px-2 py-1.5 text-sm rounded-md border border-gray-300 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 bg-gray-50"
-                placeholder="100000"
-                value={annualProfit}
-                onChange={(e) => setAnnualProfit(e.target.value === '' ? '' : Number(e.target.value))}
-              />
-            </div>
-
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-              <label className="w-40 text-sm font-semibold text-gray-700">Compare with</label>
-              <select
-                className="flex-1 px-2 py-1.5 text-sm rounded-md border border-gray-300 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 bg-gray-50"
-                value={targetJurisdiction}
-                onChange={(e) => setTargetJurisdiction(e.target.value)}
-              >
-                {TARGET_JURISDICTIONS.map((j) => (
-                  <option key={j.code} value={j.code}>{j.name}</option>
-                ))}
-              </select>
-            </div>
-
-            {error && <p className="text-sm text-destructive">{error}</p>}
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-primary hover:bg-primary-700 disabled:opacity-60 text-white text-sm font-bold py-2 rounded-md transition-colors"
+      <main className="flex-1 w-full max-w-xl mx-auto p-4 mt-4 space-y-4">
+        <form onSubmit={handleCalculate} className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 space-y-4">
+          <div>
+            <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+              Current Country of Operations / Tax Residence
+            </label>
+            <select
+              value={countryResidence}
+              onChange={(e) => setCountryResidence(e.target.value)}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
             >
-              {loading ? 'Calculating...' : 'Calculate My Savings'}
-            </button>
-          </form>
-        </div>
+              {CURRENT_COUNTRIES.map((c) => (
+                <option key={c.code} value={c.code}>{c.name}</option>
+              ))}
+            </select>
+          </div>
 
-        {result && !captured && (
-          <ContactCaptureGate
-            title="See your exact savings"
-            subtitle="Enter your contact info to reveal the numbers below."
-            onCapture={handleCapture}
-          />
-        )}
+          <div>
+            <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+              Target Relocation / Formation Jurisdiction
+            </label>
+            <select
+              value={targetJurisdiction}
+              onChange={(e) => setTargetJurisdiction(e.target.value)}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+            >
+              {TARGET_JURISDICTIONS.map((j) => (
+                <option key={j.code} value={j.code}>{j.name}</option>
+              ))}
+            </select>
+          </div>
 
-        {result && captured && (
-          <div className="bg-white rounded-md shadow-sm border border-gray-200 overflow-hidden">
-            <div className="p-4 bg-primary-50 border-b border-primary-100">
-              <h3 className="text-xs font-semibold text-primary-800 uppercase tracking-wider mb-1">Your Potential Savings</h3>
-              <div className="flex items-baseline space-x-1">
-                <span className="text-2xl font-bold text-primary-900">
-                  ${result.net_annual_savings.toLocaleString()}
-                </span>
-                <span className="text-primary-700 text-sm font-medium">/ year</span>
+          <div>
+            <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+              Estimated Annual Net Business Profit ($ USD)
+            </label>
+            <input
+              type="number"
+              value={annualProfit}
+              onChange={(e) => setAnnualProfit(e.target.value === '' ? '' : Number(e.target.value))}
+              placeholder="250000"
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary font-mono"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading || !annualProfit}
+            className="w-full bg-primary hover:bg-primary-700 disabled:opacity-60 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 text-xs shadow-sm"
+          >
+            {loading ? <CircleNotch className="w-4 h-4 animate-spin" /> : <TrendDown className="w-4 h-4" />}
+            {loading ? 'Calculating Taxes...' : 'Calculate Potential Savings'}
+          </button>
+        </form>
+
+        {result && (
+          <div className="space-y-4 animate-in fade-in duration-300">
+            <div className="bg-emerald-800 text-white rounded-xl p-5 shadow-sm text-center">
+              <span className="text-emerald-200 text-xs font-semibold uppercase tracking-wider block mb-1">
+                Estimated Annual Tax Savings
+              </span>
+              <div className="text-3xl font-black">{fmtUSD(result.savings ?? 0)}</div>
+              <p className="text-emerald-100 text-xs mt-1">Per year retained in your business treasury</p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                <span className="text-gray-400 block text-[11px] font-semibold">Current Home Country Tax</span>
+                <span className="text-lg font-bold text-gray-800">{fmtUSD(result.current_tax ?? 0)}</span>
               </div>
-              <div className="mt-3 pt-3 border-t border-primary-200/60 space-y-1">
-                <div className="flex justify-between text-xs">
-                  <span className="text-gray-600">Current Tax ({(result.home_tax_rate * 100).toFixed(1)}%):</span>
-                  <span className="font-semibold text-gray-800">${result.home_tax_amount.toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between text-xs">
-                  <span className="text-gray-600">Optimized Tax ({(result.optimized_tax_rate * 100).toFixed(1)}%):</span>
-                  <span className="font-semibold text-gray-800">${result.optimized_tax_amount.toLocaleString()}</span>
-                </div>
+              <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                <span className="text-gray-400 block text-[11px] font-semibold">New Jurisdiction Tax</span>
+                <span className="text-lg font-bold text-emerald-600">{fmtUSD(result.target_tax ?? 0)}</span>
               </div>
             </div>
-            <div className="p-4 border-t border-gray-200 space-y-3">
+
+            <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex items-center justify-between">
+              <div>
+                <h4 className="text-xs font-bold text-gray-900">Form a tax-optimized entity</h4>
+                <p className="text-[11px] text-gray-500">Fast-track incorporation in 3–5 working days</p>
+              </div>
               <Link
                 href="/services"
-                className="block w-full bg-primary hover:bg-primary-700 text-white text-center text-sm font-bold py-2 rounded-md shadow hover:shadow-md transition-all"
+                className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:text-primary-700 whitespace-nowrap"
               >
-                Start 0% Tax Setup Now
+                View Packages <ArrowRight className="w-3 h-3" />
               </Link>
-              {leadId && (
-                <PDFDownloadPanel
-                  leadId={leadId}
-                  title="Tax Savings Report"
-                  subtitle={`${countryResidence} vs. ${targetJurisdiction}`}
-                  hasEmail={!!leadEmail}
-                  rows={[
-                    { label: 'Home tax rate', value: `${(result.home_tax_rate * 100).toFixed(1)}%` },
-                    { label: 'Home tax amount', value: `$${result.home_tax_amount.toLocaleString()}` },
-                    { label: 'Optimized tax rate', value: `${(result.optimized_tax_rate * 100).toFixed(1)}%` },
-                    { label: 'Optimized tax amount', value: `$${result.optimized_tax_amount.toLocaleString()}` },
-                    { label: 'Net annual savings', value: `$${result.net_annual_savings.toLocaleString()}` },
-                    { label: 'Recommended tier', value: result.recommended_tier },
-                  ]}
-                />
-              )}
             </div>
           </div>
         )}
       </main>
     </div>
   );
-}
-
-function mapToSellableJurisdiction(code: string): 'uae' | 'hong-kong' | 'singapore' | 'bahrain' | 'ireland' | 'bvi' | undefined {
-  const map: Record<string, 'uae' | 'hong-kong' | 'singapore' | 'bahrain' | 'ireland' | 'bvi'> = {
-    uae: 'uae',
-    hong_kong: 'hong-kong',
-    singapore: 'singapore',
-    bvi: 'bvi',
-    cayman: 'bvi',
-  };
-  return map[code];
 }

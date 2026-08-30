@@ -35,6 +35,7 @@ export const users = pgTable('users', {
   email: text('email').unique(),
   whatsapp_number: text('whatsapp_number').notNull().unique(),
   full_name: text('full_name'),
+  password_hash: text('password_hash'),
   role: roleEnum('role').default('client').notNull(),
   country_of_residence: text('country_of_residence'),
   avatar_url: text('avatar_url'),

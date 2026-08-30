@@ -1,5 +1,5 @@
 import { SignJWT, jwtVerify } from 'jose';
-import { createHash, randomBytes } from 'crypto';
+import { createHash, randomBytes, scryptSync, timingSafeEqual } from 'crypto';
 
 const secret = new TextEncoder().encode(
   process.env.JWT_SECRET || 'gccstartup-dev-secret'
@@ -41,4 +41,22 @@ export function hashToken(token: string): string {
 
 export function generateMagicToken(): string {
   return randomBytes(32).toString('hex');
+}
+
+export function hashPassword(password: string): string {
+  const salt = randomBytes(16).toString('hex');
+  const derivedKey = scryptSync(password, salt, 64);
+  return `${salt}:${derivedKey.toString('hex')}`;
+}
+
+export function verifyPassword(password: string, combinedHash: string): boolean {
+  try {
+    const [salt, keyHex] = combinedHash.split(':');
+    if (!salt || !keyHex) return false;
+    const key = Buffer.from(keyHex, 'hex');
+    const derivedKey = scryptSync(password, salt, 64);
+    return timingSafeEqual(key, derivedKey);
+  } catch {
+    return false;
+  }
 }

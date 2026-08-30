@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import BannerHeader from '@/components/portal/BannerHeader';
-import ContactCaptureGate from '@/components/portal/ContactCaptureGate';
 import { industryRiskTier, type IndustryRiskTier } from '@/lib/persona';
 
 interface BankResult {
@@ -11,8 +10,6 @@ interface BankResult {
   odds: number;
 }
 
-// Rule-based estimate (Decision 15): industry risk tier x turnover band.
-// Not real historical approval-rate data — refine once that exists.
 function computeOdds(risk: IndustryRiskTier, turnover: number): BankResult[] {
   const base: Record<IndustryRiskTier, { wio: number; enbd: number }> = {
     low: { wio: 95, enbd: 85 },
@@ -25,6 +22,8 @@ function computeOdds(risk: IndustryRiskTier, turnover: number): BankResult[] {
   return [
     { bank: 'Wio Bank', odds: clamp(base[risk].wio + turnoverBonus) },
     { bank: 'Emirates NBD', odds: clamp(base[risk].enbd + turnoverBonus) },
+    { bank: 'Mashreq NeoBiz', odds: clamp(base[risk].wio - 5 + turnoverBonus) },
+    { bank: 'ADCB Commercial', odds: clamp(base[risk].enbd - 10 + turnoverBonus) },
   ];
 }
 
@@ -33,30 +32,11 @@ export default function BankingOddsMatcher() {
   const [industry, setIndustry] = useState("");
   const [turnover, setTurnover] = useState<number | ''>('');
   const [results, setResults] = useState<BankResult[] | null>(null);
-  const [captured, setCaptured] = useState(false);
 
   const handleCalculate = () => {
     if (!nationality || !industry || !turnover) return;
     const risk = industryRiskTier(industry) ?? 'medium';
     setResults(computeOdds(risk, Number(turnover)));
-    setCaptured(false);
-  };
-
-  const handleCapture = async (contact: { email: string; whatsapp_number: string }) => {
-    if (!results) return;
-    await fetch('/api/leads/capture', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        source_tool: 'banking_odds',
-        email: contact.email || undefined,
-        whatsapp_number: contact.whatsapp_number || undefined,
-        tool_input: { nationality, industry, turnover },
-        tool_result: results,
-        signals: { industryRiskTier: industryRiskTier(industry), primaryInterestJurisdiction: 'uae' },
-      }),
-    });
-    setCaptured(true);
   };
 
   return (
@@ -64,21 +44,22 @@ export default function BankingOddsMatcher() {
       <BannerHeader title="Banking Odds" />
 
       <main className="flex-1 max-w-2xl w-full mx-auto p-4 space-y-4 mt-4">
-        <div className="bg-white p-4 rounded-md shadow-sm border border-gray-200 space-y-4">
+        <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200 space-y-4">
           <div className="space-y-3">
             <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-              <label htmlFor="nationality" className="w-40 text-sm font-medium text-gray-700">
+              <label htmlFor="nationality" className="w-40 text-xs font-semibold text-gray-700">
                 Nationality
               </label>
               <select
                 id="nationality"
                 value={nationality}
                 onChange={(e) => setNationality(e.target.value)}
-                className="flex-1 border-gray-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 p-1.5 text-sm border outline-none transition-colors bg-white text-gray-900"
+                className="flex-1 border-gray-300 rounded-lg shadow-sm focus:border-primary focus:ring-1 focus:ring-primary p-2 text-sm border outline-none transition-colors bg-white text-gray-900"
               >
                 <option value="">Select Nationality</option>
                 <option value="US">United States</option>
                 <option value="UK">United Kingdom</option>
+                <option value="EU">European Union</option>
                 <option value="IN">India</option>
                 <option value="AE">UAE</option>
                 <option value="Other">Other</option>
@@ -86,27 +67,28 @@ export default function BankingOddsMatcher() {
             </div>
 
             <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-              <label htmlFor="industry" className="w-40 text-sm font-medium text-gray-700">
+              <label htmlFor="industry" className="w-40 text-xs font-semibold text-gray-700">
                 Industry
               </label>
               <select
                 id="industry"
                 value={industry}
                 onChange={(e) => setIndustry(e.target.value)}
-                className="flex-1 border-gray-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 p-1.5 text-sm border outline-none transition-colors bg-white text-gray-900"
+                className="flex-1 border-gray-300 rounded-lg shadow-sm focus:border-primary focus:ring-1 focus:ring-primary p-2 text-sm border outline-none transition-colors bg-white text-gray-900"
               >
                 <option value="">Select Industry</option>
-                <option value="Consulting">Consulting</option>
-                <option value="E-commerce">E-commerce</option>
-                <option value="Technology">Technology</option>
-                <option value="Crypto">Crypto</option>
-                <option value="Forex">Forex</option>
+                <option value="Consulting">Consulting / Agency</option>
+                <option value="Technology">Software / SaaS / Tech</option>
+                <option value="E-commerce">E-commerce / Retail</option>
+                <option value="Marketing">Media & Marketing</option>
+                <option value="Crypto">Crypto / Web3</option>
                 <option value="Real Estate">Real Estate</option>
+                <option value="Other">Other Business Activity</option>
               </select>
             </div>
 
             <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-              <label htmlFor="turnover" className="w-40 text-sm font-medium text-gray-700">
+              <label htmlFor="turnover" className="w-40 text-xs font-semibold text-gray-700">
                 Annual Turnover ($)
               </label>
               <input
@@ -115,7 +97,7 @@ export default function BankingOddsMatcher() {
                 value={turnover}
                 onChange={(e) => setTurnover(e.target.value === '' ? '' : Number(e.target.value))}
                 placeholder="150000"
-                className="flex-1 border-gray-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 p-1.5 text-sm border outline-none transition-colors bg-white text-gray-900"
+                className="flex-1 border-gray-300 rounded-lg shadow-sm focus:border-primary focus:ring-1 focus:ring-primary p-2 text-sm border outline-none transition-colors bg-white text-gray-900"
               />
             </div>
           </div>
@@ -123,53 +105,45 @@ export default function BankingOddsMatcher() {
           <button
             onClick={handleCalculate}
             disabled={!nationality || !industry || !turnover}
-            className="w-full bg-primary hover:bg-primary-700 text-white text-sm font-medium py-2 px-4 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-primary hover:bg-primary-700 text-white text-sm font-semibold py-2.5 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
           >
-            Calculate Odds
+            Calculate Approval Odds
           </button>
         </div>
 
-        {results && !captured && (
-          <ContactCaptureGate
-            title="See your bank-by-bank odds"
-            subtitle="Enter your contact info to reveal the estimate below."
-            onCapture={handleCapture}
-          />
-        )}
+        {results && (
+          <div className="space-y-4 animate-in fade-in duration-300">
+            <h2 className="text-base font-bold text-gray-900">Your Bank Approval Estimates</h2>
 
-        {results && captured && (
-          <div className="space-y-4 animate-in fade-in duration-500">
-            <h2 className="text-lg font-semibold text-gray-900">Your Match Results</h2>
-
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {results.map((result, idx) => (
-                <div key={idx} className="bg-white p-3 rounded-md shadow-sm border border-gray-200 flex items-center justify-between">
+                <div key={idx} className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex items-center justify-between">
                   <div>
-                    <h3 className="font-semibold text-sm text-gray-900">{result.bank}</h3>
-                    <p className="text-xs text-gray-500">Estimated Approval</p>
+                    <h3 className="font-bold text-sm text-gray-900">{result.bank}</h3>
+                    <p className="text-xs text-gray-500">Corporate Account</p>
                   </div>
                   <div className="text-right">
-                    <div className="text-lg font-bold text-gray-900">
-                      {result.odds}<span className="text-sm text-gray-400">%</span>
+                    <div className="text-xl font-black text-gray-900">
+                      {result.odds}<span className="text-xs font-semibold text-gray-400">%</span>
                     </div>
-                    <p className={`text-xs font-medium ${result.odds > 80 ? 'text-success' : result.odds > 50 ? 'text-warning' : 'text-destructive'}`}>
-                      {result.odds > 80 ? 'High Likelihood' : result.odds > 50 ? 'Medium Likelihood' : 'Low Likelihood'}
+                    <p className={`text-[11px] font-bold ${result.odds > 80 ? 'text-emerald-600' : result.odds > 50 ? 'text-amber-600' : 'text-rose-600'}`}>
+                      {result.odds > 80 ? 'High Likelihood' : result.odds > 50 ? 'Moderate Odds' : 'Special Approval Needed'}
                     </p>
                   </div>
                 </div>
               ))}
             </div>
 
-            <div className="bg-primary-50 border border-primary-100 rounded-md p-4 text-center space-y-3 mt-4 shadow-sm">
-              <h3 className="text-sm font-bold text-primary-900">Need guaranteed approval?</h3>
-              <p className="text-primary-800 text-xs max-w-md mx-auto">
-                Skip the guesswork. Our experts have relationships with all major UAE banks.
+            <div className="bg-primary/5 border border-primary/20 rounded-xl p-5 text-center space-y-3 mt-4">
+              <h3 className="text-sm font-bold text-primary">Need Guaranteed Banking Support?</h3>
+              <p className="text-gray-600 text-xs max-w-md mx-auto">
+                Our banking compliance officers manage relationship officer submissions, compliance files, and fast-track opening.
               </p>
               <Link
                 href="/services"
-                className="inline-block w-full bg-primary hover:bg-primary-700 text-white text-sm font-medium py-2 px-4 rounded-md transition-colors shadow-sm"
+                className="inline-block bg-primary hover:bg-primary-700 text-white text-xs font-semibold py-2.5 px-6 rounded-lg transition-colors shadow-sm"
               >
-                Get Guaranteed Banking
+                Explore Banking Concierge
               </Link>
             </div>
           </div>
