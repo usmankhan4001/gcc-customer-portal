@@ -19,6 +19,7 @@
     "@hookform/resolvers": "^5.9.1",
     "@neondatabase/serverless": "^1.1.0",
     "@park-ui/tailwind-plugin": "^0.20.1",
+    "@phosphor-icons/react": "^2.1.10",
     "@radix-ui/react-avatar": "^1.2.6",
     "@radix-ui/react-dialog": "^1.1.23",
     "@radix-ui/react-dropdown-menu": "^2.1.24",
