@@ -28,6 +28,18 @@ async function verifyJwt(token: string): Promise<Record<string, unknown> | null>
   }
 }
 
+// Real authenticated routes — the `(authenticated)` route group plus
+// `/checkout`, which requires login per plan Decision 5 (no guest checkout).
+const PROTECTED_PREFIXES = [
+  '/dashboard',
+  '/services',
+  '/vault',
+  '/profile',
+  '/support',
+  '/checkout',
+  '/notifications',
+];
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -37,14 +49,18 @@ export async function middleware(request: NextRequest) {
 
   const sessionToken = request.cookies.get('gcc_session')?.value;
 
-  if (pathname.startsWith('/portal')) {
+  if (PROTECTED_PREFIXES.some((p) => pathname.startsWith(p))) {
     if (!sessionToken) {
-      return NextResponse.redirect(new URL('/', request.url));
+      const loginUrl = new URL('/auth', request.url);
+      loginUrl.searchParams.set('redirect', pathname);
+      return NextResponse.redirect(loginUrl);
     }
 
     const payload = await verifyJwt(sessionToken);
     if (!payload) {
-      const response = NextResponse.redirect(new URL('/', request.url));
+      const loginUrl = new URL('/auth', request.url);
+      loginUrl.searchParams.set('redirect', pathname);
+      const response = NextResponse.redirect(loginUrl);
       response.cookies.delete('gcc_session');
       return response;
     }
@@ -70,7 +86,7 @@ export async function middleware(request: NextRequest) {
 
     const role = payload.role as string;
     if (role !== 'admin' && role !== 'super_admin') {
-      return NextResponse.redirect(new URL('/portal/dashboard', request.url));
+      return NextResponse.redirect(new URL('/', request.url));
     }
 
     const response = NextResponse.next();

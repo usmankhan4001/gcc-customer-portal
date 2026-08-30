@@ -40,5 +40,5 @@ Thumbs.db
 *.log
 npm-debug.log*
 
-# Embedded separate project (own repo)
-TrustGate/
+# Embedded separate project (own repo), archived — see _archived/TrustGate/
+_archived/TrustGate/

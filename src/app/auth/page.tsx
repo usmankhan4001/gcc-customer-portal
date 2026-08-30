@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
-export default function AuthPage() {
+function AuthPageInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [step, setStep] = useState<1 | 2>(1);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [otp, setOtp] = useState("");
@@ -19,7 +20,7 @@ export default function AuthPage() {
     }
     setError("");
     setIsLoading(true);
-    
+
     try {
       const res = await fetch("/api/auth/send-otp", {
         method: "POST",
@@ -47,7 +48,7 @@ export default function AuthPage() {
     }
     setError("");
     setIsLoading(true);
-    
+
     try {
       const res = await fetch("/api/auth/verify-otp", {
         method: "POST",
@@ -56,7 +57,12 @@ export default function AuthPage() {
       });
       const data = await res.json();
       if (data.success) {
-        router.push("/dashboard");
+        const redirectTo = searchParams.get("redirect");
+        if (data.isNewUser) {
+          router.push(`/onboarding${redirectTo ? `?redirect=${encodeURIComponent(redirectTo)}` : ""}`);
+        } else {
+          router.push(redirectTo || "/dashboard");
+        }
       } else {
         setError(data.error || "Invalid OTP.");
       }
@@ -75,8 +81,8 @@ export default function AuthPage() {
             Welcome to GCC Startup
           </h1>
           <p className="text-sm text-gray-600">
-            {step === 1 
-              ? "Sign in with your WhatsApp number" 
+            {step === 1
+              ? "Sign in with your WhatsApp number"
               : "Enter the OTP sent to your WhatsApp"}
           </p>
         </div>
@@ -155,5 +161,13 @@ export default function AuthPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function AuthPage() {
+  return (
+    <Suspense fallback={null}>
+      <AuthPageInner />
+    </Suspense>
   );
 }

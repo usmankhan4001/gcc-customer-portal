@@ -33,9 +33,11 @@ Kanban-driven incorporation pipeline.
 ├── docs/                     # Master plan & blueprints
 │   ├── v1-master-plan/
 │   └── GCCSTARTUP_MASTER_NON_TECHNICAL_BLUEPRINT.md
-├── TrustGate/                # Companion app (React Native / Expo)
 └── package.json
 ```
+
+`_archived/TrustGate/` holds a prior companion React Native/Expo app, parked
+in favor of a single responsive web app (see "Status" below).
 
 ## Getting Started (webapp)
 
@@ -59,6 +61,9 @@ Product discovery and the full spec live under `Discovery/` and `docs/`:
 
 ## Status
 
-Planning complete. Awaiting resolution of 6 blocking items (budget, dev
-resourcing, launch date, company registration/licensing, email provider,
-analytics access) before Phase 0 build begins.
+Active build. The UI shell (dashboard, services, checkout, vault, profile,
+lead-gen tools, admin platform) exists but wasn't wired to real data or a
+working login — an in-progress rebuild plan (data model, auth, real data
+wiring, then a full visual reskin) tracks the fix. See recent commits for
+current progress; the stack list above is being reconciled with what's
+actually in use (Neon Postgres + Drizzle + Cloudflare R2, not Supabase).
