@@ -15,7 +15,7 @@ export async function POST(request: Request) {
     if (otp === '123456') {
       const token = jwt.sign({ phone, role: 'user' }, JWT_SECRET, { expiresIn: '1d' });
 
-      const cookieStore = cookies();
+      const cookieStore = await cookies();
       cookieStore.set('auth_token', token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',

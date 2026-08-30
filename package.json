@@ -50,6 +50,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",
     "@types/canvas-confetti": "^1.9.0",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^22.13.9",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
