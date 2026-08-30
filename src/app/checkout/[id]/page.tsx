@@ -26,14 +26,29 @@ export default function CheckoutWizard({ params }: { params: Promise<{ id: strin
     if (step > 1) setStep(step - 1);
   };
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     setLoading(true);
-    // Mock checkout API call
-    setTimeout(() => {
+    try {
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tier: formData.tier,
+          companyName: formData.nameOption1,
+          jurisdiction: resolvedParams.id
+        })
+      });
+      const data = await response.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert('Payment failed to initialize.');
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error(err);
       setLoading(false);
-      // Redirect back to dashboard after "payment"
-      router.push('/dashboard');
-    }, 1500);
+    }
   };
 
   return (

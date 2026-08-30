@@ -20,11 +20,23 @@ export default function AuthPage() {
     setError("");
     setIsLoading(true);
     
-    // Mock sending OTP
-    setTimeout(() => {
+    try {
+      const res = await fetch("/api/auth/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: phoneNumber }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setStep(2);
+      } else {
+        setError(data.error || "Failed to send OTP.");
+      }
+    } catch (err) {
+      setError("An error occurred. Please try again.");
+    } finally {
       setIsLoading(false);
-      setStep(2);
-    }, 1000);
+    }
   };
 
   const handleVerifyOtp = async (e: React.FormEvent) => {
@@ -36,11 +48,23 @@ export default function AuthPage() {
     setError("");
     setIsLoading(true);
     
-    // Mock verifying OTP
-    setTimeout(() => {
+    try {
+      const res = await fetch("/api/auth/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: phoneNumber, otp }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        router.push("/dashboard");
+      } else {
+        setError(data.error || "Invalid OTP.");
+      }
+    } catch (err) {
+      setError("An error occurred. Please try again.");
+    } finally {
       setIsLoading(false);
-      router.push("/dashboard");
-    }, 1000);
+    }
   };
 
   return (
