@@ -5,6 +5,7 @@ import { db } from '@/lib/db';
 import { companies, jurisdictionPricing, orders, users } from '@/lib/db/schema';
 import { verifyToken } from '@/lib/auth';
 import { createCheckoutSession } from '@/lib/stripe';
+import { captureServerEvent } from '@/lib/posthog-server';
 
 // UI tier labels ('basic'/'standard') -> canonical schema tier enum.
 const TIER_MAP: Record<string, 'tier_1_self' | 'tier_2_nominee'> = {
@@ -87,6 +88,12 @@ export async function POST(request: Request) {
       .update(orders)
       .set({ stripe_session_id: stripeSession.id })
       .where(eq(orders.id, order.id));
+
+    captureServerEvent(user.id, 'checkout_started', {
+      jurisdiction,
+      tier: mappedTier,
+      amount_usd: pricing.price_usd / 100,
+    });
 
     return NextResponse.json({ url: stripeSession.url });
   } catch (error: any) {

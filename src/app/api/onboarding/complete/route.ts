@@ -5,6 +5,7 @@ import { verifyToken } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { leads, users } from '@/lib/db/schema';
 import { classifyPersona, bandFromAnnualProfit, type PersonaSignals } from '@/lib/persona';
+import { captureServerEvent, identifyServer } from '@/lib/posthog-server';
 
 const BUDGET_MIDPOINTS: Record<string, number> = {
   under_50k: 25000,
@@ -67,6 +68,15 @@ export async function POST(request: Request) {
   if (existingLead && !existingLead.converted_user_id) {
     await db.update(leads).set({ converted_user_id: user.id }).where(eq(leads.id, existingLead.id));
   }
+
+  identifyServer(user.id, {
+    email: user.email,
+    whatsapp_number: user.whatsapp_number,
+    country_of_residence: countryOfResidence || user.country_of_residence,
+    persona_tag: classification.persona_tag,
+    funnel_track: classification.funnel_track,
+  });
+  captureServerEvent(user.id, 'onboarding_completed', { funnel_track: classification.funnel_track });
 
   return NextResponse.json({
     funnel_track: classification.funnel_track,

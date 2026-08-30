@@ -5,6 +5,7 @@ import { db } from '@/lib/db';
 import { companies, notifications, orders, users } from '@/lib/db/schema';
 import { sendWhatsAppMessage } from '@/lib/whatsapp';
 import { sendPushToUser } from '@/lib/push';
+import { captureServerEvent } from '@/lib/posthog-server';
 
 let _stripe: Stripe | null = null;
 function getStripe(): Stripe {
@@ -89,6 +90,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           });
 
           await sendPushToUser(user.id, { title: notifTitle, body: notifMessage, url: '/dashboard' });
+
+          captureServerEvent(user.id, 'checkout_completed', {
+            company_id: company.id,
+            jurisdiction: company.jurisdiction,
+            amount_usd: order.amount_total / 100,
+          });
         }
       } else {
         console.error(`[webhooks/stripe] order ${orderId} or company ${companyId} not found`);

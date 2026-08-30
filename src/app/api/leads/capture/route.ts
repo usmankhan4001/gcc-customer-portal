@@ -3,6 +3,7 @@ import { and, desc, eq, or } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { leads } from '@/lib/db/schema';
 import { classifyPersona, type PersonaSignals } from '@/lib/persona';
+import { captureServerEvent, identifyServer } from '@/lib/posthog-server';
 
 interface CaptureRequest {
   source_tool: string;
@@ -68,6 +69,18 @@ export async function POST(request: Request) {
         funnel_track: classification.funnel_track,
       })
       .returning();
+
+    identifyServer(row.id, {
+      email: row.email,
+      whatsapp_number: row.whatsapp_number,
+      persona_tag: row.persona_tag,
+      funnel_track: row.funnel_track,
+    });
+    captureServerEvent(row.id, 'lead_captured', {
+      source_tool: row.source_tool,
+      persona_tag: row.persona_tag,
+      primary_interest_jurisdiction: row.primary_interest_jurisdiction,
+    });
 
     return NextResponse.json({ lead: row });
   } catch (error) {

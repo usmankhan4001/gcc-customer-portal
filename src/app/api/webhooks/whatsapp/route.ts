@@ -4,6 +4,7 @@ import { and, desc, eq } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { companies, notifications, users } from '@/lib/db/schema';
 import { sendPushToUser } from '@/lib/push';
+import { captureServerEvent } from '@/lib/posthog-server';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -130,6 +131,8 @@ async function handleKycReference(fromPhone: string, kycRef: string): Promise<vo
   });
 
   await sendPushToUser(user.id, { title: notifTitle, body: notifMessage, url: '/dashboard' });
+
+  captureServerEvent(user.id, 'kyc_advanced', { company_id: company.id });
 
   console.log(`[webhooks/whatsapp] Company ${company.id} advanced to filing_in_progress via KYC ref ${kycRef}`);
 }
