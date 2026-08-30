@@ -1,108 +1,165 @@
 'use client';
 
-import Link from 'next/link';
-import { useRef, useState } from 'react';
+import { Suspense, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 
-const slides = [
-  {
-    id: 1,
-    headline: 'Company Registration',
-    subtext: 'Full formation in UAE, Bahrain, Hong Kong & more. 100% foreign ownership.',
-  },
-  {
-    id: 2,
-    headline: 'Legally pay 0% tax',
-    subtext: 'Maximize savings and protect your assets with our Nominee UBO service for full privacy.',
-  },
-  {
-    id: 3,
-    headline: 'Bank Account Setup',
-    subtext: 'Local credible banking or fintech accounts. Guided from application to approval.',
-  },
+const GOALS = [
+  { value: 'tax_optimization', label: 'Minimize my tax bill' },
+  { value: 'banking_access', label: 'Get reliable business banking' },
+  { value: 'relocation', label: "Relocate — I'll live where I incorporate" },
+  { value: 'privacy', label: 'Keep ownership private' },
+  { value: 'exploring', label: 'Not sure yet, just exploring' },
 ];
 
-export default function OnboardingPage() {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [currentSlide, setCurrentSlide] = useState(0);
+const BUDGETS = [
+  { value: 'under_50k', label: 'Under $50k/year revenue' },
+  { value: '50k_150k', label: '$50k - $150k/year' },
+  { value: '150k_500k', label: '$150k - $500k/year' },
+  { value: 'over_500k', label: 'Over $500k/year' },
+];
 
-  const handleScroll = () => {
-    if (scrollRef.current) {
-      const scrollPosition = scrollRef.current.scrollLeft;
-      const slideWidth = scrollRef.current.clientWidth;
-      const newSlide = Math.round(scrollPosition / slideWidth);
-      if (newSlide !== currentSlide) {
-        setCurrentSlide(newSlide);
-      }
-    }
-  };
+const TIMELINES = [
+  { value: 'asap', label: 'As soon as possible' },
+  { value: 'few_months', label: 'In the next few months' },
+  { value: 'no_rush', label: 'No rush, just researching' },
+];
 
-  const scrollToSlide = (index: number) => {
-    if (scrollRef.current) {
-      const slideWidth = scrollRef.current.clientWidth;
-      scrollRef.current.scrollTo({
-        left: slideWidth * index,
-        behavior: 'smooth'
+function OnboardingInner() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [fullName, setFullName] = useState('');
+  const [countryOfResidence, setCountryOfResidence] = useState('');
+  const [goal, setGoal] = useState(GOALS[0].value);
+  const [budgetBand, setBudgetBand] = useState(BUDGETS[0].value);
+  const [timeline, setTimeline] = useState(TIMELINES[0].value);
+  const [wantsRelocation, setWantsRelocation] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      const res = await fetch('/api/onboarding/complete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fullName, countryOfResidence, goal, budgetBand, timeline, wantsRelocation }),
       });
-      setCurrentSlide(index);
+      const data = await res.json();
+
+      const redirectTo = searchParams.get('redirect');
+
+      if (data.funnel_track === 'consultation_led') {
+        // High-complexity/high-value personas get a human touch first,
+        // rather than straight to self-serve checkout — regardless of
+        // whatever page they were originally trying to reach.
+        router.push('/support');
+      } else {
+        router.push(redirectTo || '/services');
+      }
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-white">
-      <div 
-        ref={scrollRef}
-        onScroll={handleScroll}
-        className="flex-1 flex overflow-x-auto snap-x snap-mandatory scrollbar-hide no-scrollbar"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-      >
-        {slides.map((slide, index) => (
-          <div key={slide.id} className="min-w-full h-full flex flex-col items-center justify-center p-4 snap-center">
-            <div className="w-48 h-48 bg-gray-50 rounded-md flex items-center justify-center mb-6 border border-gray-200">
-              <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-              </svg>
-            </div>
-            <h2 className="text-xl font-bold text-gray-900 mb-2 text-center">{slide.headline}</h2>
-            <p className="text-sm text-gray-600 text-center max-w-sm">{slide.subtext}</p>
-          </div>
-        ))}
-      </div>
+    <div className="min-h-screen bg-white flex items-center justify-center p-4">
+      <div className="max-w-md w-full">
+        <div className="mb-6 text-center">
+          <h1 className="text-xl font-bold text-gray-900 mb-1">A few quick questions</h1>
+          <p className="text-sm text-gray-600">This takes 30 seconds and helps us point you at the right jurisdiction.</p>
+        </div>
 
-      <div className="p-4 flex flex-col items-center bg-gray-50 border-t border-gray-200">
-        <div className="flex space-x-2 mb-4">
-          {slides.map((_, index) => (
-            <button 
-              key={index} 
-              onClick={() => scrollToSlide(index)}
-              className={`h-1.5 rounded-sm transition-all duration-300 ${currentSlide === index ? 'w-6 bg-red-600' : 'w-2 bg-gray-300'}`}
-              aria-label={`Go to slide ${index + 1}`}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">Your name</label>
+            <input
+              type="text"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              placeholder="Jane Doe"
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-red-600 focus:border-red-600"
+              required
             />
-          ))}
-        </div>
+          </div>
 
-        <div className="w-full max-w-sm">
-          {currentSlide === slides.length - 1 ? (
-            <Link 
-              href="/auth"
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-semibold text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-600 transition-colors"
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">Where do you currently live?</label>
+            <input
+              type="text"
+              value={countryOfResidence}
+              onChange={(e) => setCountryOfResidence(e.target.value)}
+              placeholder="e.g. United Kingdom"
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-red-600 focus:border-red-600"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">What matters most right now?</label>
+            <select
+              value={goal}
+              onChange={(e) => setGoal(e.target.value)}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-red-600 focus:border-red-600 bg-white"
             >
-              Get Started
-            </Link>
-          ) : (
-            <button 
-              onClick={() => scrollToSlide(currentSlide + 1)}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-semibold text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-600 transition-colors"
+              {GOALS.map((g) => (
+                <option key={g.value} value={g.value}>{g.label}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">Roughly what's your business revenue?</label>
+            <select
+              value={budgetBand}
+              onChange={(e) => setBudgetBand(e.target.value)}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-red-600 focus:border-red-600 bg-white"
             >
-              Next
-            </button>
-          )}
-        </div>
+              {BUDGETS.map((b) => (
+                <option key={b.value} value={b.value}>{b.label}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">When do you want to be set up?</label>
+            <select
+              value={timeline}
+              onChange={(e) => setTimeline(e.target.value)}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-red-600 focus:border-red-600 bg-white"
+            >
+              {TIMELINES.map((t) => (
+                <option key={t.value} value={t.value}>{t.label}</option>
+              ))}
+            </select>
+          </div>
+
+          <label className="flex items-center gap-2 text-sm text-gray-700">
+            <input
+              type="checkbox"
+              checked={wantsRelocation}
+              onChange={(e) => setWantsRelocation(e.target.checked)}
+              className="rounded border-gray-300 text-red-600 focus:ring-red-600"
+            />
+            I'm open to physically relocating
+          </label>
+
+          <button
+            type="submit"
+            disabled={submitting}
+            className="w-full bg-red-600 hover:bg-red-700 disabled:opacity-60 text-white text-sm font-semibold py-2.5 px-4 rounded-md transition-colors"
+          >
+            {submitting ? 'Setting up your account...' : 'Continue'}
+          </button>
+        </form>
       </div>
-      <style dangerouslySetInnerHTML={{__html: `
-        .no-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-      `}} />
     </div>
+  );
+}
+
+export default function OnboardingPage() {
+  return (
+    <Suspense fallback={null}>
+      <OnboardingInner />
+    </Suspense>
   );
 }

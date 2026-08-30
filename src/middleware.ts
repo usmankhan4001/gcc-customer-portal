@@ -39,6 +39,7 @@ const PROTECTED_PREFIXES = [
   '/support',
   '/checkout',
   '/notifications',
+  '/onboarding',
 ];
 
 export async function middleware(request: NextRequest) {
