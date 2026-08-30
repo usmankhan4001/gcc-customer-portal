@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import BannerHeader from '@/components/portal/BannerHeader';
 
 const COUNTRIES = [
   { name: 'United Kingdom', rate: 0.25 },
@@ -28,30 +29,19 @@ export default function TaxCalculatorPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center">
-      <header className="sticky top-0 w-full bg-white shadow-sm z-10">
-        <div className="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/dashboard" className="text-blue-600 hover:text-blue-800 font-medium flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-            </svg>
-            Back
-          </Link>
-          <h1 className="text-xl font-bold text-gray-800">Tax Savings Calculator</h1>
-          <div className="w-20"></div>
-        </div>
-      </header>
+      <BannerHeader title="TAX CALCULATOR" />
 
-      <main className="flex-1 w-full max-w-lg mx-auto p-6 mt-8">
-        <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+      <main className="flex-1 w-full max-w-lg mx-auto p-4 mt-4">
+        <div className="bg-white rounded-md shadow-sm border border-gray-200">
           
-          <div className="space-y-6">
-            <div>
-              <label htmlFor="country" className="block text-sm font-semibold text-gray-700 mb-2">
-                Your Current Country
+          <div className="p-4 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+              <label htmlFor="country" className="w-40 text-sm font-semibold text-gray-700">
+                Current Country
               </label>
               <select
                 id="country"
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 transition-colors"
+                className="flex-1 px-2 py-1.5 text-sm rounded-md border border-gray-300 focus:ring-1 focus:ring-red-500 focus:border-red-500 bg-gray-50 transition-colors"
                 value={selectedCountry.name}
                 onChange={(e) => {
                   const country = COUNTRIES.find(c => c.name === e.target.value);
@@ -66,18 +56,18 @@ export default function TaxCalculatorPage() {
               </select>
             </div>
 
-            <div>
-              <label htmlFor="profit" className="block text-sm font-semibold text-gray-700 mb-2">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+              <label htmlFor="profit" className="w-40 text-sm font-semibold text-gray-700">
                 Annual Profit ($)
               </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <span className="text-gray-500 font-medium">$</span>
+              <div className="relative flex-1">
+                <div className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+                  <span className="text-gray-500 font-medium text-sm">$</span>
                 </div>
                 <input
                   type="number"
                   id="profit"
-                  className="w-full pl-8 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 transition-colors"
+                  className="w-full pl-6 pr-2 py-1.5 text-sm rounded-md border border-gray-300 focus:ring-1 focus:ring-red-500 focus:border-red-500 bg-gray-50 transition-colors"
                   placeholder="100000"
                   value={profit}
                   onChange={(e) => setProfit(e.target.value === '' ? '' : Number(e.target.value))}
@@ -85,13 +75,13 @@ export default function TaxCalculatorPage() {
               </div>
             </div>
 
-            <div>
-              <label htmlFor="gcc" className="block text-sm font-semibold text-gray-700 mb-2">
-                Compare with GCC Setup
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+              <label htmlFor="gcc" className="w-40 text-sm font-semibold text-gray-700">
+                Compare with
               </label>
               <select
                 id="gcc"
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 transition-colors"
+                className="flex-1 px-2 py-1.5 text-sm rounded-md border border-gray-300 focus:ring-1 focus:ring-red-500 focus:border-red-500 bg-gray-50 transition-colors"
                 value={selectedGcc.name}
                 onChange={(e) => {
                   const gcc = GCC_OPTIONS.find(g => g.name === e.target.value);
@@ -107,31 +97,31 @@ export default function TaxCalculatorPage() {
             </div>
           </div>
 
-          <div className="mt-10 p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
-            <h3 className="text-sm font-semibold text-blue-800 uppercase tracking-wider mb-2">Your Potential Savings</h3>
-            <div className="flex items-baseline space-x-2">
-              <span className="text-4xl font-extrabold text-blue-900">
+          <div className="p-4 bg-red-50 border-t border-red-100">
+            <h3 className="text-xs font-semibold text-red-800 uppercase tracking-wider mb-1">Your Potential Savings</h3>
+            <div className="flex items-baseline space-x-1">
+              <span className="text-2xl font-bold text-red-900">
                 ${taxSaved.toLocaleString(undefined, { maximumFractionDigits: 0 })}
               </span>
-              <span className="text-blue-700 font-medium">/ year</span>
+              <span className="text-red-700 text-sm font-medium">/ year</span>
             </div>
             
-            <div className="mt-4 pt-4 border-t border-blue-200/60 space-y-2">
-              <div className="flex justify-between text-sm">
+            <div className="mt-3 pt-3 border-t border-red-200/60 space-y-1">
+              <div className="flex justify-between text-xs">
                 <span className="text-gray-600">Current Tax ({selectedCountry.name}):</span>
                 <span className="font-semibold text-gray-800">${currentTax.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
               </div>
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between text-xs">
                 <span className="text-gray-600">GCC Tax ({selectedGcc.name}):</span>
                 <span className="font-semibold text-gray-800">${gccTax.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
               </div>
             </div>
           </div>
 
-          <div className="mt-8">
+          <div className="p-4 border-t border-gray-200">
             <Link
               href="/services"
-              className="block w-full bg-blue-600 hover:bg-blue-700 text-white text-center font-bold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5"
+              className="block w-full bg-red-600 hover:bg-red-700 text-white text-center text-sm font-bold py-2 rounded-md shadow hover:shadow-md transition-all"
             >
               Start 0% Tax Setup Now
             </Link>

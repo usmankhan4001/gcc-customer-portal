@@ -48,7 +48,7 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
+    <div className="flex flex-col min-h-screen bg-white">
       <div 
         ref={scrollRef}
         onScroll={handleScroll}
@@ -56,25 +56,25 @@ export default function OnboardingPage() {
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {slides.map((slide, index) => (
-          <div key={slide.id} className="min-w-full h-full flex flex-col items-center justify-center p-6 snap-center">
-            <div className="w-64 h-64 bg-gray-200 rounded-3xl flex items-center justify-center mb-10 shadow-sm">
-              <svg className="w-24 h-24 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <div key={slide.id} className="min-w-full h-full flex flex-col items-center justify-center p-4 snap-center">
+            <div className="w-48 h-48 bg-gray-50 rounded-md flex items-center justify-center mb-6 border border-gray-200">
+              <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
               </svg>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-3 text-center px-4">{slide.headline}</h2>
-            <p className="text-base text-gray-500 text-center px-4 max-w-sm">{slide.subtext}</p>
+            <h2 className="text-xl font-bold text-gray-900 mb-2 text-center">{slide.headline}</h2>
+            <p className="text-sm text-gray-600 text-center max-w-sm">{slide.subtext}</p>
           </div>
         ))}
       </div>
 
-      <div className="p-8 pb-12 flex flex-col items-center bg-white rounded-t-3xl shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
-        <div className="flex space-x-2 mb-8">
+      <div className="p-4 flex flex-col items-center bg-gray-50 border-t border-gray-200">
+        <div className="flex space-x-2 mb-4">
           {slides.map((_, index) => (
             <button 
               key={index} 
               onClick={() => scrollToSlide(index)}
-              className={`h-2 rounded-full transition-all duration-300 ${currentSlide === index ? 'w-6 bg-blue-600' : 'w-2 bg-gray-300'}`}
+              className={`h-1.5 rounded-sm transition-all duration-300 ${currentSlide === index ? 'w-6 bg-red-600' : 'w-2 bg-gray-300'}`}
               aria-label={`Go to slide ${index + 1}`}
             />
           ))}
@@ -84,14 +84,14 @@ export default function OnboardingPage() {
           {currentSlide === slides.length - 1 ? (
             <Link 
               href="/auth"
-              className="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-semibold text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-600 transition-colors"
             >
               Get Started
             </Link>
           ) : (
             <button 
               onClick={() => scrollToSlide(currentSlide + 1)}
-              className="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-semibold text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-600 transition-colors"
             >
               Next
             </button>

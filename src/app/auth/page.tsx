@@ -68,13 +68,13 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8">
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+    <div className="min-h-screen flex items-center justify-center bg-white p-4">
+      <div className="max-w-md w-full border border-gray-200 rounded-md p-6 shadow-sm">
+        <div className="mb-6">
+          <h1 className="text-xl font-bold text-gray-900 mb-1">
             Welcome to GCC Startup
           </h1>
-          <p className="text-gray-600">
+          <p className="text-sm text-gray-600">
             {step === 1 
               ? "Sign in with your WhatsApp number" 
               : "Enter the OTP sent to your WhatsApp"}
@@ -82,7 +82,7 @@ export default function AuthPage() {
         </div>
 
         {error && (
-          <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-md text-sm">
+          <div className="mb-4 p-2 bg-red-50 text-red-700 border border-red-200 rounded-md text-sm">
             {error}
           </div>
         )}
@@ -90,7 +90,7 @@ export default function AuthPage() {
         {step === 1 ? (
           <form onSubmit={handleSendOtp} className="space-y-4">
             <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="phone" className="block text-sm font-semibold text-gray-700 mb-1">
                 WhatsApp Phone Number
               </label>
               <input
@@ -99,17 +99,17 @@ export default function AuthPage() {
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
                 placeholder="+1234567890"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-red-600 focus:border-red-600 outline-none text-sm"
                 disabled={isLoading}
               />
             </div>
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition duration-200 disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center"
+              className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-md transition duration-200 disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center text-sm"
             >
               {isLoading ? (
-                <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
               ) : (
                 "Send OTP"
               )}
@@ -118,7 +118,7 @@ export default function AuthPage() {
         ) : (
           <form onSubmit={handleVerifyOtp} className="space-y-4">
             <div>
-              <label htmlFor="otp" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="otp" className="block text-sm font-semibold text-gray-700 mb-1">
                 6-Digit Code
               </label>
               <input
@@ -128,17 +128,17 @@ export default function AuthPage() {
                 value={otp}
                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
                 placeholder="123456"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition text-center tracking-widest text-lg"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-red-600 focus:border-red-600 outline-none text-center tracking-widest text-lg"
                 disabled={isLoading}
               />
             </div>
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition duration-200 disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center"
+              className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-md transition duration-200 disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center text-sm"
             >
               {isLoading ? (
-                <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
               ) : (
                 "Verify & Login"
               )}

@@ -3,7 +3,7 @@ import BannerHeader from '@/components/portal/BannerHeader';
 import SummaryCard from '@/components/portal/SummaryCard';
 import ServiceTile from '@/components/portal/ServiceTile';
 import PipelineStepTracker from '@/components/portal/PipelineStepTracker';
-import { FileText, Building, Calculator, Search, Receipt, LayoutDashboard } from 'lucide-react';
+import { FileText, Building, Calculator, Search, Receipt, LayoutDashboard, Calendar, Users } from 'lucide-react';
 
 export default function DashboardPage() {
   return (
@@ -53,6 +53,16 @@ export default function DashboardPage() {
             icon={<Receipt className="w-6 h-6 text-red-600" />} 
             title="Invoices" 
             href="/invoices" 
+          />
+          <ServiceTile 
+            icon={<Calendar className="w-6 h-6 text-teal-600" />} 
+            title="Compliance" 
+            href="/tools/compliance-calendar" 
+          />
+          <ServiceTile 
+            icon={<Users className="w-6 h-6 text-pink-600" />} 
+            title="Visa Costs" 
+            href="/tools/visa-estimator" 
           />
           <ServiceTile 
             icon={<LayoutDashboard className="w-6 h-6 text-indigo-600" />} 
