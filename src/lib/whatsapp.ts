@@ -10,6 +10,11 @@ export function getWhatsAppConfig() {
 }
 
 export const HSM_TEMPLATES = {
+  gcc_otp_code: {
+    name: 'gcc_otp_code',
+    language: 'en_US',
+    description: 'GCC Startup Verification OTP Code',
+  },
   order_confirmed: {
     name: 'order_confirmed',
     language: 'en',
@@ -36,6 +41,77 @@ export const HSM_TEMPLATES = {
     description: '⏰ Renewal Reminder: Your {entity} license expires in {days} days. Please renew to avoid service interruption.',
   },
 } as const;
+
+export async function sendWhatsAppOtp(
+  to: string,
+  otpCode: string
+): Promise<{ success: boolean; messageId?: string; error?: any }> {
+  try {
+    const { phoneNumberId, accessToken, isConfigured } = getWhatsAppConfig();
+    if (!isConfigured) {
+      console.warn('[WhatsApp] Credentials not configured in process.env');
+      return { success: false, error: 'Credentials not configured' };
+    }
+
+    const recipient = to.replace(/\D/g, '');
+
+    const response = await fetch(
+      `${GRAPH_API_URL}/${phoneNumberId}/messages`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messaging_product: 'whatsapp',
+          recipient_type: 'individual',
+          to: recipient,
+          type: 'template',
+          template: {
+            name: 'gcc_otp_code',
+            language: { code: 'en_US' },
+            components: [
+              {
+                type: 'body',
+                parameters: [
+                  {
+                    type: 'text',
+                    text: otpCode,
+                  },
+                ],
+              },
+              {
+                type: 'button',
+                sub_type: 'url',
+                index: '0',
+                parameters: [
+                  {
+                    type: 'text',
+                    text: otpCode,
+                  },
+                ],
+              },
+            ],
+          },
+        }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error('[WhatsApp OTP Template Error]:', JSON.stringify(data, null, 2));
+      return { success: false, error: data };
+    }
+
+    const messageId = data.messages?.[0]?.id;
+    return { success: true, messageId };
+  } catch (error) {
+    console.error('Failed to send WhatsApp OTP:', error);
+    return { success: false, error };
+  }
+}
 
 export async function sendWhatsAppMessage(
   to: string,

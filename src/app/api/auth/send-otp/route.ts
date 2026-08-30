@@ -3,7 +3,7 @@ import { randomInt } from 'crypto';
 import { db } from '@/lib/db';
 import { otpCodes } from '@/lib/db/schema';
 import { hashToken } from '@/lib/auth';
-import { sendWhatsAppMessage, sendTextMessage } from '@/lib/whatsapp';
+import { sendWhatsAppOtp, sendTextMessage, sendWhatsAppMessage } from '@/lib/whatsapp';
 
 const OTP_TTL_MINUTES = 10;
 
@@ -52,10 +52,8 @@ export async function POST(request: Request) {
 
     if (isWhatsAppConfigured) {
       try {
-        // Try template message first (Standard Meta WhatsApp OTP template)
-        const result = await sendWhatsAppMessage(whatsappNumber, 'otp_verification', 'en', [
-          { type: 'text', text: otp },
-        ]);
+        // Send official WhatsApp OTP via approved template
+        const result = await sendWhatsAppOtp(whatsappNumber, otp);
         
         if (result.success) {
           sentViaWhatsApp = true;
@@ -68,8 +66,8 @@ export async function POST(request: Request) {
           if (textResult.success) {
             sentViaWhatsApp = true;
           } else {
-            console.warn('[WhatsApp] Both template and text message dispatch failed. Check Meta App Token/Permissions.');
-            whatsAppError = 'Meta WhatsApp API dispatch error. Verify template "otp_verification" is approved in Meta WABA.';
+            console.warn('[WhatsApp] Both template and text message dispatch failed.');
+            whatsAppError = 'Meta WhatsApp API dispatch error';
           }
         }
       } catch (err: any) {
