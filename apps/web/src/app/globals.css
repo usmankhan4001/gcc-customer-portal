@@ -1,0 +1,20 @@
+@import "tailwindcss";
+@import "../styles/tokens.css";
+@import "../styles/components.css";
+@import "../styles/breakpoints.css";
+
+@theme {
+  --color-primary: #2563EB;
+  --color-primary-hover: #1D4ED8;
+  --color-secondary: #F97316;
+  --color-success: #16A34A;
+  --color-warning: #EAB308;
+  --color-danger: #EF4444;
+  --color-text: #0F172A;
+  --color-text-secondary: #64748B;
+  --color-bg: #FFFFFF;
+  --color-bg-secondary: #F8FAFC;
+  --color-border: #E2E8F0;
+  --color-border-hover: #CBD5E1;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+}

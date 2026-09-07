@@ -1,0 +1,154 @@
+/* Offsets and z-indexes here come from the shared fixed-bottom stack in
+   styles/breakpoints.css — this sheet is one of four that anchor something to
+   the bottom of a phone screen, and they have to agree. */
+.cookie-banner {
+  position: fixed;
+  left: var(--space-4);
+  right: var(--space-4);
+  bottom: var(--space-4);
+  z-index: var(--z-cookie-banner);
+  max-width: 1120px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  padding: var(--space-5) var(--space-6);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-prominent);
+}
+
+.cookie-banner-copy { flex: 1; }
+.cookie-banner h2, .cookie-dialog h2 { margin-bottom: var(--space-2); font-size: 20px; }
+.cookie-banner p, .cookie-dialog p { margin: 0; font-size: 14px; line-height: 1.5; }
+.cookie-banner a, .cookie-dialog-links a { color: var(--blue); text-decoration: underline; text-underline-offset: 2px; }
+.cookie-banner-actions, .cookie-dialog-actions { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
+
+.cookie-button {
+  min-height: var(--touch-target);
+  padding: var(--space-2) var(--space-5);
+  border: 2px solid transparent;
+  border-radius: var(--radius-pill);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.cookie-button-primary { color: var(--white); background: var(--accent); }
+.cookie-button-primary:hover { background: var(--accent-hover); }
+.cookie-button-secondary { color: var(--blue); background: var(--surface); border-color: var(--blue); }
+.cookie-button-secondary:hover { background: var(--blue-lt); }
+.cookie-button:focus-visible, .cookie-settings-control:focus-visible, .cookie-dialog-close:focus-visible, .cookie-category input:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 2px;
+}
+
+.cookie-settings-control {
+  position: fixed;
+  left: var(--space-4);
+  bottom: var(--space-4);
+  z-index: var(--z-cookie-settings);
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target);
+  padding: var(--space-2) var(--space-4);
+  color: var(--text-secondary);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-subtle);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.cookie-settings-control:hover { border-color: var(--border-hover); color: var(--text); }
+
+.cookie-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-cookie-dialog);
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+  background: rgba(var(--navy-rgb), .62);
+}
+.cookie-dialog {
+  width: min(620px, 100%);
+  max-height: calc(100vh - var(--space-8));
+  overflow-y: auto;
+  padding: var(--space-8);
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-prominent);
+}
+.cookie-dialog-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-4); }
+.cookie-dialog-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--touch-target);
+  min-height: var(--touch-target);
+  padding: var(--space-2);
+  color: var(--text-tertiary);
+  background: transparent;
+  border: 0;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.cookie-category-list { display: grid; gap: var(--space-3); margin: var(--space-6) 0; }
+.cookie-category {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  padding: var(--space-4);
+  background: var(--surface-alt);
+  border: 1px solid var(--sand-dk);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.cookie-category-copy { flex: 1; display: grid; gap: var(--space-1); }
+.cookie-category-copy strong { color: var(--text); font-family: var(--font-heading); }
+.cookie-category-copy span { color: var(--text-secondary); font-size: 13px; line-height: 1.45; }
+.cookie-category input { width: 22px; height: 22px; flex: 0 0 auto; accent-color: var(--blue); cursor: pointer; }
+.cookie-category input:disabled { cursor: not-allowed; }
+.cookie-dialog-links { display: flex; gap: var(--space-5); margin-bottom: var(--space-6); font-size: 13px; }
+.cookie-dialog-actions { justify-content: flex-end; }
+
+@media (max-width: 900px) {
+  .cookie-banner { align-items: stretch; flex-direction: column; gap: var(--space-4); padding: var(--space-5); }
+  .cookie-banner-actions { display: grid; grid-template-columns: 1fr 1fr; }
+  .cookie-banner-actions .cookie-button-primary { grid-column: 1 / -1; grid-row: 1; }
+  .cookie-dialog { padding: var(--space-5); }
+  .cookie-dialog-actions { display: grid; grid-template-columns: 1fr; }
+}
+
+@media (max-width: 640px) {
+  /* Below 640px .mobile-cta-bar occupies the bottom of the screen, so both of
+     these clear it by the shared stack offset instead of their own guesses. */
+  .cookie-banner { bottom: var(--cta-bar-stack-top); }
+  .cookie-settings-control { bottom: var(--cta-bar-stack-top); }
+  .cookie-banner-actions { grid-template-columns: 1fr; }
+  .cookie-banner-actions .cookie-button-primary { grid-column: auto; }
+  .cookie-dialog-heading { gap: var(--space-2); }
+  .cookie-category { align-items: flex-start; }
+}
+
+/* ─── Bottom-stack conflict resolution ───────────────────────────────────────
+   The consent banner spans the full width just above the CTA bar, which is
+   exactly where the floating WhatsApp bubble lives. Previously the banner's
+   higher z-index simply covered the bubble, leaving a visible but dead control.
+
+   Consent is an interrupt the visitor has to answer, so it wins outright: the
+   WhatsApp widget stands down until a choice is recorded, then reappears. The
+   banner unmounts on choice, so this reverses itself with no JS.
+
+   :has() is unsupported on pre-2022 browsers, where this rule is simply
+   dropped and the behaviour is today's — covered bubble, no regression. */
+body:has(.cookie-banner) .wa-bubble,
+body:has(.cookie-banner) .wa-panel {
+  display: none;
+}

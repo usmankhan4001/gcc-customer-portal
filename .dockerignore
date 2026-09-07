@@ -1,0 +1,17 @@
+node_modules
+.next
+dist
+.git
+.env
+.env.local
+.env.production
+*.md
+!README.md
+docs/
+archive/
+tests/
+*.test.ts
+*.test.tsx
+.vitest
+coverage/
+.turbo

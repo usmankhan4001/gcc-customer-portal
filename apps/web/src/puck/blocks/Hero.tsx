@@ -1,0 +1,121 @@
+import type { ComponentConfig } from '@puckeditor/core'
+import { ButtonLink, Eyebrow, PhotoHero, MarkedText } from '@/components/ui'
+import {
+  styleFields,
+  defaultStyleProps,
+  type StyleProps,
+  getSectionStyle,
+  getSectionClassName,
+  getContainerClassName,
+} from '@/puck/fields/styleFields'
+import { createMediaPickerField } from '@/components/admin/MediaPickerModal'
+
+export type HeroProps = {
+  eyebrow: string
+  title: string
+  titleHighlight: string
+  description: string
+  primaryCta: string
+  primaryCtaLink: string
+  secondaryCta: string
+  secondaryCtaLink: string
+  proofPoints: Array<{ num: string; label: string }>
+  image: string
+} & StyleProps
+
+const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1663768266259-d723cfbe969b?fm=jpg&q=80&w=2000&auto=format&fit=crop'
+
+export const Hero: ComponentConfig<HeroProps> = {
+  fields: {
+    eyebrow: { type: 'text' },
+    title: { type: 'text' },
+    titleHighlight: { type: 'text', label: 'Underline this phrase in the title' },
+    description: { type: 'textarea' },
+    primaryCta: { type: 'text' },
+    primaryCtaLink: { type: 'text' },
+    secondaryCta: { type: 'text' },
+    secondaryCtaLink: { type: 'text' },
+    proofPoints: {
+      type: 'array',
+      arrayFields: { num: { type: 'text' }, label: { type: 'text' } },
+      max: 4,
+    },
+    image: createMediaPickerField('Background Image'),
+    ...styleFields,
+  },
+  defaultProps: {
+    ...defaultStyleProps,
+    bgPreset: 'dark',
+    eyebrow: 'Company Formation · Global Banking · Tax Residency',
+    title: 'Legally pay 0% tax. Bank globally. Own 100%.',
+    titleHighlight: '0% tax',
+    description:
+      'Launch your company in the UAE, Bahrain, Hong Kong & beyond — with real bank accounts, full privacy, and total ownership.',
+    primaryCta: 'Start My Company Today',
+    primaryCtaLink: '#lead-form',
+    secondaryCta: '',
+    secondaryCtaLink: '',
+    proofPoints: [
+      { num: '15+', label: 'Jurisdictions' },
+      { num: '500+', label: 'Companies registered' },
+      { num: '48h', label: 'Fastest setup' },
+    ],
+    image: DEFAULT_IMAGE,
+  },
+  render: (props) => {
+    const { eyebrow, title, titleHighlight, description, primaryCta, primaryCtaLink, secondaryCta, secondaryCtaLink, proofPoints, image, maxWidth } = props
+    const heroImage = image || DEFAULT_IMAGE
+    const sectionStyle = getSectionStyle(props)
+    const sectionClassName = getSectionClassName(props, 'hero-section')
+    const containerClass = getContainerClassName(maxWidth)
+
+    return (
+      <div className={sectionClassName} style={sectionStyle}>
+        <PhotoHero image={heroImage}>
+          <div
+            className={`${containerClass} reveal`}
+            style={{
+              padding: 'clamp(var(--space-10), 4vw, var(--space-16)) 0',
+              maxWidth: maxWidth === 'narrow' ? '780px' : maxWidth === 'full' ? '100%' : '900px',
+            }}
+          >
+            {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
+            <h1 style={{ color: 'var(--white)' }}>
+              <MarkedText text={title} highlight={titleHighlight} />
+            </h1>
+            {description && <p style={{ marginTop: 'var(--space-4)', fontSize: 18, color: 'rgba(255,255,255,.85)' }}>{description}</p>}
+            <div className="flex-wrap" style={{ marginTop: 'var(--space-8)' }}>
+              {primaryCta && (
+                <ButtonLink href={primaryCtaLink || '#'} shimmer>
+                  {primaryCta}
+                </ButtonLink>
+              )}
+              {secondaryCta && (
+                <ButtonLink href={secondaryCtaLink || '#'} variant="outline" style={{ borderColor: 'rgba(255,255,255,.7)', color: 'var(--white)' }}>
+                  {secondaryCta}
+                </ButtonLink>
+              )}
+            </div>
+            {proofPoints?.length > 0 && (
+              <div
+                style={{
+                  display: 'flex',
+                  gap: 'clamp(var(--space-4), 3vw, var(--space-8))',
+                  marginTop: 'clamp(var(--space-8), 4vw, var(--space-12))',
+                  flexWrap: 'wrap',
+                }}
+              >
+                {proofPoints.map((p, i) => (
+                  <div key={i} style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: 'clamp(22px, 3vw, 32px)', fontWeight: 900, color: 'var(--orange)' }}>{p.num}</div>
+                    <div style={{ fontSize: 'clamp(11px, 1.2vw, 13px)', color: 'rgba(255,255,255,.75)', fontWeight: 600 }}>{p.label}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </PhotoHero>
+      </div>
+    )
+  },
+}
