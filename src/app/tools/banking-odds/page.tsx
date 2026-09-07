@@ -105,8 +105,8 @@ export default function BankingOddsMatcher() {
           <button
             onClick={handleCalculate}
             disabled={!nationality || !industry || !turnover}
-            className="w-full bg-primary hover:bg-primary-700 text-white text-sm font-semibold py-2.5 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
-          >
+className="w-full bg-cta hover:bg-cta-600 text-cta-foreground text-sm font-semibold py-2.5 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                >
             Calculate Approval Odds
           </button>
         </div>
@@ -141,7 +141,7 @@ export default function BankingOddsMatcher() {
               </p>
               <Link
                 href="/services"
-                className="inline-block bg-primary hover:bg-primary-700 text-white text-xs font-semibold py-2.5 px-6 rounded-lg transition-colors shadow-sm"
+                className="inline-block bg-cta hover:bg-cta-600 text-cta-foreground text-xs font-semibold py-2.5 px-6 rounded-lg transition-colors shadow-sm"
               >
                 Explore Banking Concierge
               </Link>

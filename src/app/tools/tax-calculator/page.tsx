@@ -135,7 +135,7 @@ export default function TaxCalculator() {
           <button
             type="submit"
             disabled={loading || !annualProfit}
-            className="w-full bg-primary hover:bg-primary-700 disabled:opacity-60 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 text-xs shadow-sm"
+            className="w-full bg-cta hover:bg-cta-600 disabled:opacity-60 text-cta-foreground font-semibold py-2.5 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 text-xs shadow-sm"
           >
             {loading ? <CircleNotch className="w-4 h-4 animate-spin" /> : <TrendDown className="w-4 h-4" />}
             {loading ? 'Calculating Taxes...' : 'Calculate Potential Savings'}

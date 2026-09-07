@@ -28,7 +28,7 @@ export default function Error({
         <div className="flex gap-2 justify-center">
           <button
             onClick={() => reset()}
-            className="flex items-center gap-1.5 bg-primary hover:bg-primary/90 text-white text-sm font-semibold px-4 py-2 rounded-md transition-colors"
+            className="flex items-center gap-1.5 bg-cta hover:bg-cta/90 text-cta-foreground text-sm font-semibold px-4 py-2 rounded-md transition-colors"
           >
             <ArrowClockwise size={14} />
             Try Again

@@ -122,7 +122,7 @@ Authorized Signatory                         Authorized Signatory`;
               <button
                 type="submit"
                 disabled={!yourCompany || !otherParty}
-                className="w-full mt-2 bg-primary text-white text-xs font-semibold py-2.5 px-4 rounded-lg shadow-sm hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="w-full mt-2 bg-cta text-cta-foreground text-xs font-semibold py-2.5 px-4 rounded-lg shadow-sm hover:bg-cta-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 Generate Mutual NDA
               </button>
@@ -146,7 +146,7 @@ Authorized Signatory                         Authorized Signatory`;
                   </button>
                   <button
                     onClick={() => window.print()}
-                    className="flex items-center gap-1.5 bg-primary hover:bg-primary-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors shadow-xs"
+                    className="flex items-center gap-1.5 bg-cta hover:bg-cta-600 text-cta-foreground text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors shadow-xs"
                   >
                     <Printer className="w-3.5 h-3.5" />
                     Print Agreement

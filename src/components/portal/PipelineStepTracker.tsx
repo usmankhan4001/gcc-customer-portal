@@ -15,7 +15,7 @@ export default function PipelineStepTracker({ steps, currentStep }: PipelineStep
 
         {/* Active Progress Line */}
         <div
-          className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-primary z-0 transition-all duration-300 rounded"
+          className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-cta z-0 transition-all duration-300 rounded"
           style={{ width: `${(Math.max(0, Math.min(currentStep, steps.length - 1)) / Math.max(1, steps.length - 1)) * 100}%` }}
         ></div>
 
@@ -29,8 +29,8 @@ export default function PipelineStepTracker({ steps, currentStep }: PipelineStep
               {/* Step Node */}
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors duration-300
-                  ${isCompleted ? 'bg-primary text-white border-2 border-primary' : ''}
-                  ${isCurrent ? 'bg-white text-primary border-2 border-primary' : ''}
+                  ${isCompleted ? 'bg-cta text-cta-foreground border-2 border-cta' : ''}
+                  ${isCurrent ? 'bg-white text-cta border-2 border-cta' : ''}
                   ${isFuture ? 'bg-white text-gray-400 border-2 border-gray-300' : ''}
                 `}
               >

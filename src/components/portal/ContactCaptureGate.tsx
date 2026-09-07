@@ -74,7 +74,7 @@ export default function ContactCaptureGate({ title, subtitle, onCapture }: Conta
         <button
           type="submit"
           disabled={submitting}
-          className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary-700 disabled:opacity-60 text-white text-sm font-semibold py-2.5 px-4 rounded-md transition-colors"
+          className="w-full flex items-center justify-center gap-2 bg-cta hover:bg-cta-600 disabled:opacity-60 text-cta-foreground text-sm font-semibold py-2.5 px-4 rounded-md transition-colors"
         >
           {submitting ? <CircleNotch className="w-4 h-4 animate-spin" /> : null}
           {submitting ? 'Sending...' : 'Show my result'}

@@ -96,7 +96,7 @@ export default function QFZPEligibilityChecker() {
 
             <button
               type="submit"
-              className="w-full bg-primary hover:bg-primary-700 text-white font-semibold py-2.5 px-4 rounded-lg text-xs transition-colors shadow-sm"
+              className="w-full bg-cta hover:bg-cta-600 text-cta-foreground font-semibold py-2.5 px-4 rounded-lg text-xs transition-colors shadow-sm"
             >
               Evaluate 0% Tax Eligibility
             </button>

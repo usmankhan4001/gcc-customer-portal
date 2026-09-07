@@ -84,14 +84,14 @@ export default function AdminDashboard() {
       <header className="bg-white border-b border-slate-200 px-6 py-4 flex-shrink-0">
         <div className="flex justify-between items-center max-w-[1600px] mx-auto w-full">
           <div>
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight">Operations Dashboard</h1>
+            <h1 className="text-xl font-bold text-primary tracking-tight">Operations Dashboard</h1>
             <p className="text-sm text-slate-500 mt-1">Manage company formation orders across jurisdictions.</p>
           </div>
           <div className="flex items-center space-x-3">
             <button className="px-3 py-2 bg-white border border-slate-300 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 transition-colors shadow-sm">
               Filter
             </button>
-            <button className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
+            <button className="px-4 py-2 bg-cta text-cta-foreground text-sm font-semibold rounded-lg hover:bg-cta-600 transition-colors shadow-sm">
               + New Order
             </button>
           </div>

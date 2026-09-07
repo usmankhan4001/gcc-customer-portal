@@ -75,7 +75,7 @@ export default function NameChecker() {
             <button
               onClick={handleCheck}
               disabled={!name.trim()}
-              className="py-2.5 px-6 rounded-lg text-xs font-semibold text-white bg-primary hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm whitespace-nowrap"
+              className="py-2.5 px-6 rounded-lg text-xs font-semibold text-cta-foreground bg-cta hover:bg-cta-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm whitespace-nowrap"
             >
               Check Availability
             </button>

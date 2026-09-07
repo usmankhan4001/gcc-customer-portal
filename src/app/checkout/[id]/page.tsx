@@ -356,7 +356,7 @@ export default function CheckoutWizard({ params }: { params: Promise<{ id: strin
                       type="button"
                       onClick={handleVerifyOtp}
                       disabled={verifyingOtp || otp.length !== 6}
-                      className="px-5 py-2 bg-primary hover:bg-primary-700 disabled:opacity-60 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5"
+                      className="px-5 py-2 bg-cta hover:bg-cta-600 disabled:opacity-60 text-cta-foreground text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5"
                     >
                       {verifyingOtp ? <CircleNotch className="w-3.5 h-3.5 animate-spin" /> : 'Verify Code'}
                     </button>

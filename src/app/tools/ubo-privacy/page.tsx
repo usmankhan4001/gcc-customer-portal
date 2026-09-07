@@ -113,7 +113,7 @@ export default function UBOPrivacyChecker() {
 
             <button
               type="submit"
-              className="w-full mt-2 bg-primary hover:bg-primary-700 text-white text-xs font-semibold py-2.5 px-4 rounded-lg transition-colors shadow-sm"
+              className="w-full mt-2 bg-cta hover:bg-cta-600 text-cta-foreground text-xs font-semibold py-2.5 px-4 rounded-lg transition-colors shadow-sm"
             >
               Analyze Public Exposure Risk
             </button>

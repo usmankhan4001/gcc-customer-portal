@@ -53,7 +53,7 @@ export default async function SharedDocumentPage({ params }: { params: Promise<{
         <p className="text-sm text-gray-500 mb-6">Shared securely via GCCStartup Vault.</p>
         <a
           href={downloadUrl}
-          className="inline-block w-full bg-primary hover:bg-primary-700 text-white text-sm font-bold py-2.5 px-4 rounded-md transition-colors"
+          className="inline-block w-full bg-cta hover:bg-cta-600 text-cta-foreground text-sm font-bold py-2.5 px-4 rounded-md transition-colors"
         >
           Download
         </a>

@@ -103,7 +103,7 @@ export default function WelcomeCarouselPage() {
             <>
               <Link
                 href="/onboarding"
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-primary hover:bg-primary-700 focus:outline-none transition-colors"
+                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-cta-foreground bg-cta hover:bg-cta-600 focus:outline-none transition-colors"
               >
                 Get Started & Register
               </Link>
@@ -118,7 +118,7 @@ export default function WelcomeCarouselPage() {
             <button
               type="button"
               onClick={() => scrollToSlide(currentSlide + 1)}
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-primary hover:bg-primary-700 focus:outline-none transition-colors"
+              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-cta-foreground bg-cta hover:bg-cta-600 focus:outline-none transition-colors"
             >
               Next
             </button>

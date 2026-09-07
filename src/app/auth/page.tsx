@@ -221,7 +221,7 @@ function AuthPageInner() {
                 <button
                   type="submit"
                   disabled={isLoading || otp.length !== 6}
-                  className="w-full bg-primary hover:bg-primary-700 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors disabled:opacity-60 flex justify-center items-center gap-2 text-sm shadow-sm"
+                  className="w-full bg-cta hover:bg-cta-600 text-cta-foreground font-semibold py-2.5 px-4 rounded-lg transition-colors disabled:opacity-60 flex justify-center items-center gap-2 text-sm shadow-sm"
                 >
                   {isLoading ? <CircleNotch className="w-4 h-4 animate-spin" /> : "Verify & Sign In"}
                 </button>
@@ -280,7 +280,7 @@ function AuthPageInner() {
             <button
               type="submit"
               disabled={isLoading || !identifier || !password}
-              className="w-full bg-primary hover:bg-primary-700 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors disabled:opacity-60 flex justify-center items-center gap-2 text-sm shadow-sm"
+              className="w-full bg-cta hover:bg-cta-600 text-cta-foreground font-semibold py-2.5 px-4 rounded-lg transition-colors disabled:opacity-60 flex justify-center items-center gap-2 text-sm shadow-sm"
             >
               {isLoading ? <CircleNotch className="w-4 h-4 animate-spin" /> : "Sign In with Password"}
             </button>

@@ -17,16 +17,18 @@ import {
   ArrowLeft,
   CircleNotch,
   CheckCircle,
+  Bank,
 } from '@phosphor-icons/react';
 import PhoneInputWithCountry from '@/components/ui/PhoneInputWithCountry';
 import CountrySelect from '@/components/ui/CountrySelect';
 
 const OBJECTIVES = [
-  { value: 'tax_optimization', label: 'Tax Optimization', desc: '0% - 9% corporate tax & zero personal income tax', icon: TrendUp },
-  { value: 'banking_access', label: 'Global Banking', desc: 'Tier-1 corporate & multi-currency bank accounts', icon: Buildings },
-  { value: 'relocation', label: 'Physical Relocation', desc: 'Investor & Golden Visas for founder and family', icon: GlobeHemisphereWest },
-  { value: 'privacy', label: 'Asset Protection', desc: 'Nominee directorships & discrete holding structures', icon: EyeSlash },
-  { value: 'exploring', label: 'Exploring Options', desc: 'Evaluating the best jurisdiction for your business model', icon: Compass },
+  { value: 'company_registration', label: 'Register a New Company', desc: 'Full formation in UAE, Hong Kong, Singapore, Bahrain & more', icon: Buildings },
+  { value: 'tax_optimization', label: 'Tax Optimization / Relocation', desc: '0% corporate tax structures & physical GCC relocation', icon: TrendUp },
+  { value: 'banking_access', label: 'Open a Bank Account', desc: 'Tier-1 corporate & multi-currency accounts for existing entities', icon: Bank },
+  { value: 'bookkeeping', label: 'Bookkeeping & Tax Accounting', desc: 'I already have a company and need ongoing compliance support', icon: ShieldCheck },
+  { value: 'privacy', label: 'Asset Protection & Privacy', desc: 'Nominee directorships & discrete holding structures', icon: EyeSlash },
+  { value: 'exploring', label: 'Just Exploring Options', desc: 'Evaluating the best jurisdiction for my business model', icon: Compass },
 ];
 
 const BUDGET_BANDS = [
@@ -58,7 +60,7 @@ function OnboardingWizard() {
   const [countryOfResidence, setCountryOfResidence] = useState('United Arab Emirates');
 
   // Step 2: Objectives & Scale
-  const [goal, setGoal] = useState('tax_optimization');
+  const [goal, setGoal] = useState('company_registration');
   const [budgetBand, setBudgetBand] = useState('50k_150k');
   const [timeline, setTimeline] = useState('asap');
   const [wantsRelocation, setWantsRelocation] = useState(false);
@@ -388,7 +390,7 @@ function OnboardingWizard() {
               <button
                 type="button"
                 onClick={nextStep}
-                className="ml-auto px-5 py-2.5 bg-primary hover:bg-primary-700 text-white text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 shadow-sm"
+                className="ml-auto px-5 py-2.5 bg-cta hover:bg-cta-600 text-cta-foreground text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 shadow-sm"
               >
                 Continue
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -398,7 +400,7 @@ function OnboardingWizard() {
                 type="button"
                 onClick={() => handleFinalSubmit()}
                 disabled={loading || !password || password.length < 6}
-                className="ml-auto px-5 py-2.5 bg-primary hover:bg-primary-700 disabled:opacity-60 text-white text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 shadow-sm"
+                className="ml-auto px-5 py-2.5 bg-cta hover:bg-cta-600 disabled:opacity-60 text-cta-foreground text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 shadow-sm"
               >
                 {loading ? (
                   <>

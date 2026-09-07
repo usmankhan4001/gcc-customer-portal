@@ -30,7 +30,7 @@ export async function sendWelcomeEmail(
         <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
         <body style="margin:0;padding:0;background:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
           <div style="max-width:560px;margin:40px auto;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.1);">
-            <div style="background:#0d9488;padding:32px;text-align:center;">
+            <div style="background:#0A2540;padding:32px;text-align:center;">
               <h1 style="color:#fff;font-size:24px;margin:0;">Welcome to GCC Startup</h1>
             </div>
             <div style="padding:32px;">
@@ -48,7 +48,7 @@ export async function sendWelcomeEmail(
               </ol>
               <div style="text-align:center;margin:32px 0;">
                 <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard"
-                   style="display:inline-block;background:#0d9488;color:#fff;padding:12px 32px;border-radius:6px;text-decoration:none;font-weight:600;font-size:16px;">
+                   style="display:inline-block;background:#C9A84C;color:#0A2540;padding:12px 32px;border-radius:6px;text-decoration:none;font-weight:600;font-size:16px;">
                   Go to Dashboard
                 </a>
               </div>
@@ -260,14 +260,14 @@ export async function sendToolResultEmail(
         <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
         <body style="margin:0;padding:0;background:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
           <div style="max-width:560px;margin:40px auto;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.1);">
-            <div style="background:#F26522;padding:32px;text-align:center;">
+            <div style="background:#0A2540;padding:32px;text-align:center;">
               <h1 style="color:#fff;font-size:22px;margin:0;">${title}</h1>
             </div>
             <div style="padding:32px;text-align:center;">
               <p style="font-size:16px;color:#18181b;line-height:1.6;">Your result is ready.</p>
               <div style="margin:32px 0;">
                 <a href="${downloadUrl}"
-                   style="display:inline-block;background:#F26522;color:#fff;padding:12px 32px;border-radius:6px;text-decoration:none;font-weight:600;font-size:16px;">
+                   style="display:inline-block;background:#C9A84C;color:#0A2540;padding:12px 32px;border-radius:6px;text-decoration:none;font-weight:600;font-size:16px;">
                   Download PDF
                 </a>
               </div>

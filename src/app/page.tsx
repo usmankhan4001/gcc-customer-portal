@@ -16,7 +16,7 @@ export default function WelcomeScreen() {
       <div className="w-full max-w-md mx-auto pb-6">
         <Link
           href="/welcome"
-          className="block w-full text-center bg-primary hover:bg-primary-700 text-white font-semibold py-3.5 px-6 rounded-xl shadow-md transition duration-200 text-base"
+          className="block w-full text-center bg-cta hover:bg-cta-600 text-cta-foreground font-semibold py-3.5 px-6 rounded-xl shadow-md transition duration-200 text-base"
         >
           Launch Your Business
         </Link>

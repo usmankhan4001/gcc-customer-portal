@@ -353,6 +353,24 @@ export const otpCodes = pgTable('otp_codes', {
 });
 
 // ---------------------------------------------------------------------------
+// referrals (Affiliate/Referral Tracker)
+// ---------------------------------------------------------------------------
+
+export const referrals = pgTable('referrals', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  referrer_user_id: uuid('referrer_user_id').references(() => users.id).notNull(),
+  referred_email: text('referred_email'),
+  referred_name: text('referred_name'),
+  status: text('status', {
+    enum: ['sent', 'signed_up', 'paid'],
+  }).default('sent').notNull(),
+  commission_amount: integer('commission_amount'), // cents
+  referred_user_id: uuid('referred_user_id').references(() => users.id),
+  note: text('note'),
+  created_at: timestamp('created_at').defaultNow().notNull(),
+});
+
+// ---------------------------------------------------------------------------
 // Relations
 // ---------------------------------------------------------------------------
 
@@ -402,6 +420,7 @@ export type PushSubscription = typeof pushSubscriptions.$inferSelect;
 export type PromoBanner = typeof promoBanners.$inferSelect;
 export type Lead = typeof leads.$inferSelect;
 export type OtpCode = typeof otpCodes.$inferSelect;
+export type Referral = typeof referrals.$inferSelect;
 export type DocumentVersion = typeof documentVersions.$inferSelect;
 export type ShareableLink = typeof shareableLinks.$inferSelect;
 export type DocumentAccessLog = typeof documentAccessLog.$inferSelect;
