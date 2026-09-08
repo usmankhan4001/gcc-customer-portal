@@ -53,8 +53,11 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder /app/drizzle ./drizzle
 COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
 
-# drizzle-kit is run via npx in the entrypoint so it auto-resolves the correct
-# version and doesn't need to be pre-installed in the minimal runner image.
+# Copy drizzle-kit (devDependency) from the full node_modules into the
+# standalone node_modules so migrations work at runtime. The runner's
+# node_modules already contains drizzle-orm (production dep) which
+# drizzle-kit needs as a peer.
+COPY --from=builder /app/node_modules/drizzle-kit /app/node_modules/drizzle-kit
 
 COPY docker-entrypoint.sh ./docker-entrypoint.sh
 
