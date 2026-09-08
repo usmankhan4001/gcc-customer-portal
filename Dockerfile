@@ -5,9 +5,6 @@ FROM node:20-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json* .npmrc* ./
 RUN npm ci
-# Pre-install esbuild native binaries for both x86_64 and arm64 so migrations
-# work regardless of the deploy host architecture.
-RUN npm install @esbuild/linux-x64 @esbuild/linux-arm64 @esbuild/linux-arm64-musl 2>/dev/null || true
 
 # ─── builder: build the Next.js app ────────────────────────────────────────────
 FROM node:20-alpine AS builder
@@ -56,18 +53,8 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder /app/drizzle ./drizzle
 COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
 
-# Copy drizzle-kit with all its transitive dependencies from the full
-# node_modules into the standalone node_modules so migrations work.
-# Drizzle-kit@0.31.10 needs: brocli, esbuild-loader, esbuild, tsx, drizzle-orm
-COPY --from=builder /app/node_modules/drizzle-kit /app/node_modules/drizzle-kit
-COPY --from=builder /app/node_modules/@drizzle-team /app/node_modules/@drizzle-team
-COPY --from=builder /app/node_modules/@esbuild-kit /app/node_modules/@esbuild-kit
-COPY --from=builder /app/node_modules/esbuild /app/node_modules/esbuild
-COPY --from=builder /app/node_modules/@esbuild /app/node_modules/@esbuild
-COPY --from=builder /app/node_modules/tsx /app/node_modules/tsx
-COPY --from=builder /app/node_modules/.bin/drizzle-kit /app/node_modules/.bin/drizzle-kit
-COPY --from=builder /app/node_modules/.bin/tsx /app/node_modules/.bin/tsx
-COPY --from=builder /app/node_modules/.bin/esbuild /app/node_modules/.bin/esbuild
+# drizzle-kit is run via npx in the entrypoint, which auto-installs with
+# its peer dep drizzle-orm. No need to pre-install or copy into the runner.
 
 COPY docker-entrypoint.sh ./docker-entrypoint.sh
 
