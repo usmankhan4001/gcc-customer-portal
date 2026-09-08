@@ -53,9 +53,8 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder /app/drizzle ./drizzle
 COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
 
-# Install ONLY drizzle-kit + its minimal deps for migrations in the runner.
-# This is much faster than copying the entire 300MB+ node_modules tree.
-RUN npm install --no-save drizzle-kit@latest 2>/dev/null || true
+# drizzle-kit is run via npx in the entrypoint so it auto-resolves the correct
+# version and doesn't need to be pre-installed in the minimal runner image.
 
 COPY docker-entrypoint.sh ./docker-entrypoint.sh
 
