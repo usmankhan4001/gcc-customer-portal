@@ -53,11 +53,17 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder /app/drizzle ./drizzle
 COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
 
-# Copy drizzle-kit (devDependency) from the full node_modules into the
-# standalone node_modules so migrations work at runtime. The runner's
-# node_modules already contains drizzle-orm (production dep) which
-# drizzle-kit needs as a peer.
+# Copy drizzle-kit with all its transitive dependencies from the full
+# node_modules into the standalone node_modules so migrations work.
+# Drizzle-kit@0.31.10 needs: brocli, esbuild-loader, esbuild, tsx, drizzle-orm
 COPY --from=builder /app/node_modules/drizzle-kit /app/node_modules/drizzle-kit
+COPY --from=builder /app/node_modules/@drizzle-team /app/node_modules/@drizzle-team
+COPY --from=builder /app/node_modules/@esbuild-kit /app/node_modules/@esbuild-kit
+COPY --from=builder /app/node_modules/esbuild /app/node_modules/esbuild
+COPY --from=builder /app/node_modules/tsx /app/node_modules/tsx
+COPY --from=builder /app/node_modules/.bin/drizzle-kit /app/node_modules/.bin/drizzle-kit
+COPY --from=builder /app/node_modules/.bin/tsx /app/node_modules/.bin/tsx
+COPY --from=builder /app/node_modules/.bin/esbuild /app/node_modules/.bin/esbuild
 
 COPY docker-entrypoint.sh ./docker-entrypoint.sh
 
