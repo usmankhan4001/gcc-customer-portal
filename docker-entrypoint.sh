@@ -12,5 +12,9 @@ elif [ -f .env ]; then
   set +a
 fi
 
+# Run database migrations before starting the server
+echo "Running database migrations..."
+npx drizzle-kit migrate 2>&1 || echo "Migration failed (non-fatal, server will still start)"
+
 echo "Starting Next.js Server on port 3005..."
 exec node server.js
