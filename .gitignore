@@ -42,3 +42,6 @@ npm-debug.log*
 
 # Embedded separate project (own repo), archived — see _archived/TrustGate/
 _archived/TrustGate/
+
+# FDE pipeline run logs
+.fde/
