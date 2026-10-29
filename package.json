@@ -10,7 +10,10 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "tsx scripts/seed.ts",
-    "test:routes": "node scripts/test-routes.js"
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "test:routes": "node scripts/test-routes.js",
+    "verify": "npm run typecheck && npm test && npm run build"
   },
   "dependencies": {
     "@ark-ui/react": "^5.39.1",
@@ -69,7 +72,8 @@
     "sharp": "^0.35.4",
     "tailwindcss": "^4.3.3",
     "tsx": "^4.19.2",
-    "typescript": "^5.8.2"
+    "typescript": "^5.8.2",
+    "vitest": "^3.2.7"
   },
   "allowScripts": {
     "shadcn": "true"

@@ -1,0 +1,16 @@
+# Local Postgres for development and agent runs: docker compose -f docker-compose.dev.yml up -d
+# Then set DATABASE_URL=postgresql://gcc:gcc@localhost:5433/gccstartup in .env.local,
+# run `npm run db:migrate && npm run db:seed`.
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: gcc
+      POSTGRES_PASSWORD: gcc
+      POSTGRES_DB: gccstartup
+    ports:
+      - "5433:5432"
+    volumes:
+      - gcc-dev-db:/var/lib/postgresql/data
+volumes:
+  gcc-dev-db:

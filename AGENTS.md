@@ -119,11 +119,31 @@ The platform operates on a **hybrid conversion model**:
 
 ---
 
+### 5. Human-approval zones (agents: stop and ask before editing)
+Changes to these need an explicit human OK in the spec or PR description:
+* **Auth & sessions**: `src/lib/auth.ts`, `src/lib/admin-auth.ts`, `src/lib/session.ts`, `src/middleware.ts`.
+* **Money**: `src/lib/stripe.ts`, `src/app/api/checkout/**`, Stripe webhook handlers (must stay idempotent).
+* **Document access**: `src/lib/r2.ts`, `src/app/api/vault/**` (documents stay private; presigned URLs only).
+* **Schema**: any destructive migration (drop/rename column or table). Additive, backward-compatible changes are fine.
+* **Deploy**: `Dockerfile`, `docker-entrypoint.sh`, `.github/workflows/**`.
+* Never read or commit `.env.local`; add new variables to `.env.example`.
+
+### 6. Spec-driven workflow
+1. Non-trivial features start as a spec copied from `docs/specs/_TEMPLATE.md` (acceptance criteria required).
+2. Implement on a branch, one spec per PR. Add or update tests that prove each acceptance criterion.
+3. Pure logic goes in `src/lib/**` with a sibling `*.test.ts` (vitest).
+4. `npm run verify` must pass; CI runs the same command on every PR.
+
+---
+
 ## 4. Verification & Testing Commands
 
 Always run these commands before submitting changes:
 
 ```bash
+# 0. One command: typecheck + unit tests + build (same as CI)
+npm run verify
+
 # 1. Typecheck and build verification (all routes must pass cleanly)
 npm run build
 
