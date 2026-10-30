@@ -13,7 +13,7 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "test:routes": "node scripts/test-routes.js",
-    "verify": "npm run typecheck && npm test && npm run build",
+    "verify": "npm run docs:ai && npm run typecheck && npm test && npm run build",
     "docs:ai": "node scripts/fde/codemap.mjs",
     "fde": "node scripts/fde/run.mjs"
   },

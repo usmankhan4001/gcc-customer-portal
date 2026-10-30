@@ -21,8 +21,8 @@
 - [ ] AC3: Share tokens are stored as a SHA-256 hash; the raw token is returned once at creation. Existing links keep working or are invalidated with a documented migration choice.
 - [ ] AC4: Owner can revoke a share link (`DELETE`/`POST` revoke endpoint, owner-only); a revoked or expired link returns 404 on the shared page and the access log records the attempt.
 - [ ] AC5: Optional password on a share link, stored hashed, checked before any presigned URL is issued.
-- [ ] AC6: A failed migration makes the container exit non-zero (deploy fails visibly) instead of starting the server.
-- [ ] AC7: `/api/admin/kyc/review` uses `requireAdmin()` (admin and super_admin), cookie-based; its behavior is otherwise unchanged and the stub status stays documented.
+- [x] AC6: moved to and shipped in spec 006 (fail-fast migrations).
+- [x] AC7: moved to and shipped in spec 006 (kyc/review uses requireAdmin).
 
 ## Touches
 - Schema: `documents.status` gains `pending` (TS-only text enum; confirm no DB check constraint), `shareable_links.token_hash`, `revoked_at`, `password_hash` (additive; migration backfills hashes if keeping old links).

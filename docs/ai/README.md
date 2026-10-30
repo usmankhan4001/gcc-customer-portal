@@ -14,7 +14,7 @@ Docs written for AI agents (and humans reading over their shoulder). Keep them s
 ## Truth rules
 - Code beats docs. If they disagree, fix the doc in the same change.
 - `CODEMAP.md` is generated; run `npm run docs:ai`. Never hand-edit it.
-- A feature is not done until `docs/ai/features/<slug>.md` exists and is listed in `FEATURES.md`.
+- A feature is not done until `docs/ai/features/<slug>.md` exists. `FEATURES.md` and `CODEMAP.md` are generated (git-ignored): run `npm run docs:ai` after a fresh clone.
 
 ## The FDE loop (local)
 ```

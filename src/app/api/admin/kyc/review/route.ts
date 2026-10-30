@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { jwtVerify } from 'jose';
-import { getJwtSecret } from '@/lib/jwt-secret';
+import { requireAdmin } from '@/lib/admin-auth';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -18,33 +17,6 @@ interface KYCReviewResponse {
   document_status: string;
   whatsapp_dispatched: boolean;
   whatsapp_message_id?: string;
-}
-
-interface JWTPayload {
-  sub: string;
-  email: string;
-  role: string;
-}
-
-// ---------------------------------------------------------------------------
-// Auth helper
-// ---------------------------------------------------------------------------
-
-async function verifyAdminAuth(request: NextRequest): Promise<JWTPayload> {
-  const authHeader = request.headers.get('Authorization');
-  if (!authHeader?.startsWith('Bearer ')) {
-    throw new Error('Missing or invalid Authorization header');
-  }
-
-  const token = authHeader.slice(7);
-  const { payload } = await jwtVerify(token, getJwtSecret());
-  const user = payload as unknown as JWTPayload;
-
-  if (user.role !== 'admin') {
-    throw new Error('Insufficient permissions');
-  }
-
-  return user;
 }
 
 // ---------------------------------------------------------------------------
@@ -111,14 +83,10 @@ async function sendWhatsAppNotification(
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    // 1. Authenticate admin
-    let admin: JWTPayload;
-    try {
-      admin = await verifyAdminAuth(request);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unauthorized';
-      const status = message === 'Insufficient permissions' ? 403 : 401;
-      return NextResponse.json({ error: message }, { status });
+    // 1. Authenticate admin (cookie session; admin and super_admin)
+    const admin = await requireAdmin();
+    if (!admin) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // 2. Parse body
@@ -165,11 +133,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     //   `UPDATE documents
     //    SET status = $1, rejection_reason = $2, reviewed_by = $3, reviewed_at = NOW()
     //    WHERE id = $4`,
-    //   [status, rejection_reason ?? null, admin.sub, document_id]
+    //   [status, rejection_reason ?? null, admin.userId, document_id]
     // );
 
     console.log(
-      `[admin/kyc/review] Mock DB update: document ${document_id} → ${status} by ${admin.sub}`
+      `[admin/kyc/review] Mock DB update: document ${document_id} → ${status} by ${admin.userId}`
     );
 
     // 4. Dispatch WhatsApp notification if requested
