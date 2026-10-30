@@ -67,3 +67,30 @@ export function acquireLock(file, info) {
     throw e;
   }
 }
+
+// "**Touches (for parallel planning)**: src/a/, src/b.ts" -> ["src/a/", "src/b.ts"]
+export function parseTouches(md) {
+  const raw = /\*\*Touches[^*]*\*\*:\s*(.+)/i.exec(md)?.[1] ?? '';
+  return raw
+    .replace(/<!--.*?-->/g, '')
+    .split(',')
+    .map((s) => s.replace(/[`\s]/g, ''))
+    .filter(Boolean);
+}
+
+const pathsOverlap = (a, b) => a === b || (a.endsWith('/') && b.startsWith(a)) || (b.endsWith('/') && a.startsWith(b));
+
+// Returns human-readable conflicts between specs that must not run in parallel:
+// overlapping Touches, or more than one schema-changing spec. [{id, touches, schema}]
+export function parallelConflicts(specs) {
+  const out = [];
+  for (let i = 0; i < specs.length; i++) {
+    if (!specs[i].touches.length) out.push(`${specs[i].id}: no "Touches" list, cannot prove it is parallel-safe`);
+    for (let j = i + 1; j < specs.length; j++) {
+      const [a, b] = [specs[i], specs[j]];
+      if (a.schema && b.schema) out.push(`${a.id} and ${b.id} both change the schema`);
+      for (const x of a.touches) for (const y of b.touches) if (pathsOverlap(x, y)) out.push(`${a.id} and ${b.id} both touch ${x === y ? x : `${x} / ${y}`}`);
+    }
+  }
+  return out;
+}

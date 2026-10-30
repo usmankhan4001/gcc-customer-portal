@@ -24,7 +24,7 @@ none (library). `db` exposes the drizzle query builder (`db.select/insert/update
 1. Client creation (`index.ts:7`): `postgres(process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/postgres')`, no options (library defaults: pool of 10, prepared statements on; unverified). Evaluated at import time; the module-level fallback means a missing `DATABASE_URL` silently targets localhost instead of crashing (the code comment claims it crashes).
 2. Dev: no global singleton, so each hot reload may open another pool (typical Next.js dev leak; unverified).
 3. Generate: edit `schema.ts` -> `npm run db:generate` -> new `drizzle/NNNN_<adjective_name>.sql` + snapshot + journal entry -> commit all.
-4. Migrate: `drizzle-kit migrate` applies unapplied journal entries inside the `drizzle.__drizzle_migrations` bookkeeping table (drizzle default). Local: `docker compose -f docker-compose.dev.yml up -d`, `DATABASE_URL=postgresql://gcc:gcc@localhost:5433/gccstartup`, `npm run db:migrate && npm run db:seed`.
+4. Migrate: `drizzle-kit migrate` applies unapplied journal entries inside the `drizzle.__drizzle_migrations` bookkeeping table (drizzle default). Local: `docker compose -f docker-compose.dev.yml up -d`, `DATABASE_URL=postgresql://gcc:gcc@localhost:55432/gccstartup`, `npm run db:migrate && npm run db:seed`.
 5. Seed (`scripts/seed.ts`): `import 'dotenv/config'` loads `.env`, NOT `.env.local`, so a URL only in `.env.local` is not seen (set it in the shell or `.env`). Upserts 12 placeholder `jurisdiction_pricing` rows and 4 tax rules; creates no admin.
 
 ## Data

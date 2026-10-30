@@ -11,7 +11,7 @@ Database client and schema (Drizzle + Postgres), migrations, the Docker/Dokploy 
 - `drizzle/0000_wealthy_ezekiel.sql` (16 tables + `user_role` enum + FKs), `0001_rainy_mandrill.sql` (`users.password_hash`), `0002_careless_cassandra_nova.sql` (`referrals`), `drizzle/meta/*` (journal + snapshots)
 - `Dockerfile` - 3-stage node:20-alpine (deps, builder, runner), port 3005, user `nextjs`
 - `docker-entrypoint.sh` - sources `.env` if present, runs migrations, `exec node server.js`
-- `docker-compose.dev.yml` - local postgres:16-alpine on host port 5433 (user/pass/db `gcc`/`gcc`/`gccstartup`)
+- `docker-compose.dev.yml` - local postgres:16-alpine on host port 55432 (user/pass/db `gcc`/`gcc`/`gccstartup`)
 - `next.config.mjs` - `reactStrictMode`, `output:'standalone'`, `images.remotePatterns` https `**`
 - `.github/workflows/ci.yml` - only workflow
 - `scripts/seed.ts`, `test-routes.js`, `generate-icons.js`, `convert.ps1`, `fde/{run,lib,codemap}.mjs`
@@ -65,7 +65,7 @@ Relations (drizzle `relations`): users->companies/documents/notifications; compa
 1. Schema change: edit `schema.ts` -> `npm run db:generate` -> commit new `drizzle/NNNN_*.sql` + meta -> deploy.
 2. Deploy: Dokploy builds Dockerfile (`npm ci`, `npm run build` with BuildKit cache) -> container start runs `docker-entrypoint.sh` -> `drizzle-kit migrate` -> `node server.js` on 3005.
 3. PR: GitHub Actions `verify` job = `npm ci` + `npm run verify` (typecheck, `vitest run`, `next build`).
-4. Local dev: `docker compose -f docker-compose.dev.yml up -d`, set `DATABASE_URL=postgresql://gcc:gcc@localhost:5433/gccstartup`, `npm run db:migrate && npm run db:seed`.
+4. Local dev: `docker compose -f docker-compose.dev.yml up -d`, set `DATABASE_URL=postgresql://gcc:gcc@localhost:55432/gccstartup`, `npm run db:migrate && npm run db:seed`.
 5. Analytics: `Providers` mounts `PostHogInit` -> `initPostHog` (no-op if key empty/`xxx`/`phc_xxx`; `capture_pageview` and `capture_pageleave` true, default host `https://us.i.posthog.com`). Server events via `captureServerEvent` (`flushAt:1`).
 
 ## Business rules and invariants

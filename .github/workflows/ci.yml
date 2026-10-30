@@ -12,6 +12,21 @@ jobs:
       # Placeholders so `next build` can load modules; no real service is contacted.
       DATABASE_URL: postgres://ci:ci@localhost:5432/ci
       JWT_SECRET: ci-secret-not-for-production
+      DATABASE_URL_TEST: postgresql://gcc:gcc@localhost:5432/gccstartup
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: gcc
+          POSTGRES_PASSWORD: gcc
+          POSTGRES_DB: gccstartup
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U gcc"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -20,3 +35,4 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run verify
+      - run: npm run test:db

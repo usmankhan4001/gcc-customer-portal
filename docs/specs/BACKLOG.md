@@ -11,7 +11,9 @@ How the automated cycle uses this: pick specs whose **Depends on** are merged, w
 | 005 | Documents hardening (vault upload, share links) | draft (AC6/AC7 shipped as 006) | yes (vault) | yes | - | 007 |
 | 006 | Fail-fast migrations, KYC review auth | shipped | yes | no | - | - |
 | 007 | Calculator and quiz plumbing (F1.4 part 1) | shipped (merged) | no | no | - | 005 |
-| next | F1.4 part 2: tests for the other four tools + tax-figure review notes | to write | no | no | 007 | 005 |
+| 008 | Compliance calendar date overflow fix (F1.4 2a) | approved | no | no | - | 009, 005 |
+| 009 | Name checker matching fix (F1.4 2b) | approved | no | no | - | 008, 005 |
+| next | F1.4 part 2c: UBO, banking odds, QFZP, VAT, visa tests + tax-figure review notes | to write | no | no | - | 005 |
 | next | Wire tools to lead capture (prerequisite of F1.1/F1.3) | to write | no (public route validation only) | no | 007 | - |
 | next | F0.6 events and consent tables | to write | no | yes | - | tools specs |
 | next | F0.3 mobile token auth | to write | yes (auth) | yes | 005 | - |

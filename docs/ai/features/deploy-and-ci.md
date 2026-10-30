@@ -26,7 +26,7 @@ none. Port 3005 (`Dockerfile:62-63`, `package.json` dev/start `--port 3005`). No
 6. Dokploy (assumed, not in repo): Dockerfile build from git, domain/Traefik to port 3005, internal Postgres reachable as host `postgres` (`.env.example` DATABASE_URL), env vars below. How a deploy is triggered (webhook or Dokploy git integration) is unverified.
 
 ## Data
-No tables. Dev DB: postgres:16-alpine, host port 5433, user/pass/db `gcc`/`gcc`/`gccstartup`, volume `gcc-dev-db` (`docker-compose.dev.yml`).
+No tables. Dev DB: postgres:16-alpine, host port 55432, user/pass/db `gcc`/`gcc`/`gccstartup`, volume `gcc-dev-db` (`docker-compose.dev.yml`).
 
 ## Business rules and constants: every `process.env` read (src, scripts, config)
 | Var | Read at |

@@ -15,7 +15,10 @@
     "test:routes": "node scripts/test-routes.js",
     "verify": "npm run docs:ai && npm run typecheck && npm test && npm run build",
     "docs:ai": "node scripts/fde/codemap.mjs",
-    "fde": "node scripts/fde/run.mjs"
+    "fde": "node scripts/fde/run.mjs",
+    "test:db": "node scripts/test-db.mjs",
+    "verify:full": "npm run verify && npm run test:db",
+    "fde:batch": "node scripts/fde/batch.mjs"
   },
   "dependencies": {
     "@ark-ui/react": "^5.39.1",

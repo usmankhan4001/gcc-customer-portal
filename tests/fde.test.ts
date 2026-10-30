@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { acquireLock, parseApproved, parseSchemaChange, parseStatus, parseVerdict, protectedHits, stripFrontmatter } from '../scripts/fde/lib.mjs';
+import { acquireLock, parallelConflicts, parseApproved, parseTouches, parseSchemaChange, parseStatus, parseVerdict, protectedHits, stripFrontmatter } from '../scripts/fde/lib.mjs';
 
 describe('parseStatus', () => {
   it('reads the spec status', () => {
@@ -85,5 +85,23 @@ describe('acquireLock', () => {
     expect(acquireLock(file, 'b')).toBe(false);
     fs.rmSync(file);
     expect(acquireLock(file, 'c')).toBe(true);
+  });
+});
+
+describe('parallel planning', () => {
+  it('parses touches', () => {
+    expect(parseTouches('**Touches (for parallel planning)**: src/a/, `src/b.ts`')).toEqual(['src/a/', 'src/b.ts']);
+  });
+  const s = (id: string, touches: string[], schema = false) => ({ id, touches, schema });
+  it('accepts disjoint specs', () => {
+    expect(parallelConflicts([s('a', ['src/a/']), s('b', ['src/b/', 'src/c.ts'])])).toEqual([]);
+  });
+  it('rejects overlapping files and folders', () => {
+    expect(parallelConflicts([s('a', ['src/lib/']), s('b', ['src/lib/x.ts'])])).toHaveLength(1);
+    expect(parallelConflicts([s('a', ['src/x.ts']), s('b', ['src/x.ts'])])).toHaveLength(1);
+  });
+  it('rejects two schema changes and specs without a touches list', () => {
+    expect(parallelConflicts([s('a', ['a/'], true), s('b', ['b/'], true)])).toHaveLength(1);
+    expect(parallelConflicts([s('a', []), s('b', ['b/'])])).toHaveLength(1);
   });
 });
