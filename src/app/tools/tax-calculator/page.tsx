@@ -4,36 +4,27 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import BannerHeader from '@/components/portal/BannerHeader';
 import { ArrowRight, CircleNotch, TrendDown } from '@phosphor-icons/react';
-
-const CURRENT_COUNTRIES = [
-  { code: 'US', name: 'United States (avg 27%)', baseRate: 0.27 },
-  { code: 'UK', name: 'United Kingdom (25%)', baseRate: 0.25 },
-  { code: 'DE', name: 'Germany (30%)', baseRate: 0.30 },
-  { code: 'FR', name: 'France (25%)', baseRate: 0.25 },
-  { code: 'CA', name: 'Canada (26%)', baseRate: 0.26 },
-  { code: 'AU', name: 'Australia (30%)', baseRate: 0.30 },
-  { code: 'IN', name: 'India (25%)', baseRate: 0.25 },
-];
-
-const TARGET_JURISDICTIONS = [
-  { code: 'uae', name: 'UAE Free Zone (0% - 9%)', targetRate: 0.045 },
-  { code: 'hong-kong', name: 'Hong Kong (8.25% / 16.5%)', targetRate: 0.0825 },
-  { code: 'singapore', name: 'Singapore (17% with startup exemptions)', targetRate: 0.085 },
-  { code: 'ireland', name: 'Ireland (12.5% Trading)', targetRate: 0.125 },
-  { code: 'bvi', name: 'BVI / Offshore Holding (0%)', targetRate: 0.0 },
-];
+import {
+  CALCULATOR_COUNTRIES,
+  CALCULATOR_TARGETS,
+  mapCalculatorResponse,
+  type CalculatorResult,
+} from '@/lib/tools/tax-calculator';
 
 export default function TaxCalculator() {
   const [countryResidence, setCountryResidence] = useState('US');
   const [targetJurisdiction, setTargetJurisdiction] = useState('uae');
   const [annualProfit, setAnnualProfit] = useState<number | ''>(250000);
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<CalculatorResult | null>(null);
+  const [error, setError] = useState('');
 
   const handleCalculate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!annualProfit || annualProfit <= 0) return;
     setLoading(true);
+    setError('');
+    setResult(null);
 
     try {
       const res = await fetch('/api/calculator/evaluate', {
@@ -45,35 +36,11 @@ export default function TaxCalculator() {
           annual_profit: Number(annualProfit),
         }),
       });
-      const data = await res.json();
-      if (res.ok) {
-        setResult(data);
-      } else {
-        // Local calculation fallback
-        const homeRate = CURRENT_COUNTRIES.find((c) => c.code === countryResidence)?.baseRate || 0.25;
-        const targetRate = TARGET_JURISDICTIONS.find((j) => j.code === targetJurisdiction)?.targetRate || 0.05;
-        const profit = Number(annualProfit);
-        const homeTax = profit * homeRate;
-        const targetTax = profit * targetRate;
-        setResult({
-          current_tax: homeTax,
-          target_tax: targetTax,
-          savings: homeTax - targetTax,
-          effective_tax_rate: (targetRate * 100).toFixed(1) + '%',
-        });
-      }
+      const mapped = res.ok ? mapCalculatorResponse(await res.json()) : null;
+      if (mapped) setResult(mapped);
+      else setError('We could not calculate your savings right now. Please try again.');
     } catch {
-      const homeRate = CURRENT_COUNTRIES.find((c) => c.code === countryResidence)?.baseRate || 0.25;
-      const targetRate = TARGET_JURISDICTIONS.find((j) => j.code === targetJurisdiction)?.targetRate || 0.05;
-      const profit = Number(annualProfit);
-      const homeTax = profit * homeRate;
-      const targetTax = profit * targetRate;
-      setResult({
-        current_tax: homeTax,
-        target_tax: targetTax,
-        savings: homeTax - targetTax,
-        effective_tax_rate: (targetRate * 100).toFixed(1) + '%',
-      });
+      setError('We could not calculate your savings right now. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -97,7 +64,7 @@ export default function TaxCalculator() {
               onChange={(e) => setCountryResidence(e.target.value)}
               className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
             >
-              {CURRENT_COUNTRIES.map((c) => (
+              {CALCULATOR_COUNTRIES.map((c) => (
                 <option key={c.code} value={c.code}>{c.name}</option>
               ))}
             </select>
@@ -112,7 +79,7 @@ export default function TaxCalculator() {
               onChange={(e) => setTargetJurisdiction(e.target.value)}
               className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
             >
-              {TARGET_JURISDICTIONS.map((j) => (
+              {CALCULATOR_TARGETS.map((j) => (
                 <option key={j.code} value={j.code}>{j.name}</option>
               ))}
             </select>
@@ -142,24 +109,30 @@ export default function TaxCalculator() {
           </button>
         </form>
 
+        {error && (
+          <div role="alert" className="bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl p-4">
+            {error}
+          </div>
+        )}
+
         {result && (
           <div className="space-y-4 animate-in fade-in duration-300">
             <div className="bg-emerald-800 text-white rounded-xl p-5 shadow-sm text-center">
               <span className="text-emerald-200 text-xs font-semibold uppercase tracking-wider block mb-1">
                 Estimated Annual Tax Savings
               </span>
-              <div className="text-3xl font-black">{fmtUSD(result.savings ?? 0)}</div>
+              <div className="text-3xl font-black">{fmtUSD(result.savings)}</div>
               <p className="text-emerald-100 text-xs mt-1">Per year retained in your business treasury</p>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
                 <span className="text-gray-400 block text-[11px] font-semibold">Current Home Country Tax</span>
-                <span className="text-lg font-bold text-gray-800">{fmtUSD(result.current_tax ?? 0)}</span>
+                <span className="text-lg font-bold text-gray-800">{fmtUSD(result.currentTax)}</span>
               </div>
               <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
                 <span className="text-gray-400 block text-[11px] font-semibold">New Jurisdiction Tax</span>
-                <span className="text-lg font-bold text-emerald-600">{fmtUSD(result.target_tax ?? 0)}</span>
+                <span className="text-lg font-bold text-emerald-600">{fmtUSD(result.targetTax)}</span>
               </div>
             </div>
 

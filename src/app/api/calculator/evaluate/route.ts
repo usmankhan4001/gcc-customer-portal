@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { HOME_TAX_RATES, JURISDICTION_TAX_RATES } from '@/lib/tools/tax-calculator';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -25,43 +26,7 @@ interface EvaluateResponse {
 // Tax rate lookup (mock – replace with live data or database table)
 // ---------------------------------------------------------------------------
 
-const HOME_TAX_RATES: Record<string, number> = {
-  NL: 0.495,
-  DE: 0.475,
-  FR: 0.45,
-  GB: 0.45,
-  US: 0.37,
-  CA: 0.33,
-  AU: 0.325,
-  AE: 0.0,
-  SG: 0.17,
-  HK: 0.165,
-  IE: 0.33,
-  ES: 0.47,
-  IT: 0.43,
-  PT: 0.48,
-  SE: 0.52,
-  BE: 0.5,
-  JP: 0.45,
-  IN: 0.3,
-  BR: 0.34,
-  MX: 0.35,
-};
-
-const JURISDICTION_TAX_RATES: Record<string, number> = {
-  hong_kong: 0.0825,
-  singapore: 0.17,
-  uae: 0.0,
-  delaware_usa: 0.0,
-  uk_limited: 0.19,
-  estonia_e_residency: 0.0,
-  georgia: 0.01,
-  cyprus: 0.125,
-  malta: 0.05,
-  bvi: 0.0,
-  cayman: 0.0,
-  labuan: 0.03,
-};
+// HOME_TAX_RATES and JURISDICTION_TAX_RATES live in src/lib/tools/tax-calculator.ts (shared with the page).
 
 const TIER_RECOMMENDATIONS: Record<string, { tier: string; package_usd: number }> = {
   hong_kong: { tier: 'tier_2_nominee', package_usd: 3000 },

@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 
-type Goal = 'tax_optimization' | 'banking_access' | 'relocation' | 'privacy' | 'exploring';
-type Timeline = 'asap' | 'few_months' | 'no_rush';
+import { JURISDICTION_ATTRIBUTES, type Goal, type JurisdictionId, type Timeline } from '@/lib/tools/jurisdiction-quiz';
 
 interface QuizRequest {
   goal: Goal;
@@ -11,30 +10,18 @@ interface QuizRequest {
 }
 
 interface JurisdictionScore {
-  jurisdiction: 'uae' | 'hong-kong' | 'singapore' | 'bahrain' | 'ireland' | 'bvi';
+  jurisdiction: JurisdictionId;
   name: string;
   score: number;
   rationale: string;
 }
-
-const JURISDICTION_ATTRIBUTES: Record<
-  JurisdictionScore['jurisdiction'],
-  { name: string; taxRate: string; setupDays: number; bankingDifficulty: 'easy' | 'medium' | 'hard'; residencyPathway: boolean }
-> = {
-  uae: { name: 'UAE', taxRate: '0-9%', setupDays: 30, bankingDifficulty: 'medium', residencyPathway: true },
-  'hong-kong': { name: 'Hong Kong', taxRate: '0% on foreign income', setupDays: 18, bankingDifficulty: 'hard', residencyPathway: false },
-  singapore: { name: 'Singapore', taxRate: '5-17%', setupDays: 18, bankingDifficulty: 'medium', residencyPathway: true },
-  bahrain: { name: 'Bahrain', taxRate: '0%', setupDays: 30, bankingDifficulty: 'medium', residencyPathway: true },
-  ireland: { name: 'Ireland', taxRate: '12.5%', setupDays: 3, bankingDifficulty: 'easy', residencyPathway: true },
-  bvi: { name: 'BVI & Cayman', taxRate: '0%', setupDays: 45, bankingDifficulty: 'hard', residencyPathway: false },
-};
 
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as QuizRequest;
     const { goal, timeline, wants_relocation } = body;
 
-    const scores: JurisdictionScore[] = (Object.keys(JURISDICTION_ATTRIBUTES) as JurisdictionScore['jurisdiction'][]).map(
+    const scores: JurisdictionScore[] = (Object.keys(JURISDICTION_ATTRIBUTES) as JurisdictionId[]).map(
       (id) => {
         const attrs = JURISDICTION_ATTRIBUTES[id];
         let score = 50;

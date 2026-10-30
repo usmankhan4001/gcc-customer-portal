@@ -1,6 +1,6 @@
 # Spec: Fix tax calculator and jurisdiction quiz plumbing (F1.4, part 1)
 
-**Status**: approved
+**Status**: shipped
 **Requested by**: owner (v2.1 F1.4; docs/ai/MODULES.md open issues)
 **Roadmap ref**: docs/versions/v2.1-engage-retain-core.md
 **Protected files approved**: none
