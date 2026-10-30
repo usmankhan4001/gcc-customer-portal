@@ -4,43 +4,8 @@ import React, { useState } from "react";
 import BannerHeader from "@/components/portal/BannerHeader";
 import { CheckCircle, XCircle, Sparkle, ArrowRight } from "@phosphor-icons/react";
 import Link from "next/link";
+import { checkAvailability, type CheckResult } from "@/lib/tools/name-checker";
 
-interface CheckResult {
-  isAvailable: boolean;
-  score: number;
-  reason: string;
-  alternatives: string[];
-}
-
-function checkAvailability(name: string): CheckResult {
-  const restrictedWords = ['bank', 'insurance', 'government', 'emirates', 'royal', 'invest', 'crypto', 'global'];
-  const lower = name.toLowerCase().trim();
-  const hit = restrictedWords.find((w) => lower.includes(w));
-
-  if (hit) {
-    return {
-      isAvailable: false,
-      score: 35,
-      reason: `"${hit}" is a regulated / restricted term in UAE & GCC registries requiring special ministry pre-approval.`,
-      alternatives: [
-        `${name.replace(new RegExp(hit, 'gi'), '').trim()} Holdings`,
-        `${name.replace(new RegExp(hit, 'gi'), '').trim()} Commercial Services`,
-        `${name.replace(new RegExp(hit, 'gi'), '').trim()} Tech Solutions`,
-      ],
-    };
-  }
-
-  return {
-    isAvailable: true,
-    score: 92,
-    reason: `"${name}" meets standard UAE & international naming guidelines and does not conflict with major registered trademarks.`,
-    alternatives: [
-      `${name} FZ-LLC`,
-      `${name} Global FZCO`,
-      `${name} Limited`,
-    ],
-  };
-}
 
 export default function NameChecker() {
   const [name, setName] = useState("");
