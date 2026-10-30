@@ -75,3 +75,6 @@ None. Worth writing (mock `@/lib/db`, `@/lib/push`, set `WHATSAPP_APP_SECRET`, s
 
 ## Related features
 [whatsapp-outbound](whatsapp-outbound.md), [in-app-notifications](in-app-notifications.md), [web-push](web-push.md), [kyc-review](kyc-review.md), [admin-kanban-pipeline](admin-kanban-pipeline.md), [pipeline-tracker](pipeline-tracker.md), [analytics-posthog](analytics-posthog.md)
+
+## Update (spec 004, 2026-10-30)
+Changed after this doc was written: in production the POST returns 401 when `WHATSAPP_APP_SECRET` is unset (non-production logs a warning and skips the check); each `message.id` is claimed once via `processed_webhook_events` (failure releases the claim); the KYC pattern now lives in `src/lib/kyc-reference.ts` and requires a reference with at least one digit; sender lookup matches the number with or without a leading `+`. Tests: `tests/webhooks.test.ts`. Sections above describing the old behavior are superseded.

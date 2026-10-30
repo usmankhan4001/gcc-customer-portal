@@ -112,7 +112,7 @@ Load order for an agent: `AGENTS.md` -> `CODEMAP.md` (generated) -> this file ->
 ## Open issues register
 "Checked" = confirmed in code by me; "reported" = found by a doc-writing agent, not yet confirmed. Detail and evidence are in each feature doc.
 
-**Fixed (local branches, not deployed)**: JWT secret fallbacks (spec 001); onboarding account takeover, OTP in send-otp response, fixed OTP 123456, open seed-admin (spec 002).
+**Fixed (local branches, not deployed)**: JWT secret fallbacks (spec 001); onboarding account takeover, OTP in send-otp response, fixed OTP 123456, open seed-admin (spec 002); Stripe and WhatsApp webhook idempotency, WhatsApp signature enforcement in production, KYC regex, phone matching (spec 004); cookie-verified sessions, OTP attempt limit and atomic consume, send-otp and login rate limits, OTP logging, open redirect, push unsubscribe auth, lead-capture data leak, admin-only PDF generation and email escaping (spec 003). Specs 003/004 are shipped on local branches only.
 
 **Open, checked**
 - Tax calculator page reads fields the API does not return (`savings`, `current_tax`, `target_tax` vs `net_annual_savings`, `home_tax_amount`, `optimized_tax_amount`), so a successful call shows $0.

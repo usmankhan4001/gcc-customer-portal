@@ -76,3 +76,6 @@ None. Worth writing (mock `web-push` and `@/lib/db`):
 
 ## Related features
 [in-app-notifications](in-app-notifications.md), [pwa-and-service-worker](pwa-and-service-worker.md), [stripe-webhook](stripe-webhook.md), [whatsapp-inbound-webhook](whatsapp-inbound-webhook.md), [profile-and-support](profile-and-support.md), [database-and-migrations](database-and-migrations.md)
+
+## Update (specs 003 and 004, 2026-10-30)
+Changed after this doc was written, see docs/specs/003-session-login-public-endpoints.md: `getServerSession()` now verifies the `gcc_session` cookie (no `x-user-*` header trust); `verify-otp` kills a code after 5 wrong attempts (`otp_codes.attempts`) and consumes it atomically; `send-otp` is limited to 3 per number per 15 min and 10 per IP per hour; `login` to 5 attempts per identifier+IP per 15 min (in-memory limiter, `src/lib/rate-limit.ts`); OTPs and hashes are no longer logged; post-login/onboarding `redirect` goes through `safeRedirectPath`; `push/unsubscribe` needs a session and is scoped to the user; `leads/capture` returns only `{ lead: { id } }`; `pdf/generate` is admin-only, escapes the email title and no longer 500s on an email failure. Tests: `tests/auth-hardening.test.ts`, `tests/email-escape.test.ts`. Statements above that contradict this are superseded.

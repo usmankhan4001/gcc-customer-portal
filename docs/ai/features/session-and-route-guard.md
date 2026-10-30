@@ -101,3 +101,6 @@ Worth writing:
 
 ## Related features
 [whatsapp-otp-login](whatsapp-otp-login.md), [password-login-logout](password-login-logout.md), [admin-bootstrap-and-guard](admin-bootstrap-and-guard.md), [client-dashboard](client-dashboard.md), [good-standing-snapshot](good-standing-snapshot.md), [vault-upload](vault-upload.md), [service-catalog-and-checkout](service-catalog-and-checkout.md)
+
+## Update (specs 003 and 004, 2026-10-30)
+Changed after this doc was written, see docs/specs/003-session-login-public-endpoints.md: `getServerSession()` now verifies the `gcc_session` cookie (no `x-user-*` header trust); `verify-otp` kills a code after 5 wrong attempts (`otp_codes.attempts`) and consumes it atomically; `send-otp` is limited to 3 per number per 15 min and 10 per IP per hour; `login` to 5 attempts per identifier+IP per 15 min (in-memory limiter, `src/lib/rate-limit.ts`); OTPs and hashes are no longer logged; post-login/onboarding `redirect` goes through `safeRedirectPath`; `push/unsubscribe` needs a session and is scoped to the user; `leads/capture` returns only `{ lead: { id } }`; `pdf/generate` is admin-only, escapes the email title and no longer 500s on an email failure. Tests: `tests/auth-hardening.test.ts`, `tests/email-escape.test.ts`. Statements above that contradict this are superseded.
