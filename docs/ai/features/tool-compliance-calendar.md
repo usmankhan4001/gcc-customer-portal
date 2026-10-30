@@ -49,7 +49,7 @@ None. No email, WhatsApp, push, cron, or `.ics` export is attached to this tool.
 Public, client-only. No protected zone. React-escaped output.
 
 ## Failure modes and edge cases
-- Month overflow: `setMonth` on day 29-31 rolls over. F = 2026-01-31: row 1 = 3 Mar 2026 (not 28 Feb). Chained dates (rows 4, 5 derive from a possibly rolled `finYearEnd`) compound the shift.
+- Month overflow: fixed (spec 008). `computeDeadlines`/`addMonths` now live in `src/lib/tools/compliance-calendar.ts` (UTC math, clamps to month end), and the page imports them; the file:line references above to `page.tsx:13-35` are historical. F = 2026-01-31 now gives row 1 = 28 Feb 2026. See [008-compliance-calendar-date-fix](008-compliance-calendar-date-fix.md).
 - Time zone: `new Date('YYYY-MM-DD')` is UTC midnight; `toLocaleDateString` uses local zone, so users west of UTC may see the previous day (UAE users are unaffected).
 - Future/past dates are accepted without validation (no min/max).
 - The caption echoes the raw ISO input string, not the formatted date.
@@ -66,7 +66,6 @@ None. Worth writing (extract `computeDeadlines` to `src/lib/compliance-calendar.
 6. (After adding status logic) a deadline before "today" must render as overdue.
 
 ## Known bugs and gaps
-- Month-overflow date bug (`page.tsx:14-18`) - wrong dates for formation days 29-31.
 - Statuses are decorative and not date-aware (`:28-33`).
 - Single jurisdiction; no personalization from `companies.incorporation_date`/`fiscal_year_end` even for logged-in users.
 - `api/tax-rules` header claims the compliance calendar consumes it (`src/app/api/tax-rules/route.ts:6-8`); it does not.
