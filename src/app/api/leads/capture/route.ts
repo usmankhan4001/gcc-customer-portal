@@ -82,7 +82,8 @@ export async function POST(request: Request) {
       primary_interest_jurisdiction: row.primary_interest_jurisdiction,
     });
 
-    return NextResponse.json({ lead: row });
+    // Id only: the stored row can hold another visitor's email/phone matched via the dedupe lookup.
+    return NextResponse.json({ lead: { id: row.id } });
   } catch (error) {
     console.error('[api/leads/capture] Error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

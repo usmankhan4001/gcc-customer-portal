@@ -1,4 +1,5 @@
-import { headers } from 'next/headers';
+import { cookies } from 'next/headers';
+import { verifyToken } from '@/lib/auth';
 
 export interface ServerSession {
   userId: string;
@@ -7,19 +8,16 @@ export interface ServerSession {
 }
 
 /**
- * Reads the identity headers src/middleware.ts sets on every request to a
- * protected route (x-user-id/x-user-email/x-user-role) after verifying the
- * gcc_session JWT — so server components don't need to re-verify the token
- * themselves. Only valid inside routes middleware actually protects.
+ * Identity of the current request, taken from the verified gcc_session cookie.
+ * Never read from request headers: clients can send any header, and /api/ paths
+ * are not covered by src/middleware.ts.
  */
 export async function getServerSession(): Promise<ServerSession | null> {
-  const headerList = await headers();
-  const userId = headerList.get('x-user-id');
-  if (!userId) return null;
+  const token = (await cookies()).get('gcc_session')?.value;
+  if (!token) return null;
 
-  return {
-    userId,
-    email: headerList.get('x-user-email') ?? '',
-    role: headerList.get('x-user-role') ?? 'client',
-  };
+  const payload = await verifyToken(token);
+  if (!payload?.userId) return null;
+
+  return { userId: payload.userId, email: payload.email ?? '', role: payload.role ?? 'client' };
 }

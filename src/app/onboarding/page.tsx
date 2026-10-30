@@ -3,6 +3,7 @@
 import { Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { safeRedirectPath } from '@/lib/safe-redirect';
 import {
   User,
   EnvelopeSimple,
@@ -48,7 +49,7 @@ const TIMELINES = [
 function OnboardingWizard() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams?.get('redirect') || '/dashboard';
+  const redirectTo = safeRedirectPath(searchParams?.get('redirect'));
 
   // Step indicator (1 to 3)
   const [step, setStep] = useState(1);

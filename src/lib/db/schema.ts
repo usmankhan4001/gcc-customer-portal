@@ -222,6 +222,14 @@ export const renewals = pgTable('renewals', {
   created_at: timestamp('created_at').defaultNow().notNull(),
 });
 
+// Webhook dedupe: one row per delivered event ("<source>:<id>"). Insert-first claims an event;
+// rows older than ~30 days can be deleted.
+export const processedWebhookEvents = pgTable('processed_webhook_events', {
+  id: text('id').primaryKey(),
+  source: text('source').notNull(),
+  received_at: timestamp('received_at').defaultNow().notNull(),
+});
+
 // ---------------------------------------------------------------------------
 // jurisdiction_tax_rules (ComplianceSnapshot / compliance-calendar data source)
 // ---------------------------------------------------------------------------
@@ -349,6 +357,7 @@ export const otpCodes = pgTable('otp_codes', {
   otp_hash: text('otp_hash').notNull(),
   expires_at: timestamp('expires_at').notNull(),
   consumed: boolean('consumed').default(false).notNull(),
+  attempts: integer('attempts').default(0).notNull(), // wrong guesses; code is dead after MAX_OTP_ATTEMPTS
   created_at: timestamp('created_at').defaultNow().notNull(),
 });
 

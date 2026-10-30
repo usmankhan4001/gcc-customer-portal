@@ -4,6 +4,7 @@ import { db } from '@/lib/db';
 import { otpCodes } from '@/lib/db/schema';
 import { hashToken } from '@/lib/auth';
 import { devOtpAllowed } from '@/lib/auth-policy';
+import { clientIp, rateLimit } from '@/lib/rate-limit';
 import { sendWhatsAppOtp, sendTextMessage, sendWhatsAppMessage } from '@/lib/whatsapp';
 
 const OTP_TTL_MINUTES = 10;
@@ -28,6 +29,18 @@ export async function POST(request: Request) {
     }
 
     const whatsappNumber = normalizePhone(phone);
+
+    // 3 codes per number per 15 min, 10 per client IP per hour (WhatsApp cost and abuse).
+    if (
+      !rateLimit(`otp:phone:${whatsappNumber}`, 3, 15 * 60 * 1000) ||
+      !rateLimit(`otp:ip:${clientIp(request)}`, 10, 60 * 60 * 1000)
+    ) {
+      return NextResponse.json(
+        { success: false, error: 'Too many code requests. Please wait a few minutes and try again.' },
+        { status: 429 }
+      );
+    }
+
     const otp = randomInt(100000, 999999).toString();
     const expiresAt = new Date(Date.now() + OTP_TTL_MINUTES * 60 * 1000);
 
@@ -80,7 +93,7 @@ export async function POST(request: Request) {
         whatsAppError = err.message || 'WhatsApp dispatch error';
       }
     } else {
-      console.log(`[Auth DEV/DEMO] WhatsApp credentials not configured. OTP for ${whatsappNumber}: ${otp}`);
+      console.warn('[Auth] WhatsApp credentials not configured; no code was sent.');
     }
 
     // In production a failed send is an error, and the code is never returned to the caller.

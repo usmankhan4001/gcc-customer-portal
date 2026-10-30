@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createHmac, timingSafeEqual } from 'crypto';
-import { and, desc, eq } from 'drizzle-orm';
+import { and, desc, eq, or } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { companies, notifications, users } from '@/lib/db/schema';
 import { sendPushToUser } from '@/lib/push';
 import { captureServerEvent } from '@/lib/posthog-server';
+import { extractKYCReference, phoneVariants } from '@/lib/kyc-reference';
+import { claimWebhookEvent, releaseWebhookEvent } from '@/lib/webhook-dedupe';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -70,16 +72,6 @@ function verifyWebhookSignature(
 // KYC reference detection
 // ---------------------------------------------------------------------------
 
-const KYC_REFERENCE_PATTERN = /KYC[- ]?([A-Z0-9]{6,12})/i;
-
-function extractKYCReference(text: string): string | null {
-  const match = text.match(KYC_REFERENCE_PATTERN);
-  return match ? match[1] : null;
-}
-
-function normalizePhone(phone: string): string {
-  return phone.replace(/[^\d+]/g, '');
-}
 
 /**
  * A client who's completed KYC on the external government/bank portal
@@ -89,8 +81,13 @@ function normalizePhone(phone: string): string {
  * document-review step needed for this stage.
  */
 async function handleKycReference(fromPhone: string, kycRef: string): Promise<void> {
-  const whatsappNumber = normalizePhone(fromPhone);
-  const [user] = await db.select().from(users).where(eq(users.whatsapp_number, whatsappNumber)).limit(1);
+  const variants = phoneVariants(fromPhone);
+  const whatsappNumber = variants[0];
+  const [user] = await db
+    .select()
+    .from(users)
+    .where(or(...variants.map((v) => eq(users.whatsapp_number, v))))
+    .limit(1);
   if (!user) {
     console.log(`[webhooks/whatsapp] KYC reference ${kycRef} received from unknown number ${whatsappNumber}`);
     return;
@@ -146,9 +143,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const body = await request.text();
 
     const signature = request.headers.get('X-Hub-Signature-256');
-    const appSecret = process.env.WHATSAPP_APP_SECRET!;
+    const appSecret = process.env.WHATSAPP_APP_SECRET;
 
-    if (appSecret && !verifyWebhookSignature(body, signature, appSecret)) {
+    if (!appSecret) {
+      // Fail closed in production: without the secret anyone could forge KYC messages.
+      if (process.env.NODE_ENV === 'production') {
+        console.error('[webhooks/whatsapp] WHATSAPP_APP_SECRET is not set - rejecting');
+        return NextResponse.json({ error: 'Webhook not configured' }, { status: 401 });
+      }
+      console.warn('[webhooks/whatsapp] WHATSAPP_APP_SECRET not set - skipping signature check (non-production only)');
+    } else if (!verifyWebhookSignature(body, signature, appSecret)) {
       console.error('[webhooks/whatsapp] Invalid signature');
       return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
     }
@@ -175,7 +179,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             if (message.type === 'text' && message.text?.body) {
               const kycRef = extractKYCReference(message.text.body);
               if (kycRef) {
-                await handleKycReference(message.from, kycRef);
+                // Meta retries: handle each message id once, but let a failed attempt be retried.
+                if (!(await claimWebhookEvent('whatsapp', message.id))) continue;
+                try {
+                  await handleKycReference(message.from, kycRef);
+                } catch (err) {
+                  await releaseWebhookEvent('whatsapp', message.id);
+                  throw err;
+                }
               }
             }
           }

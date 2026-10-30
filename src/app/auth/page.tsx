@@ -5,11 +5,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { WhatsappLogo, LockKey, EnvelopeSimple, CircleNotch, ArrowRight } from "@phosphor-icons/react";
 import PhoneInputWithCountry from "@/components/ui/PhoneInputWithCountry";
+import { safeRedirectPath } from "@/lib/safe-redirect";
 
 function AuthPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams?.get("redirect") || "/dashboard";
+  const redirectTo = safeRedirectPath(searchParams?.get("redirect"));
 
   const [authMethod, setAuthMethod] = useState<"otp" | "password">("otp");
 

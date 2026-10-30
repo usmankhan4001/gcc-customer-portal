@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { and, desc, eq, gt } from 'drizzle-orm';
+import { and, desc, eq, gt, sql } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { otpCodes, users } from '@/lib/db/schema';
 import { generateToken, hashToken } from '@/lib/auth';
 import { devOtpAllowed } from '@/lib/auth-policy';
+
+const MAX_OTP_ATTEMPTS = 5;
 
 function normalizePhone(phone: string): string {
   return phone.replace(/[^\d+]/g, '');
@@ -30,11 +32,10 @@ export async function POST(request: Request) {
     const otpHash = hashToken(cleanOtp);
 
     let isValid = false;
-    let candidateId: string | null = null;
 
-    // Check DB for matching valid OTP
+    // Check DB for the latest valid OTP for this number
     try {
-      const candidates = await db
+      const [candidate] = await db
         .select()
         .from(otpCodes)
         .where(
@@ -45,22 +46,28 @@ export async function POST(request: Request) {
           )
         )
         .orderBy(desc(otpCodes.created_at))
-        .limit(5);
+        .limit(1);
 
-      console.log(`[Auth] OTP verify for ${whatsappNumber}: found ${candidates.length} valid OTP(s) in DB`);
-
-      if (candidates.length > 0) {
-        console.log(`[Auth] Expected hash: ${candidates[0].otp_hash}, Received hash: ${otpHash}`);
+      if (candidate && candidate.attempts >= MAX_OTP_ATTEMPTS) {
+        return NextResponse.json(
+          { success: false, error: 'Too many incorrect attempts. Please request a new code.' },
+          { status: 429 }
+        );
       }
 
-      const candidate = candidates[0];
       if (candidate && candidate.otp_hash === otpHash) {
-        isValid = true;
-        candidateId = candidate.id;
-      } else if (candidates.length > 0) {
-        console.warn(`[Auth] OTP hash mismatch for ${whatsappNumber}. User entered wrong code.`);
-      } else {
-        console.warn(`[Auth] No valid OTP records found for ${whatsappNumber}. Either expired, consumed, or never stored.`);
+        // Atomic consume: of two concurrent correct submissions only one flips consumed false -> true.
+        const [claimed] = await db
+          .update(otpCodes)
+          .set({ consumed: true })
+          .where(and(eq(otpCodes.id, candidate.id), eq(otpCodes.consumed, false)))
+          .returning({ id: otpCodes.id });
+        isValid = Boolean(claimed);
+      } else if (candidate) {
+        await db
+          .update(otpCodes)
+          .set({ attempts: sql`${otpCodes.attempts} + 1` })
+          .where(eq(otpCodes.id, candidate.id));
       }
     } catch (dbErr) {
       console.error('[Auth] DB lookup for OTP failed:', dbErr);
@@ -73,15 +80,6 @@ export async function POST(request: Request) {
 
     if (!isValid) {
       return NextResponse.json({ success: false, error: 'Invalid or expired OTP' }, { status: 400 });
-    }
-
-    // Mark OTP as consumed if found in DB
-    if (candidateId) {
-      try {
-        await db.update(otpCodes).set({ consumed: true }).where(eq(otpCodes.id, candidateId));
-      } catch (err) {
-        console.warn('[Auth] Failed to mark OTP as consumed:', err);
-      }
     }
 
     let user: any = null;

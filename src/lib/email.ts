@@ -244,6 +244,9 @@ export async function sendRenewalReminder(
   }
 }
 
+const escapeHtml = (s: string) =>
+  s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
+
 export async function sendToolResultEmail(
   to: string,
   title: string,
@@ -261,7 +264,7 @@ export async function sendToolResultEmail(
         <body style="margin:0;padding:0;background:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
           <div style="max-width:560px;margin:40px auto;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.1);">
             <div style="background:#0A2540;padding:32px;text-align:center;">
-              <h1 style="color:#fff;font-size:22px;margin:0;">${title}</h1>
+              <h1 style="color:#fff;font-size:22px;margin:0;">${escapeHtml(title)}</h1>
             </div>
             <div style="padding:32px;text-align:center;">
               <p style="font-size:16px;color:#18181b;line-height:1.6;">Your result is ready.</p>

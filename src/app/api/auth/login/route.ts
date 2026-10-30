@@ -4,6 +4,7 @@ import { eq, or } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { users } from '@/lib/db/schema';
 import { generateToken, verifyPassword } from '@/lib/auth';
+import { clientIp, rateLimit } from '@/lib/rate-limit';
 
 export async function POST(request: Request) {
   try {
@@ -18,6 +19,11 @@ export async function POST(request: Request) {
 
     const cleanIdentifier = String(identifier).trim();
     const cleanPhone = cleanIdentifier.replace(/\s+/g, '');
+
+    // 5 attempts per identifier+IP per 15 min; same answer whether or not the account exists.
+    if (!rateLimit(`login:${cleanIdentifier.toLowerCase()}|${clientIp(request)}`, 5, 15 * 60 * 1000)) {
+      return NextResponse.json({ error: 'Too many attempts. Please try again in a few minutes.' }, { status: 429 });
+    }
 
     // Search user by email or WhatsApp number
     const [user] = await db

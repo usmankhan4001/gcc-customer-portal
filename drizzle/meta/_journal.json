@@ -22,6 +22,20 @@
       "when": 1788804210718,
       "tag": "0002_careless_cassandra_nova",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793342343835,
+      "tag": "0003_outstanding_komodo",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793342600686,
+      "tag": "0004_wide_justice",
+      "breakpoints": true
     }
   ]
 }
