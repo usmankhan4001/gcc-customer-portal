@@ -17,7 +17,8 @@ Status of all items below: **planned**. Each feature becomes a spec in `docs/spe
 | v2.4 | Outbound & growth | Qualified outbound contacts per month; cost per qualified lead | [v2.4](v2.4-outbound-growth.md) |
 
 ## Assumptions (override any, then update the version docs)
-- Target users: freelancers and e-commerce sellers, plus SaaS founders.
+- Target users: freelancers, e-commerce sellers and SaaS founders, **plus businesses that want an offshore structure** (trading/import-export, holding and consulting companies, investors, high-net-worth owners). Offshore seekers are the highest-value segment.
+- Offshore segment implications: scoring weights offshore intent (BVI/Cayman/HK/Singapore interest, nominee and UBO-privacy tool use); candidate habit tools are an economic-substance tracker, an offshore-vs-onshore structure planner, and CRS/FATCA reminders (add to v2.2 when specced); higher-risk industries (crypto, forex, gambling) route to consultation-led and are excluded from automated outbound; outbound must respect sanctions and restricted-country rules.
 - Tools stay free without signup; an account is required only to save.
 - Outbound channels in v1: WhatsApp and email, with recorded per-channel consent. No calls or LinkedIn automation.
 - Android via Capacitor wrapper with real native features; Expo rewrite only if retention data justifies it.
