@@ -1,6 +1,6 @@
 # Spec: Fix company name checker matching (F1.4 part 2b)
 
-**Status**: approved
+**Status**: shipped
 **Requested by**: owner (docs/ai/features/tool-name-checker.md known bugs)
 **Roadmap ref**: docs/versions/v2.1-engage-retain-core.md
 **Protected files approved**: none

@@ -10,8 +10,10 @@ A public page where a prospect types a desired company name and gets an instant 
 - Linked from: tools index grid (`src/app/tools/page.tsx:25`) and dashboard Quick Services tile "Name Checker" (`src/app/(authenticated)/dashboard/page.tsx:511`).
 - API: none. `/tools/*` is not in `PROTECTED_PREFIXES` (`src/middleware.ts:34-44`), so it is public.
 
+> **Updated by spec 009** (see [009-name-checker-matching-fix](009-name-checker-matching-fix.md)): the check now lives in `src/lib/tools/name-checker.ts` with whole-word, case-insensitive, punctuation-tolerant matching and tests in `name-checker.test.ts`. The available-case alternatives are now `FZ-LLC` / `Holdings` / `Limited` (no "Global FZCO"). The substring false-positive, "Global FZCO" and double-space bugs listed below are fixed; line numbers below refer to the old inline version in `page.tsx`.
+
 ## Files
-- `src/app/tools/name-checker/page.tsx:15-43` - `checkAvailability(name)` pure function (not exported, so not unit-testable without refactor).
+- `src/lib/tools/name-checker.ts` - `checkAvailability(name)` pure function (replaces the inline version formerly at `page.tsx:15-43`).
 - `src/app/tools/name-checker/page.tsx:45-136` - `NameChecker` component: input, button, result card.
 - `src/components/portal/BannerHeader` - page header (title "Company Name Availability Checker").
 - `src/lib/db/schema.ts:318` - `leads.source_tool` enum already contains `name_checker` (unused by this page).
