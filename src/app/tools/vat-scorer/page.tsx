@@ -4,26 +4,33 @@ import React, { useState } from "react";
 import Link from "next/link";
 import BannerHeader from '@/components/portal/BannerHeader';
 import { CheckCircle, WarningCircle, ArrowRight } from "@phosphor-icons/react";
+import {
+  VAT_BUSINESS_TYPE_OPTIONS,
+  VAT_THRESHOLD_MANDATORY,
+  VAT_THRESHOLD_VOLUNTARY,
+  VatResultSuccess,
+  evaluateVat,
+  formatAED,
+} from "@/lib/tools/vat-scorer";
+import ContactCaptureGate from "@/components/portal/ContactCaptureGate";
 
 export default function VATScorer() {
   const [revenue, setRevenue] = useState<string>("400000");
-  const [businessType, setBusinessType] = useState("B2B");
-  const [submitted, setSubmitted] = useState(false);
-
-  const thresholdMandatory = 375000; // AED 375k mandatory
-  const thresholdVoluntary = 187500; // AED 187.5k voluntary
-
-  const revAmount = parseFloat(revenue) || 0;
-  const isMandatory = revAmount >= thresholdMandatory;
-  const isVoluntary = revAmount >= thresholdVoluntary && revAmount < thresholdMandatory;
+  const [businessType, setBusinessType] = useState<string>("B2B_Foreign");
+  const [result, setResult] = useState<VatResultSuccess | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleScore = (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+    const evaluation = evaluateVat(revenue, businessType);
+    if (!evaluation.success) {
+      setError(evaluation.error);
+      setResult(null);
+      return;
+    }
+    setError(null);
+    setResult(evaluation);
   };
-
-  const fmtAED = (n: number) =>
-    new Intl.NumberFormat('en-AE', { style: 'currency', currency: 'AED', maximumFractionDigits: 0 }).format(n);
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -44,8 +51,13 @@ export default function VATScorer() {
               <input
                 type="number"
                 id="revenue"
+                min="0"
                 value={revenue}
-                onChange={(e) => setRevenue(e.target.value)}
+                onChange={(e) => {
+                  setRevenue(e.target.value);
+                  setResult(null);
+                  setError(null);
+                }}
                 placeholder="375000"
                 className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary font-mono"
                 required
@@ -59,12 +71,18 @@ export default function VATScorer() {
               <select
                 id="businessType"
                 value={businessType}
-                onChange={(e) => setBusinessType(e.target.value)}
+                onChange={(e) => {
+                  setBusinessType(e.target.value);
+                  setResult(null);
+                  setError(null);
+                }}
                 className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
               >
-                <option value="B2B_Foreign">B2B Foreign Clients (Zero-Rated Export of Services)</option>
-                <option value="B2B_Local">B2B Local UAE Clients (Standard 5% VAT)</option>
-                <option value="B2C">B2C Retail / Direct Consumers</option>
+                {VAT_BUSINESS_TYPE_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -77,45 +95,44 @@ export default function VATScorer() {
           </form>
         </div>
 
-        {submitted && (
+        {error && (
+          <div className="bg-rose-50 border border-rose-200 text-rose-800 text-xs p-3 rounded-lg flex items-center gap-2">
+            <WarningCircle className="w-5 h-5 text-rose-600 shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
+
+        {result && (
           <div className="space-y-4 animate-in fade-in duration-300">
             <div
               className={`bg-white rounded-xl shadow-sm border p-5 ${
-                isMandatory ? 'border-amber-300' : 'border-emerald-300'
+                result.isMandatory ? 'border-amber-300' : 'border-emerald-300'
               }`}
             >
               <div className="flex items-center gap-2 mb-2">
-                {isMandatory ? (
+                {result.isMandatory ? (
                   <WarningCircle className="w-5 h-5 text-amber-600" />
                 ) : (
                   <CheckCircle className="w-5 h-5 text-emerald-600" />
                 )}
                 <h3 className="text-sm font-bold text-gray-900">
-                  {isMandatory
-                    ? 'Mandatory VAT Registration Required'
-                    : isVoluntary
-                    ? 'Eligible for Voluntary VAT Registration'
-                    : 'Below VAT Registration Threshold'}
+                  {result.title}
                 </h3>
               </div>
 
               <div className="grid grid-cols-2 gap-3 text-xs my-3">
                 <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
                   <span className="text-gray-400 block text-[10px]">Mandatory Threshold</span>
-                  <span className="font-bold text-gray-900">{fmtAED(thresholdMandatory)}</span>
+                  <span className="font-bold text-gray-900">{formatAED(VAT_THRESHOLD_MANDATORY)}</span>
                 </div>
                 <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
                   <span className="text-gray-400 block text-[10px]">Voluntary Threshold</span>
-                  <span className="font-bold text-gray-900">{fmtAED(thresholdVoluntary)}</span>
+                  <span className="font-bold text-gray-900">{formatAED(VAT_THRESHOLD_VOLUNTARY)}</span>
                 </div>
               </div>
 
               <p className="text-xs text-gray-600 leading-relaxed bg-gray-50/60 p-3 rounded-lg border border-gray-100">
-                {isMandatory
-                  ? 'Your UAE annual turnover meets or exceeds AED 375,000. You must register with the Federal Tax Authority (FTA) within 30 days of reaching this threshold to avoid statutory late-registration penalties.'
-                  : isVoluntary
-                  ? 'Your turnover exceeds AED 187,500. Registration is optional but recommended if you want to recover input VAT on business expenses and local office equipment.'
-                  : 'Your turnover is below the voluntary threshold (AED 187,500). No VAT registration is currently required.'}
+                {result.description}
               </p>
 
               <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
@@ -128,6 +145,12 @@ export default function VATScorer() {
                 </Link>
               </div>
             </div>
+
+            <ContactCaptureGate
+              sourceTool="vat_scorer"
+              toolInput={{ revenue: Number(revenue), businessType }}
+              toolResult={result as unknown as Record<string, unknown>}
+            />
           </div>
         )}
       </main>

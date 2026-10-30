@@ -2,25 +2,36 @@
 
 import React, { useState } from "react";
 import BannerHeader from "@/components/portal/BannerHeader";
-import { CheckCircle, Warning, ArrowRight, ShieldCheck } from "@phosphor-icons/react";
+import { ArrowRight, ShieldCheck, Warning } from "@phosphor-icons/react";
 import Link from "next/link";
+import {
+  evaluateQFZPEligibility,
+  QFZP_ACTIVITIES,
+  type QFZPActivity,
+} from "@/lib/tools/qfzp-eligibility";
+import ContactCaptureGate from "@/components/portal/ContactCaptureGate";
 
 export default function QFZPEligibilityChecker() {
-  const [activity, setActivity] = useState("Tech");
-  const [visas, setVisas] = useState("1-2");
+  const [activity, setActivity] = useState<QFZPActivity>("Tech");
   const [hasSubstance, setHasSubstance] = useState(true);
-  const [isForeignClients, setIsForeignClients] = useState(true);
   const [submitted, setSubmitted] = useState(false);
-
-  const isLikelyEligible =
-    activity !== "Excluded" &&
-    hasSubstance &&
-    (activity === "Tech" || activity === "Trading" || activity === "Consulting");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitted(true);
   };
+
+  const handleActivityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setActivity(e.target.value as QFZPActivity);
+    setSubmitted(false);
+  };
+
+  const handleSubstanceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setHasSubstance(e.target.checked);
+    setSubmitted(false);
+  };
+
+  const result = evaluateQFZPEligibility({ activity, hasSubstance });
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
@@ -41,30 +52,14 @@ export default function QFZPEligibilityChecker() {
               <select
                 id="activity"
                 value={activity}
-                onChange={(e) => setActivity(e.target.value)}
+                onChange={handleActivityChange}
                 className="flex-1 border border-gray-300 bg-white rounded-lg p-2 text-sm text-gray-900 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
               >
-                <option value="Tech">Software Development & Cloud Services</option>
-                <option value="Trading">Qualifying Commodity & Goods Trading</option>
-                <option value="Consulting">Headquarter & Holding Company Services</option>
-                <option value="Logistics">Logistics & Freight Forwarding</option>
-                <option value="Excluded">Direct Mainland UAE B2C Retail (Excluded)</option>
-              </select>
-            </div>
-
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-              <label htmlFor="visas" className="w-40 text-xs font-semibold text-gray-700">
-                Staff / Visas in Free Zone
-              </label>
-              <select
-                id="visas"
-                value={visas}
-                onChange={(e) => setVisas(e.target.value)}
-                className="flex-1 border border-gray-300 bg-white rounded-lg p-2 text-sm text-gray-900 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
-              >
-                <option value="1-2">1 – 2 Visas (Founder / Director)</option>
-                <option value="3-5">3 – 5 Visas (Core Team)</option>
-                <option value="6+">6+ Visas (Full Office)</option>
+                {QFZP_ACTIVITIES.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -73,30 +68,18 @@ export default function QFZPEligibilityChecker() {
                 <input
                   type="checkbox"
                   checked={hasSubstance}
-                  onChange={(e) => setHasSubstance(e.target.checked)}
+                  onChange={handleSubstanceChange}
                   className="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4"
                 />
                 <span className="text-xs text-gray-700 font-medium">
                   Will maintain physical/flexi office lease in a UAE Free Zone (Adequate Substance)
                 </span>
               </label>
-
-              <label className="flex items-center gap-2 cursor-pointer bg-gray-50 border border-gray-200 p-2.5 rounded-lg">
-                <input
-                  type="checkbox"
-                  checked={isForeignClients}
-                  onChange={(e) => setIsForeignClients(e.target.checked)}
-                  className="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4"
-                />
-                <span className="text-xs text-gray-700 font-medium">
-                  Primary revenue is derived from foreign clients or Free Zone entities (not mainland UAE individuals)
-                </span>
-              </label>
             </div>
 
             <button
               type="submit"
-              className="w-full bg-cta hover:bg-cta-600 text-cta-foreground font-semibold py-2.5 px-4 rounded-lg text-xs transition-colors shadow-sm"
+              className="w-full bg-cta hover:bg-cta-600 text-cta-foreground font-semibold py-2.5 px-4 rounded-lg text-xs transition-colors shadow-sm cursor-pointer"
             >
               Evaluate 0% Tax Eligibility
             </button>
@@ -107,25 +90,21 @@ export default function QFZPEligibilityChecker() {
           <div className="space-y-4 animate-in fade-in duration-300">
             <div
               className={`bg-white rounded-xl shadow-sm border p-5 ${
-                isLikelyEligible ? "border-emerald-300 ring-1 ring-emerald-100" : "border-amber-300"
+                result.isLikelyEligible ? "border-emerald-300 ring-1 ring-emerald-100" : "border-amber-300"
               }`}
             >
               <div className="flex items-start gap-3">
-                {isLikelyEligible ? (
+                {result.isLikelyEligible ? (
                   <ShieldCheck className="w-7 h-7 text-emerald-600 shrink-0" />
                 ) : (
                   <Warning className="w-7 h-7 text-amber-600 shrink-0" />
                 )}
                 <div>
                   <h3 className="text-sm font-bold text-gray-900">
-                    {isLikelyEligible
-                      ? "High Likelihood: Eligible for 0% UAE Corporate Tax"
-                      : "Standard 9% Rate Applies / Non-Qualifying Activity"}
+                    {result.headline}
                   </h3>
                   <p className="text-xs text-gray-600 mt-1">
-                    {isLikelyEligible
-                      ? "Your business model meets the Qualifying Free Zone Person (QFZP) criteria: Qualifying activity with foreign/FZ counterparties and adequate UAE economic substance."
-                      : "Activities involving direct mainland UAE consumer trade or lacking registered substance are taxed at the standard 9% UAE corporate tax rate (first AED 375k profit still 0%)."}
+                    {result.description}
                   </p>
                 </div>
               </div>
@@ -140,6 +119,12 @@ export default function QFZPEligibilityChecker() {
                 </Link>
               </div>
             </div>
+
+            <ContactCaptureGate
+              sourceTool="qfzp_eligibility"
+              toolInput={{ activity, hasSubstance }}
+              toolResult={result as unknown as Record<string, unknown>}
+            />
           </div>
         )}
       </main>

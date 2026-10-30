@@ -1,6 +1,6 @@
 # Feature: Lead capture and persona classification
 
-**Slug**: lead-capture-and-persona   **Area**: [onboarding-and-leads](../modules/onboarding-and-leads.md)   **Status**: partial (API and classifier work; no UI caller found)   **Last verified against code**: 2026-10-30
+**Slug**: lead-capture-and-persona   **Area**: [onboarding-and-leads](../modules/onboarding-and-leads.md)   **Status**: complete   **Last verified against code**: 2026-10-30
 
 ## What it does
 `POST /api/leads/capture` stores an anonymous visitor's free-tool submission (inputs, results, contact) as a row in `leads` and tags it with a persona (`Gulf Relocator` / `Offshore Optimizer`), a revenue band, risk tier, jurisdiction interest and funnel track (`self_serve` or `consultation_led`). Repeat submissions by the same email/WhatsApp inherit earlier signals. Admins read the rows at `/admin/leads`; registration later links a lead to the new user. The classifier lives in `src/lib/persona.ts` and is also used by [onboarding-wizard](onboarding-wizard.md).
@@ -89,3 +89,12 @@ Worth writing:
 
 ## Update (specs 003 and 004, 2026-10-30)
 Changed after this doc was written, see docs/specs/003-session-login-public-endpoints.md: `getServerSession()` now verifies the `gcc_session` cookie (no `x-user-*` header trust); `verify-otp` kills a code after 5 wrong attempts (`otp_codes.attempts`) and consumes it atomically; `send-otp` is limited to 3 per number per 15 min and 10 per IP per hour; `login` to 5 attempts per identifier+IP per 15 min (in-memory limiter, `src/lib/rate-limit.ts`); OTPs and hashes are no longer logged; post-login/onboarding `redirect` goes through `safeRedirectPath`; `push/unsubscribe` needs a session and is scoped to the user; `leads/capture` returns only `{ lead: { id } }`; `pdf/generate` is admin-only, escapes the email title and no longer 500s on an email failure. Tests: `tests/auth-hardening.test.ts`, `tests/email-escape.test.ts`. Statements above that contradict this are superseded.
+
+## Update (spec 014, 2026-10-30)
+Wired all 10 tools to lead capture:
+- Strict Zod validation on `POST /api/leads/capture` with bounded `tool_input` and `tool_result` (<= 50KB), validated `source_tool` enum, and valid contact info.
+- Added `ContactCaptureGate` client component (auth-aware: 1-click for authenticated users, non-blocking guest card with mandatory consent checkbox).
+- Exact consent copy: "I agree to receive my detailed report and consultation updates via WhatsApp and Email" stored in `tool_input.consent` and `tool_input.consent_text`.
+- Links `converted_user_id` when caller is authenticated.
+- All 10 micro-tools wired and reset results when inputs change.
+- Tests: `src/lib/tools/lead-capture.test.ts` (23 tests) and `tests/lead-capture-route.test.ts` (11 tests).

@@ -2,42 +2,32 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import BannerHeader from '@/components/portal/BannerHeader';
-import { industryRiskTier, type IndustryRiskTier } from '@/lib/persona';
-import { COUNTRIES } from '@/lib/countries';
-
-interface BankResult {
-  bank: string;
-  odds: number;
-}
-
-function computeOdds(risk: IndustryRiskTier, turnover: number): BankResult[] {
-  const base: Record<IndustryRiskTier, { wio: number; enbd: number }> = {
-    low: { wio: 95, enbd: 85 },
-    medium: { wio: 75, enbd: 60 },
-    high: { wio: 40, enbd: 20 },
-  };
-  const turnoverBonus = turnover >= 500000 ? 5 : turnover < 50000 ? -10 : 0;
-  const clamp = (n: number) => Math.max(5, Math.min(99, n));
-
-  return [
-    { bank: 'Wio Bank', odds: clamp(base[risk].wio + turnoverBonus) },
-    { bank: 'Emirates NBD', odds: clamp(base[risk].enbd + turnoverBonus) },
-    { bank: 'Mashreq NeoBiz', odds: clamp(base[risk].wio - 5 + turnoverBonus) },
-    { bank: 'ADCB Commercial', odds: clamp(base[risk].enbd - 10 + turnoverBonus) },
-  ];
-}
+import BannerHeader from "@/components/portal/BannerHeader";
+import {
+  calculateBankingOddsForIndustry,
+  BANKING_INDUSTRY_OPTIONS,
+  type BankOddsResult,
+} from "@/lib/tools/banking-odds";
+import ContactCaptureGate from "@/components/portal/ContactCaptureGate";
 
 export default function BankingOddsMatcher() {
-  const [nationality, setNationality] = useState("");
   const [industry, setIndustry] = useState("");
-  const [turnover, setTurnover] = useState<number | ''>('');
-  const [results, setResults] = useState<BankResult[] | null>(null);
+  const [turnover, setTurnover] = useState<number | "">("");
+  const [results, setResults] = useState<BankOddsResult[] | null>(null);
 
   const handleCalculate = () => {
-    if (!nationality || !industry || !turnover) return;
-    const risk = industryRiskTier(industry) ?? 'medium';
-    setResults(computeOdds(risk, Number(turnover)));
+    if (!industry || turnover === "") return;
+    setResults(calculateBankingOddsForIndustry(industry, Number(turnover)));
+  };
+
+  const handleIndustryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setIndustry(e.target.value);
+    setResults(null);
+  };
+
+  const handleTurnoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTurnover(e.target.value === "" ? "" : Number(e.target.value));
+    setResults(null);
   };
 
   return (
@@ -48,42 +38,21 @@ export default function BankingOddsMatcher() {
         <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200 space-y-4">
           <div className="space-y-3">
             <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-              <label htmlFor="nationality" className="w-40 text-xs font-semibold text-gray-700">
-                Nationality
-              </label>
-              <select
-                id="nationality"
-                value={nationality}
-                onChange={(e) => setNationality(e.target.value)}
-                className="flex-1 border-gray-300 rounded-lg shadow-sm focus:border-primary focus:ring-1 focus:ring-primary p-2 text-sm border outline-none transition-colors bg-white text-gray-900"
-              >
-                <option value="">Select Nationality</option>
-                {COUNTRIES.map((c) => (
-                  <option key={c.code} value={c.code}>
-                    {c.flag} {c.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
               <label htmlFor="industry" className="w-40 text-xs font-semibold text-gray-700">
                 Industry
               </label>
               <select
                 id="industry"
                 value={industry}
-                onChange={(e) => setIndustry(e.target.value)}
+                onChange={handleIndustryChange}
                 className="flex-1 border-gray-300 rounded-lg shadow-sm focus:border-primary focus:ring-1 focus:ring-primary p-2 text-sm border outline-none transition-colors bg-white text-gray-900"
               >
                 <option value="">Select Industry</option>
-                <option value="Consulting">Consulting / Agency</option>
-                <option value="Technology">Software / SaaS / Tech</option>
-                <option value="E-commerce">E-commerce / Retail</option>
-                <option value="Marketing">Media & Marketing</option>
-                <option value="Crypto">Crypto / Web3</option>
-                <option value="Real Estate">Real Estate</option>
-                <option value="Other">Other Business Activity</option>
+                {BANKING_INDUSTRY_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -95,7 +64,7 @@ export default function BankingOddsMatcher() {
                 id="turnover"
                 type="number"
                 value={turnover}
-                onChange={(e) => setTurnover(e.target.value === '' ? '' : Number(e.target.value))}
+                onChange={handleTurnoverChange}
                 placeholder="150000"
                 className="flex-1 border-gray-300 rounded-lg shadow-sm focus:border-primary focus:ring-1 focus:ring-primary p-2 text-sm border outline-none transition-colors bg-white text-gray-900"
               />
@@ -104,9 +73,9 @@ export default function BankingOddsMatcher() {
 
           <button
             onClick={handleCalculate}
-            disabled={!nationality || !industry || !turnover}
-className="w-full bg-cta hover:bg-cta-600 text-cta-foreground text-sm font-semibold py-2.5 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
-                >
+            disabled={!industry || turnover === ""}
+            className="w-full bg-cta hover:bg-cta-600 text-cta-foreground text-sm font-semibold py-2.5 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm cursor-pointer"
+          >
             Calculate Approval Odds
           </button>
         </div>
@@ -127,7 +96,7 @@ className="w-full bg-cta hover:bg-cta-600 text-cta-foreground text-sm font-semib
                       {result.odds}<span className="text-xs font-semibold text-gray-400">%</span>
                     </div>
                     <p className={`text-[11px] font-bold ${result.odds > 80 ? 'text-emerald-600' : result.odds > 50 ? 'text-amber-600' : 'text-rose-600'}`}>
-                      {result.odds > 80 ? 'High Likelihood' : result.odds > 50 ? 'Moderate Odds' : 'Special Approval Needed'}
+                      {result.label}
                     </p>
                   </div>
                 </div>
@@ -146,6 +115,12 @@ className="w-full bg-cta hover:bg-cta-600 text-cta-foreground text-sm font-semib
                 Explore Banking Concierge
               </Link>
             </div>
+
+            <ContactCaptureGate
+              sourceTool="banking_odds"
+              toolInput={{ industry, turnover: Number(turnover) }}
+              toolResult={{ results }}
+            />
           </div>
         )}
       </main>

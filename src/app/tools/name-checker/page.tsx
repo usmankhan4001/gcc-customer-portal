@@ -5,6 +5,7 @@ import BannerHeader from "@/components/portal/BannerHeader";
 import { CheckCircle, XCircle, Sparkle, ArrowRight } from "@phosphor-icons/react";
 import Link from "next/link";
 import { checkAvailability, type CheckResult } from "@/lib/tools/name-checker";
+import ContactCaptureGate from "@/components/portal/ContactCaptureGate";
 
 
 export default function NameChecker() {
@@ -32,7 +33,10 @@ export default function NameChecker() {
               type="text"
               id="companyName"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                setName(e.target.value);
+                setResult(null);
+              }}
               onKeyDown={(e) => e.key === 'Enter' && handleCheck()}
               className="flex-1 px-3.5 py-2.5 rounded-lg border border-gray-300 focus:ring-1 focus:ring-primary focus:border-primary outline-none text-gray-900 text-sm"
               placeholder="e.g. Apex Frontier Solutions"
@@ -93,6 +97,12 @@ export default function NameChecker() {
                 </Link>
               </div>
             </div>
+
+            <ContactCaptureGate
+              sourceTool="name_checker"
+              toolInput={{ name }}
+              toolResult={result as unknown as Record<string, unknown>}
+            />
           </div>
         )}
       </main>

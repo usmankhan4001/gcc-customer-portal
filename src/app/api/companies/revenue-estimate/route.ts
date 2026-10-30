@@ -13,10 +13,27 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { annual_revenue_estimate, fiscal_year_end } = await request.json();
-  if (typeof annual_revenue_estimate !== 'number' || annual_revenue_estimate < 0) {
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+  }
+
+  const { annual_revenue_estimate, fiscal_year_end } = (body || {}) as {
+    annual_revenue_estimate?: unknown;
+    fiscal_year_end?: string;
+  };
+
+  if (
+    typeof annual_revenue_estimate !== 'number' ||
+    !Number.isFinite(annual_revenue_estimate) ||
+    annual_revenue_estimate < 0
+  ) {
     return NextResponse.json({ error: 'annual_revenue_estimate must be a non-negative number' }, { status: 400 });
   }
+
+  const roundedEstimate = Math.round(annual_revenue_estimate);
 
   const [company] = await db
     .select()
@@ -31,7 +48,11 @@ export async function PATCH(request: Request) {
 
   const [updated] = await db
     .update(companies)
-    .set({ annual_revenue_estimate, fiscal_year_end: fiscal_year_end ?? company.fiscal_year_end, updated_at: new Date() })
+    .set({
+      annual_revenue_estimate: roundedEstimate,
+      fiscal_year_end: fiscal_year_end ?? company.fiscal_year_end,
+      updated_at: new Date(),
+    })
     .where(eq(companies.id, company.id))
     .returning();
 

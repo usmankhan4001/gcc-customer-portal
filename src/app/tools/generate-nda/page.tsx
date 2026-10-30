@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import BannerHeader from '@/components/portal/BannerHeader';
 import { Copy, Check, FileText, Printer } from '@phosphor-icons/react';
+import ContactCaptureGate from '@/components/portal/ContactCaptureGate';
 
 export default function GenerateNDAPage() {
   const [yourCompany, setYourCompany] = useState('');
@@ -78,7 +79,10 @@ Authorized Signatory                         Authorized Signatory`;
                   type="text"
                   id="yourCompany"
                   value={yourCompany}
-                  onChange={(e) => setYourCompany(e.target.value)}
+                  onChange={(e) => {
+                    setYourCompany(e.target.value);
+                    setGenerated(false);
+                  }}
                   placeholder="e.g. Apex Global Tech FZ-LLC"
                   className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-colors"
                   required
@@ -93,7 +97,10 @@ Authorized Signatory                         Authorized Signatory`;
                   type="text"
                   id="otherParty"
                   value={otherParty}
-                  onChange={(e) => setOtherParty(e.target.value)}
+                  onChange={(e) => {
+                    setOtherParty(e.target.value);
+                    setGenerated(false);
+                  }}
                   placeholder="e.g. Venture Capital Partners LLC"
                   className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-colors"
                   required
@@ -107,7 +114,10 @@ Authorized Signatory                         Authorized Signatory`;
                 <select
                   id="jurisdictionChoice"
                   value={jurisdictionChoice}
-                  onChange={(e) => setJurisdictionChoice(e.target.value)}
+                  onChange={(e) => {
+                    setJurisdictionChoice(e.target.value);
+                    setGenerated(false);
+                  }}
                   className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-colors"
                 >
                   <option value="DIFC (Dubai International Financial Centre)">DIFC (English Common Law / Dubai)</option>
@@ -130,34 +140,42 @@ Authorized Signatory                         Authorized Signatory`;
           </div>
 
           {generated && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden animate-in fade-in duration-300">
-              <div className="p-4 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
-                <div className="flex items-center gap-2 text-xs font-bold text-gray-900">
-                  <FileText className="w-4 h-4 text-primary" />
-                  Generated Mutual NDA Agreement
+            <div className="space-y-4 animate-in fade-in duration-300">
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div className="p-4 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-xs font-bold text-gray-900">
+                    <FileText className="w-4 h-4 text-primary" />
+                    Generated Mutual NDA Agreement
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={handleCopy}
+                      className="flex items-center gap-1.5 bg-white border border-gray-200 hover:bg-gray-100 text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors shadow-xs"
+                    >
+                      {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                      {copied ? 'Copied' : 'Copy Text'}
+                    </button>
+                    <button
+                      onClick={() => window.print()}
+                      className="flex items-center gap-1.5 bg-cta hover:bg-cta-600 text-cta-foreground text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors shadow-xs"
+                    >
+                      <Printer className="w-3.5 h-3.5" />
+                      Print Agreement
+                    </button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={handleCopy}
-                    className="flex items-center gap-1.5 bg-white border border-gray-200 hover:bg-gray-100 text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors shadow-xs"
-                  >
-                    {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                    {copied ? 'Copied' : 'Copy Text'}
-                  </button>
-                  <button
-                    onClick={() => window.print()}
-                    className="flex items-center gap-1.5 bg-cta hover:bg-cta-600 text-cta-foreground text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors shadow-xs"
-                  >
-                    <Printer className="w-3.5 h-3.5" />
-                    Print Agreement
-                  </button>
+                <div className="p-5">
+                  <pre className="text-xs font-mono text-gray-800 whitespace-pre-wrap leading-relaxed bg-gray-50/50 p-4 rounded-lg border border-gray-100 max-h-96 overflow-y-auto">
+                    {getNDAText()}
+                  </pre>
                 </div>
               </div>
-              <div className="p-5">
-                <pre className="text-xs font-mono text-gray-800 whitespace-pre-wrap leading-relaxed bg-gray-50/50 p-4 rounded-lg border border-gray-100 max-h-96 overflow-y-auto">
-                  {getNDAText()}
-                </pre>
-              </div>
+
+              <ContactCaptureGate
+                sourceTool="nda_generator"
+                toolInput={{ yourCompany, otherParty, jurisdictionChoice }}
+                toolResult={{ generated: true, text: getNDAText() }}
+              />
             </div>
           )}
         </div>

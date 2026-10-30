@@ -2,8 +2,9 @@
 
 import React, { useState } from 'react';
 import BannerHeader from '@/components/portal/BannerHeader';
-import { DownloadSimple, Printer } from '@phosphor-icons/react';
+import { Printer } from '@phosphor-icons/react';
 import { computeDeadlines, type DeadlineRow } from '@/lib/tools/compliance-calendar';
+import ContactCaptureGate from '@/components/portal/ContactCaptureGate';
 
 
 const STATUS_STYLES = {
@@ -44,7 +45,10 @@ export default function ComplianceCalendar() {
                 id="formationDate"
                 className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
                 value={formationDate}
-                onChange={(e) => setFormationDate(e.target.value)}
+                onChange={(e) => {
+                  setFormationDate(e.target.value);
+                  setRows(null);
+                }}
                 required
               />
             </div>
@@ -58,47 +62,55 @@ export default function ComplianceCalendar() {
         </div>
 
         {rows && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden animate-in fade-in duration-300">
-            <div className="px-6 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
-              <div>
-                <h3 className="text-sm font-bold text-gray-900">Upcoming UAE Statutory Deadlines</h3>
-                <p className="text-xs text-gray-500">Based on license date: {formationDate}</p>
+          <div className="space-y-4 animate-in fade-in duration-300">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="px-6 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-bold text-gray-900">Upcoming UAE Statutory Deadlines</h3>
+                  <p className="text-xs text-gray-500">Based on license date: {formationDate}</p>
+                </div>
+                <button
+                  onClick={handlePrint}
+                  className="flex items-center gap-1.5 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors shadow-xs"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  Print / Save PDF
+                </button>
               </div>
-              <button
-                onClick={handlePrint}
-                className="flex items-center gap-1.5 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors shadow-xs"
-              >
-                <Printer className="w-3.5 h-3.5" />
-                Print / Save PDF
-              </button>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-gray-100/70 text-xs font-semibold text-gray-700">
-                    <th className="px-6 py-3 border-b border-gray-200">Compliance Requirement</th>
-                    <th className="px-6 py-3 border-b border-gray-200">Statutory Deadline</th>
-                    <th className="px-6 py-3 border-b border-gray-200">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="text-xs">
-                  {rows.map((row) => (
-                    <tr key={row.requirement} className="border-b border-gray-100 hover:bg-gray-50 last:border-b-0">
-                      <td className="px-6 py-3.5 font-medium text-gray-900">{row.requirement}</td>
-                      <td className="px-6 py-3.5 text-gray-600 font-mono">{row.deadlineLabel}</td>
-                      <td className="px-6 py-3.5">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${STATUS_STYLES[row.status]}`}>
-                          {row.status}
-                        </span>
-                      </td>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-gray-100/70 text-xs font-semibold text-gray-700">
+                      <th className="px-6 py-3 border-b border-gray-200">Compliance Requirement</th>
+                      <th className="px-6 py-3 border-b border-gray-200">Statutory Deadline</th>
+                      <th className="px-6 py-3 border-b border-gray-200">Status</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="text-xs">
+                    {rows.map((row) => (
+                      <tr key={row.requirement} className="border-b border-gray-100 hover:bg-gray-50 last:border-b-0">
+                        <td className="px-6 py-3.5 font-medium text-gray-900">{row.requirement}</td>
+                        <td className="px-6 py-3.5 text-gray-600 font-mono">{row.deadlineLabel}</td>
+                        <td className="px-6 py-3.5">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${STATUS_STYLES[row.status]}`}>
+                            {row.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p className="px-6 py-3 text-[11px] text-gray-400 border-t border-gray-100">
+                Note: Estimates based on UAE Federal Tax Authority (FTA) and Ministry of Economy timelines.
+              </p>
             </div>
-            <p className="px-6 py-3 text-[11px] text-gray-400 border-t border-gray-100">
-              Note: Estimates based on UAE Federal Tax Authority (FTA) and Ministry of Economy timelines.
-            </p>
+
+            <ContactCaptureGate
+              sourceTool="compliance_calendar"
+              toolInput={{ formationDate }}
+              toolResult={{ deadlines: rows }}
+            />
           </div>
         )}
       </div>

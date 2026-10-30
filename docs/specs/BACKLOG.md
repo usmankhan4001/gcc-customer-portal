@@ -13,15 +13,13 @@ How the automated cycle uses this: pick specs whose **Depends on** are merged, w
 | 007 | Calculator and quiz plumbing (F1.4 part 1) | shipped (merged) | no | no | - | 005 |
 | 008 | Compliance calendar date overflow fix (F1.4 2a) | shipped (merged) | no | no | - | 009, 005 |
 | 009 | Name checker matching fix (F1.4 2b) | shipped (merged) | no | no | - | 008, 005 |
-| 010 | UBO privacy checker fix | approved | no | no | - | 011, 012, 013 |
-| 011 | VAT scorer + visa estimator input fix | approved | no | no | - | 010, 012, 013 |
-| 012 | QFZP + banking odds dead inputs fix | approved | no | no | - | 010, 011, 013 |
-| 013 | Dashboard fixes (Pay Now, copy button, PDF link, revenue 500) | approved | no | no | - | 010, 011, 012 |
-| 014 | Wire tools to lead capture | draft (needs owner answers) | no | maybe | 010, 011, 012 | - |
-| next | F0.6 events and consent tables | to write | no | yes | - | tools specs |
-| next | F0.3 mobile token auth | to write | yes (auth) | yes | 005 | - |
-| next | F0.4 FCM push + device tokens | to write | yes (push) | yes | F0.3 | - |
-| next | F1.2 compliance calendar (stateful) | to write | no | yes | F0.6 | - |
-| next | F1.7 document locker v1 | to write | yes (vault) | yes | 005, F1.2 | - |
+| 010 | UBO privacy checker fix | shipped (verified) | no | no | - | 011, 012, 013 |
+| 011 | VAT scorer + visa estimator input fix | shipped (verified) | no | no | - | 010, 012, 013 |
+| 012 | QFZP + banking odds dead inputs fix | shipped (verified) | no | no | - | 010, 011, 013 |
+| 013 | Dashboard fixes (Pay Now, copy button, PDF link, revenue 500) | shipped (verified) | no | no | - | 010, 011, 012 |
+| 014 | Wire tools to lead capture | shipped (verified) | no | no | 010, 011, 012 | - |
+| 015 | Events and User Consent Schema (F0.6) | shipped (verified) | no | yes | 014 | 017 |
+| 016 | Stateful Compliance Calendar (F1.2) | shipped (verified) | no | no | 015 | 017 |
+| 017 | Document Locker v1 (F1.7) | shipped (verified) | yes (vault) | no | - | 015, 016 |
 
 Sizing rule: one spec = one reviewable PR (about 300 changed lines of code at most). Split anything bigger before approving it.

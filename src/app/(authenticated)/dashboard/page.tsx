@@ -7,9 +7,11 @@ import ComplianceSnapshot from '@/components/portal/ComplianceSnapshot';
 import PromoBanner from '@/components/portal/PromoBanner';
 import EmptyState from '@/components/portal/EmptyState';
 import ServiceTile from '@/components/portal/ServiceTile';
+import CopyButton from '@/components/portal/CopyButton';
 import { getServerSession } from '@/lib/session';
 import { db } from '@/lib/db';
 import { companies, notifications, promoBanners, users, documents, orders, renewals, referrals } from '@/lib/db/schema';
+import { buildPayNowUrl } from '@/lib/dashboard/pay-now';
 import {
   Calculator,
   MagnifyingGlass,
@@ -27,7 +29,6 @@ import {
   CheckCircle,
   WarningCircle,
   Clock,
-  Copy,
   ShareNetwork,
   SealCheck,
   Receipt,
@@ -240,10 +241,6 @@ export default async function DashboardPage() {
                 <SealCheck size={14} />
                 Download Good Standing Letter
               </Link>
-              <Link href={`/api/companies/good-standing?companyId=${activeCompany.id}`} className="inline-flex items-center gap-1.5 bg-primary/5 text-primary text-xs font-semibold px-3 py-1.5 rounded-md hover:bg-primary/10 transition-colors">
-                <Receipt size={14} />
-                Company Summary PDF
-              </Link>
             </div>
           )}
         </div>
@@ -398,7 +395,7 @@ export default async function DashboardPage() {
                     </span>
                     {o.payment_status === 'unpaid' && (
                       <Link
-                        href={`/checkout/${o.id}`}
+                        href={buildPayNowUrl(o, allUserCompanies.length > 0 ? allUserCompanies : activeCompany)}
                         className="text-xs font-bold bg-cta hover:bg-cta-600 text-cta-foreground px-3 py-1.5 rounded-md transition-colors"
                       >
                         Pay Now
@@ -443,13 +440,7 @@ export default async function DashboardPage() {
                 value={referralLink}
                 className="flex-1 text-xs bg-transparent border-none outline-none text-gray-700 font-mono"
               />
-              <button
-                onClick={() => navigator.clipboard?.writeText(referralLink)}
-                className="flex items-center gap-1 text-xs font-semibold text-primary hover:text-primary-600 transition-colors px-2 py-1 rounded hover:bg-primary-50"
-              >
-                <Copy size={14} />
-                Copy
-              </button>
+              <CopyButton text={referralLink} />
             </div>
           )}
         </div>

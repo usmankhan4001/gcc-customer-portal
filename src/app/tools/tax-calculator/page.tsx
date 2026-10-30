@@ -10,6 +10,7 @@ import {
   mapCalculatorResponse,
   type CalculatorResult,
 } from '@/lib/tools/tax-calculator';
+import ContactCaptureGate from '@/components/portal/ContactCaptureGate';
 
 export default function TaxCalculator() {
   const [countryResidence, setCountryResidence] = useState('US');
@@ -61,7 +62,11 @@ export default function TaxCalculator() {
             </label>
             <select
               value={countryResidence}
-              onChange={(e) => setCountryResidence(e.target.value)}
+              onChange={(e) => {
+                setCountryResidence(e.target.value);
+                setResult(null);
+                setError('');
+              }}
               className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
             >
               {CALCULATOR_COUNTRIES.map((c) => (
@@ -76,7 +81,11 @@ export default function TaxCalculator() {
             </label>
             <select
               value={targetJurisdiction}
-              onChange={(e) => setTargetJurisdiction(e.target.value)}
+              onChange={(e) => {
+                setTargetJurisdiction(e.target.value);
+                setResult(null);
+                setError('');
+              }}
               className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
             >
               {CALCULATOR_TARGETS.map((j) => (
@@ -92,7 +101,11 @@ export default function TaxCalculator() {
             <input
               type="number"
               value={annualProfit}
-              onChange={(e) => setAnnualProfit(e.target.value === '' ? '' : Number(e.target.value))}
+              onChange={(e) => {
+                setAnnualProfit(e.target.value === '' ? '' : Number(e.target.value));
+                setResult(null);
+                setError('');
+              }}
               placeholder="250000"
               className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary font-mono"
               required
@@ -148,6 +161,12 @@ export default function TaxCalculator() {
                 View Packages <ArrowRight className="w-3 h-3" />
               </Link>
             </div>
+
+            <ContactCaptureGate
+              sourceTool="tax_calculator"
+              toolInput={{ countryResidence, targetJurisdiction, annualProfit: Number(annualProfit) }}
+              toolResult={result as unknown as Record<string, unknown>}
+            />
           </div>
         )}
       </main>

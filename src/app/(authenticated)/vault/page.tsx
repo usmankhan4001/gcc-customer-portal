@@ -1,26 +1,16 @@
-import { and, desc, eq } from 'drizzle-orm';
-import { FolderOpen, FileText } from '@phosphor-icons/react/dist/ssr';
+import { and, desc, eq, ne } from 'drizzle-orm';
+import { CheckCircle, Clock, UploadSimple } from '@phosphor-icons/react/dist/ssr';
 import BannerHeader from '@/components/portal/BannerHeader';
 import VaultUploader from '@/components/portal/VaultUploader';
-import DownloadButton from '@/components/portal/DownloadButton';
-import ShareButton from '@/components/portal/ShareButton';
-import EmptyState from '@/components/portal/EmptyState';
+import DocumentLocker from '@/components/portal/DocumentLocker';
 import { getServerSession } from '@/lib/session';
 import { db } from '@/lib/db';
-import { documents } from '@/lib/db/schema';
-
-const CATEGORY_LABELS: Record<string, string> = {
-  trade_license: 'Trade License',
-  moa_aoa: 'MOA / AOA',
-  share_certificate: 'Share Certificate',
-  tax_certificate: 'Tax Certificate',
-  nominee_poa: 'Nominee POA',
-  bank_document: 'Bank Document',
-  other: 'Other',
-};
+import { companies, documents } from '@/lib/db/schema';
 
 export default async function Vault() {
   const session = await getServerSession();
+
+  // 1. Fetch active company documents
   const rows = session
     ? await db
         .select()
@@ -29,99 +19,76 @@ export default async function Vault() {
         .orderBy(desc(documents.created_at))
     : [];
 
-  const byCategory = rows.reduce<Record<string, number>>((acc, doc) => {
-    acc[doc.category] = (acc[doc.category] ?? 0) + 1;
-    return acc;
-  }, {});
+  // 2. Fetch user's company profile for jurisdiction and KYC status
+  const [company] = session
+    ? await db
+        .select()
+        .from(companies)
+        .where(and(eq(companies.user_id, session.userId), ne(companies.status, 'lead')))
+        .orderBy(desc(companies.created_at))
+        .limit(1)
+    : [];
+
+  const kycCompleted = company?.official_kyc_completed ?? false;
+  const kycRef = company?.official_kyc_reference;
 
   return (
     <div className="pb-24">
-      <BannerHeader title="SECURE VAULT" subtitle="Secure document management and sharing." />
+      <BannerHeader
+        title="DOCUMENT LOCKER & VAULT"
+        subtitle="Bank-grade encrypted corporate repository and KYC verification center."
+      />
 
-      <div className="p-6 md:p-8 max-w-4xl mx-auto -mt-6 relative z-10">
-        <div className="flex justify-end mb-6">
-          <VaultUploader />
+      <div className="p-4 md:p-8 max-w-5xl mx-auto -mt-6 relative z-10 space-y-6">
+        {/* Top KYC Upload & Verification Section */}
+        <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-start md:items-center gap-3.5">
+            <div
+              className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
+                kycCompleted ? 'bg-emerald-100 text-emerald-700' : 'bg-primary-50 text-primary'
+              }`}
+            >
+              {kycCompleted ? (
+                <CheckCircle size={22} weight="fill" />
+              ) : (
+                <Clock size={22} weight="duotone" />
+              )}
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="font-bold text-gray-900 text-sm md:text-base">
+                  KYC Verification & Document Intake
+                </h3>
+                <span
+                  className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
+                    kycCompleted
+                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                      : 'bg-amber-50 text-amber-700 border border-amber-200'
+                  }`}
+                >
+                  {kycCompleted ? 'KYC Verified' : 'KYC Under Review'}
+                </span>
+              </div>
+              <p className="text-xs text-gray-500 mt-0.5">
+                {kycCompleted
+                  ? `Official identity verification complete${kycRef ? ` (Ref: ${kycRef})` : ''}. All entity files archived.`
+                  : 'Submit identification, proof of address, or incorporation filings for compliance certification.'}
+              </p>
+            </div>
+          </div>
+
+          {/* Quick Upload Action */}
+          <div className="shrink-0 flex items-center justify-end">
+            <VaultUploader />
+          </div>
         </div>
 
-        {/* Folders Grid */}
-        <section className="mb-10">
-          <h2 className="text-lg font-bold text-gray-800 mb-4 px-1 tracking-tight">FOLDERS</h2>
-          {Object.keys(byCategory).length === 0 ? (
-            <EmptyState
-              icon={<FolderOpen size={22} weight="duotone" />}
-              title="No documents yet"
-              description="Upload your first one above."
-            />
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {Object.entries(byCategory).map(([category, count]) => (
-                <div key={category} className="bg-white p-4 rounded-[var(--radius-tile)] shadow-sm border border-gray-200 hover:border-primary-200 hover:shadow-md transition-all cursor-pointer group flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-[var(--radius-tile)] bg-primary-50 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                    <FolderOpen size={20} weight="duotone" className="text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-gray-900 text-sm uppercase">{CATEGORY_LABELS[category] ?? category}</h3>
-                    <p className="text-xs text-gray-500 font-medium">{count} FILE{count === 1 ? '' : 'S'}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-
-        {/* Recent Files List */}
-        <section>
-          <h2 className="text-lg font-bold text-gray-800 mb-4 px-1 tracking-tight">RECENT FILES</h2>
-          <div className="bg-white rounded-md shadow-sm border border-gray-200 overflow-hidden">
-            {rows.length === 0 ? (
-              <div className="p-6">
-                <EmptyState icon={<FileText size={22} weight="duotone" />} title="No files uploaded yet" />
-              </div>
-            ) : (
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-gray-50 border-b border-gray-200 text-xs text-gray-500 uppercase tracking-wider">
-                    <th className="px-4 py-2 font-bold">Name</th>
-                    <th className="px-4 py-2 font-bold hidden sm:table-cell">Size</th>
-                    <th className="px-4 py-2 font-bold hidden sm:table-cell">Date</th>
-                    <th className="px-4 py-2 font-bold text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.map((file) => (
-                    <tr key={file.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors last:border-b-0">
-                      <td className="px-4 py-2 flex items-center gap-3">
-                        <div className="bg-gray-100 p-1.5 rounded-md shrink-0">
-                          <FileText size={16} weight="duotone" className="text-gray-600" />
-                        </div>
-                        <div>
-                          <div className="font-bold text-gray-900 text-sm truncate">{file.file_name}</div>
-                          <div className="sm:hidden flex gap-2 text-[10px] text-gray-500 font-medium">
-                            <span>{file.file_size_bytes ? `${(file.file_size_bytes / 1024 / 1024).toFixed(1)} MB` : '—'}</span>
-                            <span>•</span>
-                            <span>{new Date(file.created_at).toLocaleDateString()}</span>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-2 text-sm text-gray-600 font-medium hidden sm:table-cell">
-                        {file.file_size_bytes ? `${(file.file_size_bytes / 1024 / 1024).toFixed(1)} MB` : '—'}
-                      </td>
-                      <td className="px-4 py-2 text-sm text-gray-600 font-medium hidden sm:table-cell">
-                        {new Date(file.created_at).toLocaleDateString()}
-                      </td>
-                      <td className="px-4 py-2 text-right">
-                        <div className="flex justify-end gap-1">
-                          <ShareButton documentId={file.id} />
-                          <DownloadButton documentId={file.id} />
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
-        </section>
+        {/* Organized Corporate Kit Document Locker */}
+        <DocumentLocker
+          documents={rows}
+          jurisdiction={company?.jurisdiction ?? 'uae'}
+          companyName={company?.company_name}
+        />
       </div>
     </div>
   );

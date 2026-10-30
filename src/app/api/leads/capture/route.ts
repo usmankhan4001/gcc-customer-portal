@@ -1,30 +1,57 @@
 import { NextResponse } from 'next/server';
-import { and, desc, eq, or } from 'drizzle-orm';
+import { desc, eq, or } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { leads } from '@/lib/db/schema';
-import { classifyPersona, type PersonaSignals } from '@/lib/persona';
+import { classifyPersona } from '@/lib/persona';
 import { captureServerEvent, identifyServer } from '@/lib/posthog-server';
-
-interface CaptureRequest {
-  source_tool: string;
-  email?: string;
-  whatsapp_number?: string;
-  tool_input: Record<string, unknown>;
-  tool_result: Record<string, unknown>;
-  signals?: PersonaSignals;
-}
+import { getServerSession } from '@/lib/session';
+import { captureRequestSchema, CONSENT_TEXT } from '@/lib/tools/lead-capture';
 
 export async function POST(request: Request) {
+  let rawBody: unknown;
   try {
-    const body = (await request.json()) as CaptureRequest;
-    const { source_tool, email, whatsapp_number, tool_input, tool_result, signals } = body;
+    rawBody = await request.json();
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON payload' }, { status: 400 });
+  }
 
-    if (!source_tool || (!email && !whatsapp_number)) {
-      return NextResponse.json(
-        { error: 'source_tool and at least one of email/whatsapp_number are required' },
-        { status: 400 }
-      );
-    }
+  // Auth-aware session check: if caller is authenticated, default missing email to session email
+  const session = await getServerSession();
+  const candidateBody =
+    typeof rawBody === 'object' && rawBody !== null
+      ? {
+          ...(rawBody as Record<string, unknown>),
+          email:
+            (rawBody as Record<string, unknown>).email !== undefined &&
+            (rawBody as Record<string, unknown>).email !== ''
+              ? (rawBody as Record<string, unknown>).email
+              : session?.email,
+        }
+      : rawBody;
+
+  const parseResult = captureRequestSchema.safeParse(candidateBody);
+  if (!parseResult.success) {
+    return NextResponse.json(
+      {
+        error: 'Invalid request payload',
+        details: parseResult.error.flatten(),
+      },
+      { status: 400 }
+    );
+  }
+
+  const {
+    source_tool,
+    email: parsedEmail,
+    whatsapp_number,
+    tool_input,
+    tool_result,
+    signals,
+  } = parseResult.data;
+
+  try {
+    const convertedUserId = session?.userId ?? null;
+    const email = parsedEmail ?? (session?.email ? session.email : null);
 
     // Dedup: find the most recent lead for this contact (by whichever of
     // email/whatsapp was given) so a second tool use enriches the persona
@@ -54,33 +81,44 @@ export async function POST(request: Request) {
         : undefined
     );
 
+    // Preserve consent flags and wording in tool_input
+    const finalToolInput = { ...tool_input };
+    if (typeof finalToolInput.consent === 'boolean' && !finalToolInput.consent_text) {
+      finalToolInput.consent_text = CONSENT_TEXT;
+    }
+
     const [row] = await db
       .insert(leads)
       .values({
         email: email ?? existing?.email ?? null,
         whatsapp_number: whatsapp_number ?? existing?.whatsapp_number ?? null,
-        source_tool: source_tool as any,
-        tool_input,
+        source_tool,
+        tool_input: finalToolInput,
         tool_result,
         estimated_revenue_band: classification.estimated_revenue_band,
         industry_risk_tier: classification.industry_risk_tier,
         primary_interest_jurisdiction: classification.primary_interest_jurisdiction,
         persona_tag: classification.persona_tag,
         funnel_track: classification.funnel_track,
+        converted_user_id: convertedUserId,
       })
       .returning();
 
-    identifyServer(row.id, {
-      email: row.email,
-      whatsapp_number: row.whatsapp_number,
-      persona_tag: row.persona_tag,
-      funnel_track: row.funnel_track,
-    });
-    captureServerEvent(row.id, 'lead_captured', {
-      source_tool: row.source_tool,
-      persona_tag: row.persona_tag,
-      primary_interest_jurisdiction: row.primary_interest_jurisdiction,
-    });
+    try {
+      identifyServer(row.id, {
+        email: row.email,
+        whatsapp_number: row.whatsapp_number,
+        persona_tag: row.persona_tag,
+        funnel_track: row.funnel_track,
+      });
+      captureServerEvent(row.id, 'lead_captured', {
+        source_tool: row.source_tool,
+        persona_tag: row.persona_tag,
+        primary_interest_jurisdiction: row.primary_interest_jurisdiction,
+      });
+    } catch (err) {
+      console.error('[api/leads/capture] PostHog tracking error:', err);
+    }
 
     // Id only: the stored row can hold another visitor's email/phone matched via the dedupe lookup.
     return NextResponse.json({ lead: { id: row.id } });

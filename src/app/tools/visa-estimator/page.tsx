@@ -3,30 +3,32 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import BannerHeader from '@/components/portal/BannerHeader';
-import { Users, ArrowRight } from '@phosphor-icons/react';
+import { Users, ArrowRight, WarningCircle } from '@phosphor-icons/react';
+import {
+  VISA_JURISDICTION_OPTIONS,
+  VisaEstimateSuccess,
+  estimateVisaCosts,
+  formatAED,
+} from '@/lib/tools/visa-estimator';
+import ContactCaptureGate from '@/components/portal/ContactCaptureGate';
 
 export default function VisaEstimator() {
   const [employees, setEmployees] = useState('2');
   const [jurisdiction, setJurisdiction] = useState('FreeZone');
-  const [showResults, setShowResults] = useState(false);
+  const [result, setResult] = useState<VisaEstimateSuccess | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setShowResults(true);
+    const res = estimateVisaCosts(jurisdiction, employees);
+    if (!res.success) {
+      setError(res.error);
+      setResult(null);
+      return;
+    }
+    setError(null);
+    setResult(res);
   };
-
-  const count = parseInt(employees) || 1;
-  const isFreeZone = jurisdiction === 'FreeZone';
-  // Standard UAE residency visa fees (AED)
-  const entryPermit = isFreeZone ? 1100 : 1500;
-  const medicalFitness = 350;
-  const emiratesId = 380;
-  const visaStamping = isFreeZone ? 1650 : 2100;
-  const perVisaTotal = entryPermit + medicalFitness + emiratesId + visaStamping;
-  const grandTotal = perVisaTotal * count;
-
-  const fmtAED = (n: number) =>
-    new Intl.NumberFormat('en-AE', { style: 'currency', currency: 'AED', maximumFractionDigits: 0 }).format(n);
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
@@ -45,11 +47,18 @@ export default function VisaEstimator() {
               <select
                 id="jurisdiction"
                 value={jurisdiction}
-                onChange={(e) => setJurisdiction(e.target.value)}
+                onChange={(e) => {
+                  setJurisdiction(e.target.value);
+                  setResult(null);
+                  setError(null);
+                }}
                 className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
               >
-                <option value="FreeZone">UAE Free Zone (Dubai / RAK / IFZA / Meydan)</option>
-                <option value="Mainland">Dubai Mainland (DED)</option>
+                {VISA_JURISDICTION_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -64,7 +73,11 @@ export default function VisaEstimator() {
                 max="50"
                 className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary font-mono"
                 value={employees}
-                onChange={(e) => setEmployees(e.target.value)}
+                onChange={(e) => {
+                  setEmployees(e.target.value);
+                  setResult(null);
+                  setError(null);
+                }}
                 required
               />
             </div>
@@ -78,7 +91,14 @@ export default function VisaEstimator() {
           </form>
         </div>
 
-        {showResults && (
+        {error && (
+          <div className="bg-rose-50 border border-rose-200 text-rose-800 text-xs p-3 rounded-lg flex items-center gap-2">
+            <WarningCircle className="w-5 h-5 text-rose-600 shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
+
+        {result && (
           <div className="space-y-4 animate-in fade-in duration-300">
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
               <div className="px-5 py-4 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
@@ -86,29 +106,29 @@ export default function VisaEstimator() {
                   <Users className="w-4 h-4 text-primary" />
                   <h3 className="text-xs font-bold text-gray-900">Official Government & Medical Fee Schedule</h3>
                 </div>
-                <span className="text-xs font-mono font-bold text-primary">{count} Visa(s)</span>
+                <span className="text-xs font-mono font-bold text-primary">{result.count} Visa(s)</span>
               </div>
 
               <div className="p-5 space-y-3 text-xs">
                 <div className="flex justify-between py-1 border-b border-gray-100">
                   <span className="text-gray-600">Entry Permit / Change of Status</span>
-                  <span className="font-mono font-medium text-gray-900">{fmtAED(entryPermit * count)}</span>
+                  <span className="font-mono font-medium text-gray-900">{formatAED(result.fees.entryPermit)}</span>
                 </div>
                 <div className="flex justify-between py-1 border-b border-gray-100">
                   <span className="text-gray-600">Medical Fitness Test (VIP fast track)</span>
-                  <span className="font-mono font-medium text-gray-900">{fmtAED(medicalFitness * count)}</span>
+                  <span className="font-mono font-medium text-gray-900">{formatAED(result.fees.medicalFitness)}</span>
                 </div>
                 <div className="flex justify-between py-1 border-b border-gray-100">
                   <span className="text-gray-600">Emirates ID Biometrics (2 Years)</span>
-                  <span className="font-mono font-medium text-gray-900">{fmtAED(emiratesId * count)}</span>
+                  <span className="font-mono font-medium text-gray-900">{formatAED(result.fees.emiratesId)}</span>
                 </div>
                 <div className="flex justify-between py-1 border-b border-gray-100">
                   <span className="text-gray-600">Residency Stamping & Establishment Issuance</span>
-                  <span className="font-mono font-medium text-gray-900">{fmtAED(visaStamping * count)}</span>
+                  <span className="font-mono font-medium text-gray-900">{formatAED(result.fees.visaStamping)}</span>
                 </div>
                 <div className="flex justify-between pt-2 text-sm font-bold text-gray-900">
                   <span>Total Estimated Visa Government Cost</span>
-                  <span className="font-mono text-primary">{fmtAED(grandTotal)}</span>
+                  <span className="font-mono text-primary">{formatAED(result.fees.grandTotal)}</span>
                 </div>
               </div>
 
@@ -122,6 +142,12 @@ export default function VisaEstimator() {
                 </Link>
               </div>
             </div>
+
+            <ContactCaptureGate
+              sourceTool="visa_estimator"
+              toolInput={{ jurisdiction, employees: Number(employees) }}
+              toolResult={result as unknown as Record<string, unknown>}
+            />
           </div>
         )}
       </div>

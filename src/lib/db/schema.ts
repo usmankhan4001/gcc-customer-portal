@@ -7,6 +7,7 @@ import {
   boolean,
   integer,
   jsonb,
+  index,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
@@ -380,6 +381,55 @@ export const referrals = pgTable('referrals', {
 });
 
 // ---------------------------------------------------------------------------
+// events (general lifecycle & audit event log)
+// ---------------------------------------------------------------------------
+
+export const events = pgTable(
+  'events',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    event_type: text('event_type').notNull(),
+    user_id: uuid('user_id').references(() => users.id),
+    lead_id: uuid('lead_id').references(() => leads.id),
+    payload: jsonb('payload').default({}),
+    ip_address: text('ip_address'),
+    user_agent: text('user_agent'),
+    created_at: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => [
+    index('events_event_type_idx').on(table.event_type),
+    index('events_user_id_idx').on(table.user_id),
+    index('events_lead_id_idx').on(table.lead_id),
+    index('events_created_at_idx').on(table.created_at),
+  ]
+);
+
+// ---------------------------------------------------------------------------
+// user_consents (formal GDPR / UAE PDPL consent audit log)
+// ---------------------------------------------------------------------------
+
+export const userConsents = pgTable(
+  'user_consents',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    user_id: uuid('user_id').references(() => users.id),
+    lead_id: uuid('lead_id').references(() => leads.id),
+    consent_type: text('consent_type').notNull(),
+    consent_text: text('consent_text').notNull(),
+    granted: boolean('granted').default(true).notNull(),
+    ip_address: text('ip_address'),
+    user_agent: text('user_agent'),
+    created_at: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => [
+    index('user_consents_user_id_idx').on(table.user_id),
+    index('user_consents_lead_id_idx').on(table.lead_id),
+    index('user_consents_consent_type_idx').on(table.consent_type),
+    index('user_consents_created_at_idx').on(table.created_at),
+  ]
+);
+
+// ---------------------------------------------------------------------------
 // Relations
 // ---------------------------------------------------------------------------
 
@@ -387,6 +437,24 @@ export const usersRelations = relations(users, ({ many }) => ({
   companies: many(companies),
   documents: many(documents),
   notifications: many(notifications),
+  events: many(events),
+  consents: many(userConsents),
+}));
+
+export const leadsRelations = relations(leads, ({ one, many }) => ({
+  convertedUser: one(users, { fields: [leads.converted_user_id], references: [users.id] }),
+  events: many(events),
+  consents: many(userConsents),
+}));
+
+export const eventsRelations = relations(events, ({ one }) => ({
+  user: one(users, { fields: [events.user_id], references: [users.id] }),
+  lead: one(leads, { fields: [events.lead_id], references: [leads.id] }),
+}));
+
+export const userConsentsRelations = relations(userConsents, ({ one }) => ({
+  user: one(users, { fields: [userConsents.user_id], references: [users.id] }),
+  lead: one(leads, { fields: [userConsents.lead_id], references: [leads.id] }),
 }));
 
 export const companiesRelations = relations(companies, ({ one, many }) => ({
@@ -433,3 +501,7 @@ export type Referral = typeof referrals.$inferSelect;
 export type DocumentVersion = typeof documentVersions.$inferSelect;
 export type ShareableLink = typeof shareableLinks.$inferSelect;
 export type DocumentAccessLog = typeof documentAccessLog.$inferSelect;
+export type Event = typeof events.$inferSelect;
+export type InsertEvent = typeof events.$inferInsert;
+export type UserConsent = typeof userConsents.$inferSelect;
+export type InsertUserConsent = typeof userConsents.$inferInsert;

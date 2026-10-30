@@ -10,6 +10,7 @@ import {
   mapQuizResponse,
   type QuizRecommendation as Recommendation,
 } from '@/lib/tools/jurisdiction-quiz';
+import ContactCaptureGate from '@/components/portal/ContactCaptureGate';
 
 const BUDGETS = [
   { value: 'under_50k', label: 'Under $50,000 / year' },
@@ -59,7 +60,11 @@ export default function JurisdictionQuiz() {
             <label className="block text-xs font-semibold text-gray-700 mb-1.5">What matters most right now?</label>
             <select
               value={goal}
-              onChange={(e) => setGoal(e.target.value)}
+              onChange={(e) => {
+                setGoal(e.target.value);
+                setRecommendations(null);
+                setError('');
+              }}
               className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
             >
               {GOALS.map((g) => (
@@ -72,7 +77,11 @@ export default function JurisdictionQuiz() {
             <label className="block text-xs font-semibold text-gray-700 mb-1.5">Estimated annual business revenue / profit?</label>
             <select
               value={budgetBand}
-              onChange={(e) => setBudgetBand(e.target.value)}
+              onChange={(e) => {
+                setBudgetBand(e.target.value);
+                setRecommendations(null);
+                setError('');
+              }}
               className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
             >
               {BUDGETS.map((b) => (
@@ -85,7 +94,11 @@ export default function JurisdictionQuiz() {
             <label className="block text-xs font-semibold text-gray-700 mb-1.5">How soon do you need your entity active?</label>
             <select
               value={timeline}
-              onChange={(e) => setTimeline(e.target.value)}
+              onChange={(e) => {
+                setTimeline(e.target.value);
+                setRecommendations(null);
+                setError('');
+              }}
               className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
             >
               {TIMELINES.map((t) => (
@@ -99,7 +112,11 @@ export default function JurisdictionQuiz() {
               <input
                 type="checkbox"
                 checked={wantsRelocation}
-                onChange={(e) => setWantsRelocation(e.target.checked)}
+                onChange={(e) => {
+                  setWantsRelocation(e.target.checked);
+                  setRecommendations(null);
+                  setError('');
+                }}
                 className="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4"
               />
               <span className="text-xs text-gray-700 font-medium">I want a residence visa (Golden / Investor Visa) with this formation</span>
@@ -176,6 +193,12 @@ export default function JurisdictionQuiz() {
                 </div>
               ))}
             </div>
+
+            <ContactCaptureGate
+              sourceTool="jurisdiction_quiz"
+              toolInput={{ goal, budget_band: budgetBand, timeline, wants_relocation: wantsRelocation }}
+              toolResult={{ recommendations }}
+            />
           </div>
         )}
       </main>
