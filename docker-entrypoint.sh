@@ -15,7 +15,7 @@ fi
 # Run database migrations before starting the server. A failed migration means the code expects a
 # schema the database does not have, so refuse to start (visible deploy failure) instead of serving errors.
 # Escape hatch for a database bootstrapped without migration history: set ALLOW_MIGRATION_FAILURE=1 temporarily.
-MIGRATE_CMD="${MIGRATE_CMD:-./node_modules/.bin/drizzle-kit migrate}"
+MIGRATE_CMD="${MIGRATE_CMD:-node /migrate/migrate.mjs}"
 START_CMD="${START_CMD:-node server.js}"
 echo "Running database migrations..."
 if ! sh -c "$MIGRATE_CMD"; then

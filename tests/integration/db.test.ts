@@ -1,3 +1,5 @@
+import { spawnSync } from 'node:child_process';
+import fs from 'node:fs';
 import path from 'node:path';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { migrate } from 'drizzle-orm/postgres-js/migrator';
@@ -77,5 +79,40 @@ describe('verify-otp against real Postgres', () => {
     await seedCode('135790');
     for (let i = 0; i < 5; i++) expect((await call('000000')).status).toBe(400);
     expect((await call('135790')).status).toBe(429);
+  });
+});
+
+describe('legacy database without migration history (baseline then migrate)', () => {
+  const root = path.resolve(__dirname, '../..');
+  const legacyName = `${dbName}_legacy`;
+  const legacyUrl = adminUrl.replace(/\/[^/]*$/, `/${legacyName}`);
+  const node = (script: string, args: string[] = []) =>
+    spawnSync(process.execPath, [path.join(root, 'scripts', script), ...args], {
+      encoding: 'utf8',
+      cwd: root,
+      env: { ...process.env, DATABASE_URL: legacyUrl },
+    });
+
+  it('fails clearly without a baseline, then succeeds after baselining the migrations it already has', async () => {
+    await admin.unsafe(`CREATE DATABASE ${legacyName}`);
+    const legacy = postgres(legacyUrl, { max: 1, onnotice: () => {} });
+    try {
+      for (const f of ['0000_wealthy_ezekiel.sql', '0001_rainy_mandrill.sql']) {
+        for (const stmt of fs.readFileSync(path.join(root, 'drizzle', f), 'utf8').split('--> statement-breakpoint')) await legacy.unsafe(stmt);
+      }
+      const first = node('migrate.mjs');
+      expect(first.status).toBe(1);
+      expect(first.stderr).toContain('baseline');
+
+      expect(node('baseline.mjs', ['2']).status).toBe(0);
+      const second = node('migrate.mjs');
+      expect(second.status).toBe(0);
+      const cols = await legacy`select column_name from information_schema.columns where table_name = 'otp_codes'`;
+      expect(cols.map((c) => c.column_name)).toContain('attempts');
+      expect(node('baseline.mjs', ['2']).status).toBe(1); // refuses to baseline twice
+    } finally {
+      await legacy.end();
+      await admin.unsafe(`DROP DATABASE IF EXISTS ${legacyName} WITH (FORCE)`);
+    }
   });
 });

@@ -47,15 +47,12 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Only copy drizzle CLI + migration files (not the entire node_modules).
-# The standalone output already has all runtime deps. We just need drizzle-kit
-# for migrations, which is a devDependency so standalone prunes it.
+# Migrations: the standalone output prunes drizzle-kit, so run a tiny script (scripts/migrate.mjs) that
+# uses the runtime packages drizzle-orm + postgres, copied from the deps stage into /migrate.
 COPY --from=builder /app/drizzle ./drizzle
-COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
-
-# drizzle-kit is run via npx in the entrypoint, which auto-installs with
-# its peer dep drizzle-orm. No need to pre-install or copy into the runner.
-
+COPY --from=deps /app/node_modules/drizzle-orm /migrate/node_modules/drizzle-orm
+COPY --from=deps /app/node_modules/postgres /migrate/node_modules/postgres
+COPY scripts/migrate.mjs /migrate/migrate.mjs
 COPY docker-entrypoint.sh ./docker-entrypoint.sh
 
 USER nextjs
