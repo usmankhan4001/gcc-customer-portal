@@ -1,6 +1,6 @@
 # Start here (any AI agent, any machine)
 
-**Base branch: `dev`.** Clone or fetch it (`git clone -b dev <repo>`), branch from `origin/dev`, and merge back into `dev`. **Never push to `main`:** pushing `main` deploys production. `dev` auto-deploys only the dev test app.
+**Base branch: `dev`.** Clone or fetch it (`git clone -b dev <repo>`), branch from `origin/dev`. The owner reviews your branch and merges it into `dev`. **Never push to `main`:** pushing `main` deploys production. `dev` auto-deploys only the dev test app.
 
 You are working on the GCCStartup client portal (Next.js 15, React 19, Drizzle/Postgres). These steps work with Claude Code, Codex, Cursor, Gemini CLI, Copilot agent or a human. `AGENTS.md` is the rulebook; this file is the quick path.
 
