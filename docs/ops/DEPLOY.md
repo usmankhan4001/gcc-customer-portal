@@ -48,3 +48,57 @@ The new image runs `scripts/migrate.mjs` at start and **refuses to start if it f
 
 ## After deploying
 - If anyone could have used the old onboarding takeover or open `seed-admin`, review recent password changes and the admin users list, and rotate admin passwords.
+
+---
+
+# Production rollout checklist (prepared 2026-10-30; nothing here has been run on production)
+
+## What merging to `main` actually ships
+Production runs `e0c164a`. Merging this branch ships **everything since then**, not only the security fixes:
+- 11 earlier commits that have only run on dev since September: Navy/Gold rebrand, unified dashboard, invoice generator, good-standing PDF, referral schema (migration 0002), Kanban wired to the database, persona branching.
+- The security fixes (specs 001 to 004, 006), migrations 0003 and 0004, the new migration runner, tools fixes (007 to 009), docs and tests.
+Dev (`customer-portal-dev`) has run this exact code since commit `ab1facf` and the probes passed. If you want a smaller change, tell me and I will cut a security-only branch instead (more work and its own testing).
+
+## Production facts (from Dokploy)
+- App `customer-portal` -> database service `portal-postgres` (`oEAzYmpyHNiw4OqGcvPzw`, postgres:16, database `gccstartup`), not exposed outside the Docker network.
+- **Backups exist**: nightly at 02:00 to Cloudflare R2 (destination "GCC Startup Backup", prefix `customer-portal-db`, keeps the latest 7). Last run seen: 2026-10-30 02:00, status done. (Listing the files through the API returned nothing, so confirm in the Dokploy UI that a file is there.)
+- Rollback toggle in Dokploy is **off** for this app. Rollback = redeploy an older commit (see below).
+- Domain `portal.gccstartup.com` is http only.
+
+## Steps (you do 1 to 4, then tell me; I do 5 to 7)
+1. **Backup now.** Dokploy -> project "GCC Startup Customer Portal" -> `portal-postgres` -> Backups -> run the existing backup manually. Confirm the new file appears.
+2. **Run the read-only query** on `portal-postgres` (Dokploy -> `portal-postgres` -> Terminal, then `psql -U gccstartup -d gccstartup`) and paste me the single result row:
+   ```sql
+   select to_regclass('drizzle.__drizzle_migrations') as history,
+          (select count(*) from information_schema.tables where table_schema='public') as tables,
+          to_regclass('public.referrals') as has_0002,
+          to_regclass('public.processed_webhook_events') as has_0003,
+          (select count(*) from information_schema.columns where table_name='otp_codes' and column_name='attempts') as has_0004;
+   ```
+3. **Decide the baseline from the result:**
+
+   | history | tables | has_0002 | has_0003 / has_0004 | Do this |
+   | :--- | :--- | :--- | :--- | :--- |
+   | not null | any | any | any | Nothing. The new image migrates normally. |
+   | null | 0 | - | - | Nothing. Empty database, the image creates everything. |
+   | null | > 0 | null | null / 0 | Baseline **2** (database holds 0000 and 0001). |
+   | null | > 0 | not null | null / 0 | Baseline **3** (holds 0000 to 0002). |
+   | null | > 0 | not null | not null / 1 | Baseline **5** (holds all of them). |
+   | anything else | | | | Stop and send me the row. Do not guess. |
+
+   Baseline = run this on your machine and paste the printed SQL into the same `psql` session (it is wrapped in a transaction and refuses to run twice):
+   ```bash
+   node scripts/baseline.mjs 2 --sql      # replace 2 with the N from the table
+   ```
+4. **Check the environment** in Dokploy -> `customer-portal` -> Environment (names only): `JWT_SECRET`, `WHATSAPP_APP_SECRET`, `WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID` (real values, not `xxx`), `DATABASE_URL`, Stripe, R2, Resend. Leave `ADMIN_SEED_TOKEN` unset.
+5. **Merge and push `main`** (this deploys production automatically): `git switch main && git merge --ff-only chore/fde-ready && git push origin main`. Fast-forward only, no force.
+6. **Watch**: container logs must show `migrate: all migrations applied` then `Ready`. If it shows `FATAL: database migration failed`, the old container may keep serving; fix the baseline (step 3) and redeploy.
+7. **Probe production** with the same 7 requests used on dev (seed-admin 404, fixed OTP 400, forged header 401, unsubscribe 401, unsigned webhooks 401/400, pdf 401), then one real OTP login.
+
+## Rollback
+- Migrations 0003 and 0004 are additive, so the old code runs fine on the new schema.
+- To go back: `git revert -m 1 <merge or head commit>` and push `main` (a new commit, no force), or in Dokploy redeploy the old commit `e0c164a`. The build takes about 3 minutes.
+- To restore data: restore the step-1 backup from R2 into `portal-postgres` (only if data was damaged; nothing here deletes data).
+
+## After deploy
+Review recent password changes and admin users (the old onboarding takeover and open seed-admin existed until now), and rotate admin passwords if in doubt. Then plan the follow-ups: PDF generation (pdfkit font files missing from the image), Node 20 to 22, spec 005 (vault uploads and share links).

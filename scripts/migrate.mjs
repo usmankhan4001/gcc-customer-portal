@@ -19,7 +19,7 @@ try {
   console.error(`migrate: FAILED: ${err?.message ?? err}`);
   const code = err?.cause?.code ?? err?.code; // postgres-js puts the SQLSTATE on cause
   if (code === '42P07' || code === '42710' || /already exists/i.test(String(err?.message))) {
-    console.error('migrate: tables already exist but the migration history is missing or behind. The database was created outside drizzle migrations and must be baselined (node scripts/baseline.mjs <N>, see docs/ai/features/deploy-and-ci.md) before this image can start.');
+    console.error('migrate: tables already exist but the migration history is missing or behind. The database was created outside drizzle migrations and must be baselined (node scripts/baseline.mjs <N>, see docs/ops/DEPLOY.md) before this image can start.');
   }
   process.exitCode = 1;
 } finally {
