@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
+import { getJwtSecret } from '@/lib/jwt-secret';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -36,9 +37,7 @@ async function verifyAdminAuth(request: NextRequest): Promise<JWTPayload> {
   }
 
   const token = authHeader.slice(7);
-  const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
-
-  const { payload } = await jwtVerify(token, secret);
+  const { payload } = await jwtVerify(token, getJwtSecret());
   const user = payload as unknown as JWTPayload;
 
   if (user.role !== 'admin') {

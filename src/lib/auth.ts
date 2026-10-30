@@ -1,9 +1,7 @@
 import { SignJWT, jwtVerify } from 'jose';
 import { createHash, randomBytes, scryptSync, timingSafeEqual } from 'crypto';
 
-const secret = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'gccstartup-dev-secret'
-);
+import { getJwtSecret } from '@/lib/jwt-secret';
 
 export interface TokenPayload {
   userId: string;
@@ -17,12 +15,13 @@ export async function generateToken(payload: TokenPayload): Promise<string> {
     .setIssuedAt()
     .setExpirationTime('7d')
     .setSubject(payload.userId)
-    .sign(secret);
+    .sign(getJwtSecret());
 }
 
 export async function verifyToken(
   token: string
 ): Promise<TokenPayload | null> {
+  const secret = getJwtSecret(); // outside try: a missing prod secret must be loud, not a silent "invalid token"
   try {
     const { payload } = await jwtVerify(token, secret);
     return {

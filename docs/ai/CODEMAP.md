@@ -94,8 +94,8 @@
 - src/lib/db/index.ts: db
 - src/lib/db/schema.ts: roleEnum, users, companies, documents, documentVersions, shareableLinks, documentAccessLog, milestones, orders, jurisdictionPricing, renewals, jurisdictionTaxRules, notifications, pushSubscriptions, promoBanners, leads, otpCodes, referrals, usersRelations, companiesRelations, documentsRelations, milestonesRelations, ordersRelations
 - src/lib/email.ts: sendWelcomeEmail, sendKYCReminder, sendOrderConfirmation, sendRenewalReminder, sendToolResultEmail
-- src/lib/env.ts: -
 - src/lib/jurisdictions.ts: JURISDICTIONS, getJurisdiction
+- src/lib/jwt-secret.ts: getJwtSecret
 - src/lib/pdf.tsx: generateToolPDF
 - src/lib/persona.ts: bandFromAnnualProfit, industryRiskTier, trackTypeFromSignals, funnelTrackFromSignals, classifyPersona
 - src/lib/posthog-client.ts: initPostHog

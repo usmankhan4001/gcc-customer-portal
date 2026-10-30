@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
-
-const secret = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'gccstartup-dev-secret'
-);
+import { getJwtSecret } from '@/lib/jwt-secret';
 
 const PUBLIC_PATHS = [
   '/api/',
@@ -23,6 +20,7 @@ function isPublicPath(pathname: string): boolean {
 }
 
 async function verifyJwt(token: string): Promise<Record<string, unknown> | null> {
+  const secret = getJwtSecret(); // outside try: misconfiguration must fail loudly
   try {
     const { payload } = await jwtVerify(token, secret);
     return payload as unknown as Record<string, unknown>;

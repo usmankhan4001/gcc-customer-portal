@@ -4,4 +4,4 @@ One row per documented feature. Add a row when you add `docs/ai/features/<slug>.
 
 | Slug | Doc | Spec | Status |
 | :--- | :--- | :--- | :--- |
-| _none yet_ | | | |
+| 001-jwt-secret-hardening | [doc](features/001-jwt-secret-hardening.md) | [spec](../specs/001-jwt-secret-hardening.md) | shipped (local, unpushed) |
