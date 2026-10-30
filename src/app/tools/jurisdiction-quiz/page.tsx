@@ -4,13 +4,12 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import BannerHeader from '@/components/portal/BannerHeader';
 import { ArrowRight, CheckCircle, CircleNotch, Sparkle } from '@phosphor-icons/react';
-
-const GOALS = [
-  { value: 'tax_optimization', label: 'Tax Optimization (0% – 9% rate)' },
-  { value: 'global_banking', label: 'Tier-1 International Banking Access' },
-  { value: 'relocation', label: 'Physical Relocation & Golden Visas' },
-  { value: 'privacy', label: 'Maximum Privacy & Asset Protection' },
-];
+import {
+  QUIZ_GOAL_OPTIONS as GOALS,
+  QUIZ_TIMELINE_OPTIONS as TIMELINES,
+  mapQuizResponse,
+  type QuizRecommendation as Recommendation,
+} from '@/lib/tools/jurisdiction-quiz';
 
 const BUDGETS = [
   { value: 'under_50k', label: 'Under $50,000 / year' },
@@ -19,63 +18,32 @@ const BUDGETS = [
   { value: 'over_500k', label: 'Over $500,000 / year' },
 ];
 
-const TIMELINES = [
-  { value: 'asap', label: 'Immediately (within 1-2 weeks)' },
-  { value: '1_3_months', label: 'In the next 1–3 months' },
-  { value: '3_6_months', label: 'In 3–6 months' },
-];
-
-interface Recommendation {
-  jurisdiction: string;
-  name: string;
-  matchScore: number;
-  whyFit: string;
-  corporateTaxRate: string;
-  timelineDays: string;
-  serviceHref: string;
-}
 
 export default function JurisdictionQuiz() {
-  const [goal, setGoal] = useState(GOALS[0].value);
+  const [goal, setGoal] = useState<string>(GOALS[0].value);
   const [budgetBand, setBudgetBand] = useState(BUDGETS[0].value);
-  const [timeline, setTimeline] = useState(TIMELINES[0].value);
+  const [timeline, setTimeline] = useState<string>(TIMELINES[0].value);
   const [wantsRelocation, setWantsRelocation] = useState(false);
   const [recommendations, setRecommendations] = useState<Recommendation[] | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError('');
+    setRecommendations(null);
     try {
       const res = await fetch('/api/quiz/evaluate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ goal, budget_band: budgetBand, timeline, wants_relocation: wantsRelocation }),
       });
-      const data = await res.json();
-      setRecommendations(data.recommendations ?? []);
+      const mapped = res.ok ? mapQuizResponse(await res.json()) : null;
+      if (mapped) setRecommendations(mapped);
+      else setError('We could not match jurisdictions right now. Please try again.');
     } catch {
-      // Fallback
-      setRecommendations([
-        {
-          jurisdiction: 'uae',
-          name: 'UAE Free Zone (Dubai / RAK)',
-          matchScore: 98,
-          whyFit: '0% personal income tax, 0% Qualifying Free Zone corporate tax, and fast remote setup.',
-          corporateTaxRate: '0% - 9%',
-          timelineDays: '3 - 5 days',
-          serviceHref: '/services',
-        },
-        {
-          jurisdiction: 'hong-kong',
-          name: 'Hong Kong Offshore',
-          matchScore: 88,
-          whyFit: 'Territorial tax system (0% foreign-sourced profit) and direct Asian banking access.',
-          corporateTaxRate: '8.25% - 16.5%',
-          timelineDays: '5 - 7 days',
-          serviceHref: '/services',
-        },
-      ]);
+      setError('We could not match jurisdictions right now. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -147,6 +115,12 @@ export default function JurisdictionQuiz() {
             {loading ? 'Analyzing Jurisdictions...' : 'Find My Optimal Jurisdiction'}
           </button>
         </form>
+
+        {error && (
+          <div role="alert" className="bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl p-4">
+            {error}
+          </div>
+        )}
 
         {recommendations && (
           <div className="space-y-4 animate-in fade-in duration-300">
