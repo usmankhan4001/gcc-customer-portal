@@ -2,6 +2,8 @@
 
 Docs written for AI agents (and humans reading over their shoulder). Keep them short, factual, and tied to code.
 
+Quick path for any agent: [AGENT_START.md](AGENT_START.md).
+
 ## Reading order for an agent
 1. `AGENTS.md` (rules, protected zones, commands)
 2. `docs/ai/CODEMAP.md` (generated: pages, API routes, DB tables, lib exports)
