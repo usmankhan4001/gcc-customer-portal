@@ -5,7 +5,8 @@ Docs written for AI agents (and humans reading over their shoulder). Keep them s
 ## Reading order for an agent
 1. `AGENTS.md` (rules, protected zones, commands)
 2. `docs/ai/CODEMAP.md` (generated: pages, API routes, DB tables, lib exports)
-3. `docs/ai/FEATURES.md` (index of documented features) then the relevant `docs/ai/features/<slug>.md`
+3. `docs/ai/MODULES.md` (module index + which to load per task + open issues), then the relevant `docs/ai/modules/<name>.md`
+   `docs/ai/FEATURES.md` (index of documented features) then the relevant `docs/ai/features/<slug>.md`
 4. `docs/specs/<NNN-slug>.md` (the task)
 5. `docs/versions/INDEX.md` for the v2.x roadmap (what is planned, by version and feature ID)
 6. `docs/v1-master-plan/` only for product intent, not for current behavior
