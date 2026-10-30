@@ -24,6 +24,17 @@ Status of all items below: **planned**. Each feature becomes a spec in `docs/spe
 - Android via Capacitor wrapper with real native features; Expo rewrite only if retention data justifies it.
 - Work happens locally; nothing is pushed until the owner says so.
 
+## Findings from the feature docs that change the plan (2026-10-30)
+Source: `docs/ai/MODULES.md` (open issues register) and the per-feature docs in `docs/ai/features/`.
+- **Lead capture is not wired.** Nothing calls `/api/leads/capture`, so no tool creates a lead today. F1.1 and F1.3 must first connect tools to lead capture (and add validation); scoring has no data until then.
+- **The two flagship tools are broken.** Tax calculator shows $0 on success; quiz results are blank. F1.4 becomes a fix-and-test item and should come first in v2.1. All tool tax figures need a tax review before being used as a lead hook.
+- **Renewals do not exist as a feature.** No code writes to `renewals`; the admin page is mock data; `sendRenewalReminder` has no caller. F3.1 is a build from scratch, not an extension.
+- **The compliance calendar tool is a UAE-only static page** with a date-overflow bug and no persistence or reminders. F1.2 is a rebuild on a new data model.
+- **Web push is dead on the client** (service worker never registered) and `sw.js` would cache authenticated pages. F0.4 is a rebuild on FCM, not a swap.
+- **Invoice generator is a UI shell** (no PDF, no save, missing from the tools grid). F2.1 builds the feature, not just persistence.
+- **Admin Clients is mock data** and KYC review is a stub; F3.3 (Customer 360) and F1.7 (locker) need new endpoints, not just screens.
+- **Security round 2 is needed** before launch of the app (new item F0.7 in v2.0).
+
 ## Cross-cutting rules
 - **Protected zones** (AGENTS.md) need explicit human approval: marked **[P]** on features below.
 - Every feature: spec -> tests per acceptance criterion -> `docs/ai/features/<slug>.md` -> `npm run verify`.
