@@ -140,7 +140,7 @@ Changes to these need an explicit human OK in the spec or PR description:
 - One spec per branch, one branch per git worktree (`npm run fde` creates `.fde/worktrees/<spec>` and shares `node_modules`). Never run two agents in the same checkout.
 - Parallel runs are allowed only when the specs' `**Touches**` lists do not overlap and at most one has `**Schema change**: yes` (the pipeline enforces a schema lock; migrations are numbered by drizzle-kit and would collide).
 - Protected files change only when the spec lists them under `**Protected files approved**` with an `**Approval**` line from the owner.
-- Merge order: `git merge --no-ff feature/<spec>` into `main` one at a time, rerun `npm run verify` after each merge, resolve conflicts by regenerating generated files.
+- Merge order: `git merge --no-ff feature/<spec>` into `dev` one at a time (the agents' base branch; `main` is production and auto-deploys, never push it), rerun `npm run verify` after each merge, resolve conflicts by regenerating generated files.
 - Nothing is pushed by agents.
 
 ---
