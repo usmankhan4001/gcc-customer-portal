@@ -3,36 +3,8 @@
 import React, { useState } from 'react';
 import BannerHeader from '@/components/portal/BannerHeader';
 import { DownloadSimple, Printer } from '@phosphor-icons/react';
+import { computeDeadlines, type DeadlineRow } from '@/lib/tools/compliance-calendar';
 
-interface DeadlineRow {
-  requirement: string;
-  deadlineLabel: string;
-  status: 'Pending' | 'Upcoming' | 'Action Required';
-}
-
-function computeDeadlines(formation: Date): DeadlineRow[] {
-  const addMonths = (d: Date, m: number) => {
-    const next = new Date(d);
-    next.setMonth(next.getMonth() + m);
-    return next;
-  };
-  const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-
-  const vatRegDeadline = addMonths(formation, 1);
-  const ctRegDeadline = addMonths(formation, 3);
-  const finYearEnd = addMonths(formation, 12);
-  const ctFilingDeadline = addMonths(finYearEnd, 9);
-  const esrDeadline = addMonths(finYearEnd, 12);
-
-  return [
-    { requirement: 'Mandatory/Voluntary VAT Registration', deadlineLabel: fmt(vatRegDeadline), status: 'Upcoming' },
-    { requirement: 'Corporate Tax (EmaraTax) Registration', deadlineLabel: fmt(ctRegDeadline), status: 'Action Required' },
-    { requirement: 'First Financial Year End', deadlineLabel: fmt(finYearEnd), status: 'Pending' },
-    { requirement: 'First Corporate Tax Return & Payment (9 Months Post-FYE)', deadlineLabel: fmt(ctFilingDeadline), status: 'Pending' },
-    { requirement: 'Economic Substance Regulations (ESR) Annual Notification', deadlineLabel: fmt(esrDeadline), status: 'Pending' },
-    { requirement: 'Trade License & Establishment Card Annual Renewal', deadlineLabel: fmt(finYearEnd), status: 'Upcoming' },
-  ];
-}
 
 const STATUS_STYLES = {
   Pending: 'bg-gray-100 text-gray-700',

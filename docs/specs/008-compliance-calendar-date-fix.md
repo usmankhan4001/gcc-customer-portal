@@ -1,6 +1,6 @@
 # Spec: Fix compliance calendar month-overflow dates (F1.4 part 2a)
 
-**Status**: approved
+**Status**: shipped
 **Requested by**: owner (docs/ai/features/tool-compliance-calendar.md known bugs)
 **Roadmap ref**: docs/versions/v2.1-engage-retain-core.md
 **Protected files approved**: none
