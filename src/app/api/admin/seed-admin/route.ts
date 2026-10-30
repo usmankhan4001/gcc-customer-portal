@@ -3,10 +3,14 @@ import { eq, or } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { users } from '@/lib/db/schema';
 import { hashPassword, generateToken } from '@/lib/auth';
+import { seedAllowed } from '@/lib/auth-policy';
 import { cookies } from 'next/headers';
 import { randomBytes } from 'crypto';
 
-export async function POST() {
+export async function POST(request: Request) {
+  if (!seedAllowed(request.headers.get('x-seed-token'))) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
   try {
     // Check if any admin already exists — if so, refuse to create another
     const existingAdmins = await db

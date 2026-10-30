@@ -3,6 +3,7 @@ import { randomInt } from 'crypto';
 import { db } from '@/lib/db';
 import { otpCodes } from '@/lib/db/schema';
 import { hashToken } from '@/lib/auth';
+import { devOtpAllowed } from '@/lib/auth-policy';
 import { sendWhatsAppOtp, sendTextMessage, sendWhatsAppMessage } from '@/lib/whatsapp';
 
 const OTP_TTL_MINUTES = 10;
@@ -82,13 +83,18 @@ export async function POST(request: Request) {
       console.log(`[Auth DEV/DEMO] WhatsApp credentials not configured. OTP for ${whatsappNumber}: ${otp}`);
     }
 
-    // If WhatsApp is unconfigured, failed, or we are in development, provide devOtp
-    const isDevOrFallback = !sentViaWhatsApp || process.env.NODE_ENV !== 'production' || !isWhatsAppConfigured;
+    // In production a failed send is an error, and the code is never returned to the caller.
+    if (!sentViaWhatsApp && !devOtpAllowed()) {
+      return NextResponse.json(
+        { success: false, error: 'Could not send the verification code. Please try again.' },
+        { status: 502 }
+      );
+    }
 
     return NextResponse.json({
       success: true,
       message: sentViaWhatsApp ? 'OTP sent via WhatsApp' : 'Verification code generated (Demo mode active)',
-      devOtp: isDevOrFallback ? otp : undefined,
+      devOtp: devOtpAllowed() ? otp : undefined,
     });
   } catch (error) {
     console.error('Error sending OTP:', error);

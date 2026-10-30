@@ -89,6 +89,7 @@
 ## src/lib modules
 - src/lib/admin-auth.ts: requireAdmin
 - src/lib/auth-hooks.ts: useSession, getCookie, isAuthenticated, isAdmin
+- src/lib/auth-policy.ts: devOtpAllowed, seedAllowed
 - src/lib/auth.ts: generateToken, verifyToken, hashToken, generateMagicToken, hashPassword, verifyPassword
 - src/lib/countries.ts: COUNTRIES, findCountryByDialCode, findCountryByName
 - src/lib/db/index.ts: db

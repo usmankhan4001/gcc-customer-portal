@@ -61,17 +61,23 @@ export async function POST(request: Request) {
       user = existingUser;
     }
 
-    // If not found by session, check by email or phone
+    // Never attach to or modify an existing account by email/phone alone: that would let anyone
+    // reset a victim's password and take over their session. Existing users must sign in first.
     if (!user) {
       const matchQueries = [eq(users.email, cleanEmail)];
       if (cleanPhone) matchQueries.push(eq(users.whatsapp_number, cleanPhone));
 
       const [foundUser] = await db
-        .select()
+        .select({ id: users.id })
         .from(users)
         .where(or(...matchQueries))
         .limit(1);
-      user = foundUser;
+      if (foundUser) {
+        return NextResponse.json(
+          { error: 'An account with these details already exists. Please sign in instead.' },
+          { status: 409 }
+        );
+      }
     }
 
     if (user) {

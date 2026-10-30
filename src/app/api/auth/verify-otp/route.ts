@@ -4,6 +4,7 @@ import { and, desc, eq, gt } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { otpCodes, users } from '@/lib/db/schema';
 import { generateToken, hashToken } from '@/lib/auth';
+import { devOtpAllowed } from '@/lib/auth-policy';
 
 function normalizePhone(phone: string): string {
   return phone.replace(/[^\d+]/g, '');
@@ -65,17 +66,9 @@ export async function POST(request: Request) {
       console.error('[Auth] DB lookup for OTP failed:', dbErr);
     }
 
-    // Support universal demo/dev fallback OTP (123456) when WhatsApp credentials are not configured or in dev
-    const isWhatsAppConfigured =
-      Boolean(process.env.WHATSAPP_ACCESS_TOKEN) &&
-      process.env.WHATSAPP_ACCESS_TOKEN !== 'xxx' &&
-      Boolean(process.env.WHATSAPP_PHONE_NUMBER_ID) &&
-      process.env.WHATSAPP_PHONE_NUMBER_ID !== 'xxx';
-
-    if (!isValid && (!isWhatsAppConfigured || process.env.NODE_ENV !== 'production')) {
-      if (cleanOtp === '123456') {
-        isValid = true;
-      }
+    // Fixed dev code 123456, never in production.
+    if (!isValid && devOtpAllowed() && cleanOtp === '123456') {
+      isValid = true;
     }
 
     if (!isValid) {
