@@ -46,6 +46,7 @@ RUN addgroup --system --gid 1001 nodejs \
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=deps --chown=nextjs:nodejs /app/node_modules/pdfkit ./node_modules/pdfkit
 
 # Migrations: the standalone output prunes drizzle-kit, so run a tiny script (scripts/migrate.mjs) that
 # uses the runtime packages drizzle-orm + postgres, copied from the deps stage into /migrate.
