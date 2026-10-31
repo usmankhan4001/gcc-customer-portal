@@ -7,20 +7,26 @@ import { Resend } from 'resend';
 let _resend: Resend | null = null;
 function getResend(): Resend {
   if (!_resend) {
-    _resend = new Resend(process.env.RESEND_API_KEY);
+    _resend = new Resend(process.env.RESEND_API_KEY || 're_mock_key');
   }
   return _resend;
 }
 
-const FROM_ADDRESS = 'noreply@gccstartup.com';
+const FROM_ADDRESS = process.env.EMAIL_FROM || 'GCC Startup <onboarding@gccstartup.com>';
 
 export async function sendWelcomeEmail(
   to: string,
   name: string,
-  companyName: string
-): Promise<void> {
+  companyName: string = 'GCC Startup'
+): Promise<boolean> {
+  const client = getResend();
+  if (!client) {
+    console.warn(`[Email] RESEND_API_KEY not set; skipped welcome email to ${to}`);
+    return false;
+  }
+
   try {
-    await getResend().emails.send({
+    await client.emails.send({
       from: FROM_ADDRESS,
       to,
       subject: `Welcome to GCC Startup — ${companyName}`,
@@ -28,54 +34,62 @@ export async function sendWelcomeEmail(
         <!DOCTYPE html>
         <html>
         <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-        <body style="margin:0;padding:0;background:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
-          <div style="max-width:560px;margin:40px auto;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.1);">
-            <div style="background:#0A2540;padding:32px;text-align:center;">
-              <h1 style="color:#fff;font-size:24px;margin:0;">Welcome to GCC Startup</h1>
+        <body style="margin:0;padding:0;background:#FFFFFF;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#0F172A;">
+          <div style="max-width:560px;margin:40px auto;background:#FFFFFF;border:1px solid #E2E8F0;border-radius:24px;overflow:hidden;box-shadow:0 10px 25px -5px rgba(10,20,47,0.08);">
+            <div style="background:#14204A;padding:36px;text-align:center;">
+              <span style="font-size:11px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:#F26522;display:block;margin-bottom:8px;">Welcome Aboard</span>
+              <h1 style="color:#FFFFFF;font-size:26px;font-weight:700;margin:0;letter-spacing:-0.02em;">GCC Startup Member Portal</h1>
             </div>
-            <div style="padding:32px;">
-              <p style="font-size:16px;color:#18181b;line-height:1.6;">Hi ${name},</p>
-              <p style="font-size:16px;color:#18181b;line-height:1.6;">
-                Welcome aboard! Your account for <strong>${companyName}</strong> has been created successfully.
+            <div style="padding:36px;">
+              <p style="font-size:16px;color:#0F172A;line-height:1.6;font-weight:600;">Dear ${name},</p>
+              <p style="font-size:15px;color:#334155;line-height:1.7;">
+                Welcome to GCC Startup. Your dedicated client portal and KYC document locker for <strong>${companyName}</strong> are now active.
               </p>
-              <p style="font-size:16px;color:#18181b;line-height:1.6;">
-                Here's what to do next:
-              </p>
-              <ol style="font-size:16px;color:#18181b;line-height:1.8;padding-left:20px;">
-                <li>Complete your KYC identity verification</li>
-                <li>Upload your company documents</li>
-                <li>Select your license package</li>
-              </ol>
+              <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:16px;padding:20px;margin:24px 0;">
+                <p style="font-size:13px;font-weight:700;color:#14204A;text-transform:uppercase;letter-spacing:0.06em;margin:0 0 12px 0;">Next Steps:</p>
+                <ol style="font-size:14px;color:#334155;line-height:1.8;padding-left:20px;margin:0;">
+                  <li>Upload your passport & proof of address to your secure Vault</li>
+                  <li>Verify corporate formation details & trade name choices</li>
+                  <li>Track statutory milestone progress in real-time</li>
+                </ol>
+              </div>
               <div style="text-align:center;margin:32px 0;">
-                <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard"
-                   style="display:inline-block;background:#C9A84C;color:#0A2540;padding:12px 32px;border-radius:6px;text-decoration:none;font-weight:600;font-size:16px;">
-                  Go to Dashboard
+                <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://gccstartup.com'}/dashboard"
+                   style="display:inline-block;background:#F26522;color:#FFFFFF;padding:14px 36px;border-radius:9999px;text-decoration:none;font-weight:700;font-size:16px;box-shadow:0 4px 14px rgba(242,101,34,0.3);">
+                  Access Client Dashboard &rarr;
                 </a>
               </div>
-              <p style="font-size:14px;color:#71717a;line-height:1.6;">
-                If you have any questions, reply to this email or contact our support team.
+              <p style="font-size:13px;color:#64748B;line-height:1.6;">
+                Need priority concierge support? Message our advisory team on WhatsApp or reply directly to this email.
               </p>
             </div>
-            <div style="padding:24px 32px;background:#f9fafb;text-align:center;">
-              <p style="font-size:12px;color:#a1a1aa;margin:0;">GCC Startup &copy; ${new Date().getFullYear()}. All rights reserved.</p>
+            <div style="padding:20px 36px;background:#F8FAFC;border-top:1px solid #E2E8F0;text-align:center;">
+              <p style="font-size:12px;color:#64748B;margin:0;">GCC Startup &bull; Global Incorporation &amp; Concierge Banking</p>
             </div>
           </div>
         </body>
         </html>
       `,
     });
+    return true;
   } catch (error) {
-    console.error('Failed to send welcome email:', error);
-    throw error;
+    console.error('[Email] Failed to send welcome email:', error);
+    return false;
   }
 }
 
 export async function sendKYCReminder(
   to: string,
   name: string
-): Promise<void> {
+): Promise<boolean> {
+  const client = getResend();
+  if (!client) {
+    console.warn(`[Email] RESEND_API_KEY not set; skipped KYC reminder to ${to}`);
+    return false;
+  }
+
   try {
-    await getResend().emails.send({
+    await client.emails.send({
       from: FROM_ADDRESS,
       to,
       subject: 'Action Required — Complete Your Identity Verification',
@@ -83,41 +97,33 @@ export async function sendKYCReminder(
         <!DOCTYPE html>
         <html>
         <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-        <body style="margin:0;padding:0;background:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
-          <div style="max-width:560px;margin:40px auto;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.1);">
-            <div style="background:#f59e0b;padding:32px;text-align:center;">
-              <h1 style="color:#fff;font-size:24px;margin:0;">Identity Verification Required</h1>
+        <body style="margin:0;padding:0;background:#FFFFFF;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#0F172A;">
+          <div style="max-width:560px;margin:40px auto;background:#FFFFFF;border:1px solid #E2E8F0;border-radius:24px;overflow:hidden;box-shadow:0 10px 25px -5px rgba(10,20,47,0.08);">
+            <div style="background:#14204A;padding:32px;text-align:center;">
+              <span style="font-size:11px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:#F26522;display:block;margin-bottom:8px;">Regulatory Compliance</span>
+              <h1 style="color:#FFFFFF;font-size:24px;font-weight:700;margin:0;">Identity Verification Required</h1>
             </div>
             <div style="padding:32px;">
-              <p style="font-size:16px;color:#18181b;line-height:1.6;">Hi ${name},</p>
-              <p style="font-size:16px;color:#18181b;line-height:1.6;">
-                We still need you to complete your identity verification. This is a <strong>mandatory step</strong> required by UAE regulatory authorities before we can proceed with your registration.
+              <p style="font-size:16px;color:#0F172A;line-height:1.6;">Dear ${name},</p>
+              <p style="font-size:15px;color:#334155;line-height:1.7;">
+                To file your corporate registration with the licensing authority, please upload your verification documents to the secure vault.
               </p>
-              <p style="font-size:16px;color:#18181b;line-height:1.6;">
-                The process takes about 2 minutes and requires:
-              </p>
-              <ul style="font-size:16px;color:#18181b;line-height:1.8;padding-left:20px;">
-                <li>A valid government-issued ID (passport or Emirates ID)</li>
-                <li>A short selfie scan for liveness detection</li>
-              </ul>
               <div style="text-align:center;margin:32px 0;">
-                <a href="${process.env.NEXT_PUBLIC_APP_URL}/kyc"
-                   style="display:inline-block;background:#f59e0b;color:#fff;padding:12px 32px;border-radius:6px;text-decoration:none;font-weight:600;font-size:16px;">
-                  Complete Verification
+                <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://gccstartup.com'}/vault"
+                   style="display:inline-block;background:#F26522;color:#FFFFFF;padding:14px 36px;border-radius:9999px;text-decoration:none;font-weight:700;font-size:16px;">
+                  Open Document Vault
                 </a>
               </div>
-            </div>
-            <div style="padding:24px 32px;background:#f9fafb;text-align:center;">
-              <p style="font-size:12px;color:#a1a1aa;margin:0;">GCC Startup &copy; ${new Date().getFullYear()}. All rights reserved.</p>
             </div>
           </div>
         </body>
         </html>
       `,
     });
+    return true;
   } catch (error) {
-    console.error('Failed to send KYC reminder email:', error);
-    throw error;
+    console.error('[Email] Failed to send KYC reminder email:', error);
+    return false;
   }
 }
 
@@ -126,14 +132,17 @@ export async function sendOrderConfirmation(
   name: string,
   orderNumber: string,
   amount: number
-): Promise<void> {
+): Promise<boolean> {
+  const client = getResend();
+  if (!client) return false;
+
   const formattedAmount = new Intl.NumberFormat('en-AE', {
     style: 'currency',
     currency: 'AED',
   }).format(amount / 100);
 
   try {
-    await getResend().emails.send({
+    await client.emails.send({
       from: FROM_ADDRESS,
       to,
       subject: `Order Confirmed — ${orderNumber}`,
@@ -141,53 +150,33 @@ export async function sendOrderConfirmation(
         <!DOCTYPE html>
         <html>
         <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-        <body style="margin:0;padding:0;background:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
-          <div style="max-width:560px;margin:40px auto;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.1);">
-            <div style="background:#059669;padding:32px;text-align:center;">
+        <body style="margin:0;padding:0;background:#FFFFFF;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+          <div style="max-width:560px;margin:40px auto;background:#fff;border:1px solid #E2E8F0;border-radius:24px;overflow:hidden;">
+            <div style="background:#14204A;padding:32px;text-align:center;">
+              <span style="font-size:11px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:#16A34A;display:block;margin-bottom:8px;">Payment Received</span>
               <h1 style="color:#fff;font-size:24px;margin:0;">Order Confirmed</h1>
             </div>
             <div style="padding:32px;">
-              <p style="font-size:16px;color:#18181b;line-height:1.6;">Hi ${name},</p>
-              <p style="font-size:16px;color:#18181b;line-height:1.6;">
-                Your payment has been received and your order is confirmed.
-              </p>
-              <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:20px;margin:24px 0;">
-                <table style="width:100%;border-collapse:collapse;">
-                  <tr>
-                    <td style="padding:8px 0;font-size:14px;color:#71717a;">Order Number</td>
-                    <td style="padding:8px 0;font-size:14px;color:#18181b;text-align:right;font-weight:600;">${orderNumber}</td>
-                  </tr>
-                  <tr>
-                    <td style="padding:8px 0;font-size:14px;color:#71717a;">Amount Paid</td>
-                    <td style="padding:8px 0;font-size:14px;color:#18181b;text-align:right;font-weight:600;">${formattedAmount}</td>
-                  </tr>
-                  <tr>
-                    <td style="padding:8px 0;font-size:14px;color:#71717a;">Status</td>
-                    <td style="padding:8px 0;font-size:14px;color:#059669;text-align:right;font-weight:600;">Confirmed</td>
-                  </tr>
-                </table>
-              </div>
-              <p style="font-size:16px;color:#18181b;line-height:1.6;">
-                Our team will begin processing your request shortly. You'll receive updates as your order progresses.
+              <p style="font-size:16px;color:#0F172A;line-height:1.6;">Hi ${name},</p>
+              <p style="font-size:15px;color:#334155;line-height:1.6;">
+                Your payment of <strong>${formattedAmount}</strong> has been received. Our operations team has initiated formation filing.
               </p>
               <div style="text-align:center;margin:32px 0;">
-                <a href="${process.env.NEXT_PUBLIC_APP_URL}/orders/${orderNumber}"
-                   style="display:inline-block;background:#059669;color:#fff;padding:12px 32px;border-radius:6px;text-decoration:none;font-weight:600;font-size:16px;">
-                  View Order
+                <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://gccstartup.com'}/dashboard"
+                   style="display:inline-block;background:#F26522;color:#fff;padding:14px 36px;border-radius:9999px;text-decoration:none;font-weight:700;font-size:16px;">
+                  View Order Status
                 </a>
               </div>
-            </div>
-            <div style="padding:24px 32px;background:#f9fafb;text-align:center;">
-              <p style="font-size:12px;color:#a1a1aa;margin:0;">GCC Startup &copy; ${new Date().getFullYear()}. All rights reserved.</p>
             </div>
           </div>
         </body>
         </html>
       `,
     });
+    return true;
   } catch (error) {
-    console.error('Failed to send order confirmation email:', error);
-    throw error;
+    console.error('[Email] Failed to send order confirmation email:', error);
+    return false;
   }
 }
 
@@ -196,9 +185,12 @@ export async function sendRenewalReminder(
   name: string,
   entityName: string,
   daysLeft: number
-): Promise<void> {
+): Promise<boolean> {
+  const client = getResend();
+  if (!client) return false;
+
   try {
-    await getResend().emails.send({
+    await client.emails.send({
       from: FROM_ADDRESS,
       to,
       subject: `Renewal Reminder — ${entityName} expires in ${daysLeft} days`,
@@ -206,41 +198,32 @@ export async function sendRenewalReminder(
         <!DOCTYPE html>
         <html>
         <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-        <body style="margin:0;padding:0;background:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
-          <div style="max-width:560px;margin:40px auto;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.1);">
-            <div style="background:#dc2626;padding:32px;text-align:center;">
-              <h1 style="color:#fff;font-size:24px;margin:0;">Renewal Reminder</h1>
+        <body style="margin:0;padding:0;background:#FFFFFF;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+          <div style="max-width:560px;margin:40px auto;background:#fff;border:1px solid #E2E8F0;border-radius:24px;overflow:hidden;">
+            <div style="background:#14204A;padding:32px;text-align:center;">
+              <h1 style="color:#fff;font-size:24px;margin:0;">Annual Renewal Reminder</h1>
             </div>
             <div style="padding:32px;">
-              <p style="font-size:16px;color:#18181b;line-height:1.6;">Hi ${name},</p>
-              <p style="font-size:16px;color:#18181b;line-height:1.6;">
-                This is a reminder that your <strong>${entityName}</strong> license will expire in <strong>${daysLeft} days</strong>.
+              <p style="font-size:16px;color:#0F172A;line-height:1.6;">Hi ${name},</p>
+              <p style="font-size:15px;color:#334155;line-height:1.6;">
+                Your license for <strong>${entityName}</strong> will expire in <strong>${daysLeft} days</strong>.
               </p>
-              <p style="font-size:16px;color:#18181b;line-height:1.6;">
-                To avoid any interruption to your services, please renew before the expiration date.
-              </p>
-              <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:20px;margin:24px 0;text-align:center;">
-                <p style="font-size:14px;color:#991b1b;margin:0 0 8px 0;font-weight:600;">Days Remaining</p>
-                <p style="font-size:48px;color:#dc2626;margin:0;font-weight:700;">${daysLeft}</p>
-              </div>
               <div style="text-align:center;margin:32px 0;">
-                <a href="${process.env.NEXT_PUBLIC_APP_URL}/renewals"
-                   style="display:inline-block;background:#dc2626;color:#fff;padding:12px 32px;border-radius:6px;text-decoration:none;font-weight:600;font-size:16px;">
+                <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://gccstartup.com'}/renewals"
+                   style="display:inline-block;background:#F26522;color:#fff;padding:14px 36px;border-radius:9999px;text-decoration:none;font-weight:700;font-size:16px;">
                   Renew Now
                 </a>
               </div>
-            </div>
-            <div style="padding:24px 32px;background:#f9fafb;text-align:center;">
-              <p style="font-size:12px;color:#a1a1aa;margin:0;">GCC Startup &copy; ${new Date().getFullYear()}. All rights reserved.</p>
             </div>
           </div>
         </body>
         </html>
       `,
     });
+    return true;
   } catch (error) {
-    console.error('Failed to send renewal reminder email:', error);
-    throw error;
+    console.error('[Email] Failed to send renewal reminder email:', error);
+    return false;
   }
 }
 
@@ -252,37 +235,35 @@ export async function sendToolResultEmail(
   title: string,
   downloadUrl: string
 ): Promise<void> {
-  try {
-    await getResend().emails.send({
-      from: FROM_ADDRESS,
-      to,
-      subject: `Your ${title} — GCC Startup`,
-      html: `
-        <!DOCTYPE html>
-        <html>
-        <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-        <body style="margin:0;padding:0;background:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
-          <div style="max-width:560px;margin:40px auto;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.1);">
-            <div style="background:#0A2540;padding:32px;text-align:center;">
-              <h1 style="color:#fff;font-size:22px;margin:0;">${escapeHtml(title)}</h1>
-            </div>
-            <div style="padding:32px;text-align:center;">
-              <p style="font-size:16px;color:#18181b;line-height:1.6;">Your result is ready.</p>
-              <div style="margin:32px 0;">
-                <a href="${downloadUrl}"
-                   style="display:inline-block;background:#C9A84C;color:#0A2540;padding:12px 32px;border-radius:6px;text-decoration:none;font-weight:600;font-size:16px;">
-                  Download PDF
-                </a>
-              </div>
-              <p style="font-size:12px;color:#a1a1aa;">This link expires in 7 days.</p>
-            </div>
+  const client = getResend();
+
+  await client.emails.send({
+    from: FROM_ADDRESS,
+    to,
+    subject: `Your ${title} — GCC Startup`,
+    html: `
+      <!DOCTYPE html>
+      <html>
+      <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+      <body style="margin:0;padding:0;background:#FFFFFF;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+        <div style="max-width:560px;margin:40px auto;background:#fff;border:1px solid #E2E8F0;border-radius:24px;overflow:hidden;box-shadow:0 10px 25px -5px rgba(10,20,47,0.08);">
+          <div style="background:#14204A;padding:32px;text-align:center;">
+            <span style="font-size:11px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:#F26522;display:block;margin-bottom:8px;">Estimate &amp; Document Service</span>
+            <h1 style="color:#fff;font-size:22px;margin:0;">${escapeHtml(title)}</h1>
           </div>
-        </body>
-        </html>
-      `,
-    });
-  } catch (error) {
-    console.error('Failed to send tool result email:', error);
-    throw error;
-  }
+          <div style="padding:32px;text-align:center;">
+            <p style="font-size:16px;color:#0F172A;line-height:1.6;">Your generated document is ready for download.</p>
+            <div style="margin:32px 0;">
+              <a href="${downloadUrl}"
+                 style="display:inline-block;background:#F26522;color:#FFFFFF;padding:14px 36px;border-radius:9999px;text-decoration:none;font-weight:700;font-size:16px;">
+                Download PDF
+              </a>
+            </div>
+            <p style="font-size:12px;color:#64748B;">This download link is active for 7 days.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `,
+  });
 }

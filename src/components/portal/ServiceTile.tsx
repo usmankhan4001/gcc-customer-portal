@@ -11,12 +11,12 @@ export default function ServiceTile({ title, icon, href }: ServiceTileProps) {
   return (
     <Link
       href={href}
-      className="flex flex-col items-center justify-center p-4 bg-white border border-gray-200 rounded-[var(--radius-tile)] hover:border-primary-200 hover:shadow-sm transition-all aspect-square text-center"
+      className="flex flex-col items-center justify-center p-5 bg-[#FFFFFF] border border-[#E2E8F0] rounded-2xl sm:rounded-3xl hover:border-[#F26522] hover:shadow-[0_10px_25px_-5px_rgba(242,101,34,0.12)] hover:-translate-y-1 transition-all aspect-square text-center group cursor-pointer"
     >
-      <div className="w-10 h-10 rounded-[var(--radius-tile)] bg-primary-50 flex items-center justify-center mb-2.5 text-gray-700">
+      <div className="w-12 h-12 rounded-2xl bg-[#FEF1E9] text-[#F26522] flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
         {icon}
       </div>
-      <span className="text-xs font-bold text-gray-900 leading-tight">
+      <span className="text-xs font-bold text-[#0F172A] leading-tight group-hover:text-[#F26522] transition-colors">
         {title}
       </span>
     </Link>

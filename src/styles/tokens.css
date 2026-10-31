@@ -1,0 +1,243 @@
+/* Design tokens — Pure Crisp White Canvas + Bold GCC Orange Accent Design System.
+   Every color/spacing/type value used anywhere in src/components or src/puck comes from here. */
+
+:root {
+  /* Brand Colors — GCC Financial & Incorporation Platform */
+  --blue: #1B4FD8;
+  --blue-dk: #1039AC;
+  --blue-dkr: #0A142F;
+  --blue-lt: #EFF6FF;
+  --navy: #0A142F;
+  --navy-dk: #060D20;
+  
+  /* Primary Hero Accent — Vibrant GCC Orange */
+  --orange: #F26522;
+  --orange-dk: #C9511A;
+  --orange-lt: #FEF1E9;
+
+  --gold: #D97706;
+  --gold-dk: #B45309;
+  --gold-lt: #FEF3C7;
+
+  /* Neutral Cool Slate Canvas (Zero yellowish sand tone) */
+  --sand: #F8FAFC;
+  --sand-dk: #E2E8F0;
+
+  /* Canvas & Surface Backgrounds — Pure Crisp White */
+  --bg: #FFFFFF;
+  --surface: #FFFFFF;
+  --surface-alt: #F8FAFC;
+  --surface-hover: #F1F5F9;
+  --white: #FFFFFF;
+
+  /* Borders — Crisp Slate */
+  --border: #E2E8F0;
+  --border-hover: #CBD5E1;
+
+  /* Text — Deep Corporate Slate Navy */
+  --text: #0F172A;
+  --text-secondary: #334155;
+  --text-tertiary: #64748B;
+
+  /* Primary Accent — GCC Orange */
+  --accent: var(--orange);
+  --accent-hover: var(--orange-dk);
+
+  /* RGB variants for rgba() */
+  --bg-rgb: 255, 255, 255;
+  --accent-rgb: 242, 101, 34;
+  --blue-rgb: 27, 79, 216;
+  --navy-rgb: 10, 20, 47;
+  --gold-rgb: 217, 119, 6;
+  --ink-rgb: 15, 23, 42;
+
+  /* Semantic */
+  --success: #16A34A;
+  --error: #DC2626;
+  --danger: var(--error);
+  --warning: #D97706;
+  --whatsapp: #25D366;
+
+  /* Status colour variants — light backgrounds, dark text, and borders for
+     badges, cards and dots that reflect a health or delivery state. These extend
+     the three-letter semantic set above so status UI never hardcodes hex. */
+  --green-dk: #15803D;
+  --green-lt: #DCFCE7;
+  --green-border: #BBF7D0;
+  --danger-lt: #FEE2E2;
+  --danger-border: #FECACA;
+  --sky-lt: #E0F2FE;
+  --sky-dk: #0369A1;
+
+  /* Typography — Babun theme families, self-hosted (see app/layout.tsx).
+     Satoshi carries UI and body; Clash Display carries headings. */
+  --font: var(--font-satoshi), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-heading: var(--font-clash), var(--font-satoshi), -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: var(--font-mono-fallback), 'JetBrains Mono', ui-monospace, monospace;
+  /* Oversized hero display only. Isolated behind its own token so the licensed face
+     can be swapped for --font-heading in one edit if the Magnita licence lapses. */
+  --font-display-alt: var(--font-magnita), var(--font-clash), serif;
+
+  /* Type scale — Babun runs noticeably larger than the previous system: 20px body
+     instead of 16px, and display headings up to 85px. The oversized end is what
+     gives the theme its editorial feel, so it is preserved rather than tamed, but
+     every size clamps down to a sane mobile floor. */
+  --text-body: 18px;
+  --text-lg: clamp(19px, 1.6vw, 22px);
+  --text-xl: clamp(21px, 2vw, 26px);
+  --leading-body: 1.7;
+
+  /* Border radii — Babun is soft everywhere: pill controls, deeply rounded cards. */
+  --radius-sm: 12px;
+
+  /* Type Scale */
+  --text-body: 17px;
+  --text-lg: clamp(18px, 1.5vw, 21px);
+  --text-xl: clamp(20px, 2vw, 25px);
+  --leading-body: 1.65;
+
+  /* Spacing Scale (4px base) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+
+  /* Layout Containers */
+  --container-max: 1280px;
+  --container-narrow: 840px;
+  --container-pad: 32px;
+  --container-pad-mobile: 20px;
+
+  /* Elevation Shadows */
+  --shadow-subtle: 0 1px 3px rgba(var(--ink-rgb), 0.05);
+  --shadow-elevated: 0 10px 25px -5px rgba(var(--navy-rgb), 0.08), 0 4px 6px -2px rgba(var(--ink-rgb), 0.03);
+  --shadow-prominent: 0 20px 40px -12px rgba(var(--navy-rgb), 0.16);
+  --shadow-accent: 0 6px 20px -2px rgba(var(--accent-rgb), 0.25);
+  --shadow-lg: var(--shadow-prominent);
+
+  --radius: 16px;
+  --radius-lg: 30px;
+  --radius-xl: 40px;
+  --radius-pill: 999px;
+
+  /* Section rhythm — Babun's landing pages breathe far more than the old 64px
+     sections did (its hero runs ~200px of top padding). Expressed as tokens rather
+     than the theme's literal pixel utilities (pt-200, pb-85) so the existing
+     --space-* scale stays the single source of spacing truth. */
+  --section-y: clamp(64px, 9vw, 120px);
+  --section-y-lg: clamp(80px, 12vw, 160px);
+  --hero-y: clamp(72px, 11vw, 150px);
+}
+
+/* Per-page theme variants */
+[data-theme='campaign'] { --surface-alt: var(--blue-lt); }
+[data-theme='partner'] { --surface-alt: var(--orange-lt); }
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font);
+  color: var(--text-secondary);
+  background: var(--bg);
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+}
+img { display: block; max-width: 100%; }
+a { text-decoration: none; color: inherit; }
+
+/* Clash Display is a display face — it carries its weight at 500/600 where a
+   grotesque would need 700, and going heavier makes it feel cramped at the large
+   sizes this scale reaches. */
+h1, h2, h3, h4 {
+  color: var(--text);
+  font-family: var(--font-heading);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  margin-bottom: var(--space-4);
+  margin-top: 0;
+}
+h1 { font-size: clamp(40px, 6.2vw, 78px); line-height: 1.02; letter-spacing: -0.025em; }
+h2 { font-size: clamp(30px, 4.4vw, 54px); letter-spacing: -0.02em; }
+h3 { font-size: clamp(21px, 2.4vw, 28px); }
+h4 { font-size: clamp(18px, 1.6vw, 21px); font-weight: 500; }
+p { color: var(--text-secondary); margin-bottom: var(--space-4); margin-top: 0; }
+
+/* Babun's supporting-copy sizes — a lead paragraph under a headline, and the
+   larger intro text that sits between a heading and body copy. */
+.text-lg { font-size: var(--text-lg); line-height: 1.6; }
+.text-xl { font-size: var(--text-xl); line-height: 1.5; }
+p:last-child, h1:last-child, h2:last-child, h3:last-child, h4:last-child { margin-bottom: 0; }
+
+.wrap { width: 100%; max-width: var(--container-max); margin: 0 auto; padding: 0 var(--container-pad); }
+.wrap-narrow { width: 100%; max-width: var(--container-narrow); margin: 0 auto; padding: 0 var(--container-pad); }
+.wrap-full { width: 100%; max-width: 100%; margin: 0 auto; padding: 0 var(--container-pad); }
+
+.eyebrow {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: var(--space-3);
+  display: block;
+}
+
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-8); }
+.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-8); }
+
+/* Scroll-reveal, scoped to the public site. `.site-root` sits on the (site) layout
+   wrapper, alongside the RevealObserver that is the only thing anywhere that adds
+   `.in-view`. Unscoped, the `opacity: 0` start state also applied inside the Puck
+   editor's preview iframe — which copies these stylesheets but runs no observer —
+   so every block using `.reveal` rendered permanently invisible to editors. Scoping
+   it here is what lets the editor-side `!important` overrides be deleted rather than
+   maintained. `.pp-root .reveal` in philippines-partners.css follows the same shape. */
+.site-root .reveal { opacity: 0; transform: translateY(16px); transition: opacity .5s ease, transform .5s ease; }
+.site-root .reveal.in-view { opacity: 1; transform: translateY(0); }
+
+.site-root .reveal-l { opacity: 0; transform: translateX(-32px); transition: opacity .6s ease, transform .6s ease; }
+.site-root .reveal-l.in-view { opacity: 1; transform: translateX(0); }
+.site-root .reveal-r { opacity: 0; transform: translateX(32px); transition: opacity .6s ease, transform .6s ease; }
+.site-root .reveal-r.in-view { opacity: 1; transform: translateX(0); }
+
+@media (max-width: 1024px) {
+  .grid-3, .columns-grid-3 { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 740px) {
+  .wrap, .wrap-narrow, .wrap-full { padding: 0 var(--container-pad-mobile); }
+}
+
+@media (max-width: 640px) {
+  .grid-3, .grid-2, .columns-grid-3, .columns-grid-2 { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-root .reveal,
+  .site-root .reveal-l,
+  .site-root .reveal-r { opacity: 1; transform: none; transition: none; }
+  html { scroll-behavior: auto; }
+}
+
+/* --- Responsive Utilities --- */
+.flex-wrap { display: flex; flex-wrap: wrap; gap: var(--space-4); }
+.flex-center { display: flex; justify-content: center; align-items: center; }
+.flex-col { display: flex; flex-direction: column; }
+.grid-2-split { display: grid; grid-template-columns: 1fr 1.2fr; gap: var(--space-12); }
+.grid-2-split-rev { display: grid; grid-template-columns: 1.4fr 1fr; gap: var(--space-12); }
+@media (max-width: 900px) {
+  .grid-2-split, .grid-2-split-rev { grid-template-columns: 1fr; gap: var(--space-8); }
+}
+.w-full { width: 100%; }
+.max-w-xs { max-width: 360px; margin-left: auto; margin-right: auto; }
+.max-w-md { max-width: 600px; margin-left: auto; margin-right: auto; }
+.max-w-lg { max-width: 640px; margin-left: auto; margin-right: auto; }
+.max-w-xl { max-width: 720px; margin-left: auto; margin-right: auto; }
+.text-center { text-align: center; }

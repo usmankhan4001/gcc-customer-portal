@@ -178,7 +178,7 @@ export default async function DashboardPage() {
   const referralLink = session ? `${process.env.NEXT_PUBLIC_APP_URL || 'https://portal.gccstartup.com'}/?ref=${session.userId.slice(0, 8)}` : '';
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 pb-24 lg:pb-8">
+    <div className="flex flex-col min-h-screen bg-[#FFFFFF] pb-24 font-sans lg:pb-8">
       <BannerHeader title="DASHBOARD" subtitle={`Welcome back, ${firstName}`} />
 
       {activeBanners.length > 0 && (
@@ -195,7 +195,7 @@ export default async function DashboardPage() {
       <div className="px-4 mt-4 max-w-5xl mx-auto w-full space-y-6">
 
         {/* SECTION 1: Company Health Status */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+        <div className="bg-[#FFFFFF] rounded-2xl sm:rounded-3xl border border-[#E2E8F0] p-6 sm:p-7 shadow-[0_10px_25px_-5px_rgba(10,20,47,0.06)]">
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div className="flex items-center gap-3">
               <div className={`w-10 h-10 rounded-full ${status.bg} flex items-center justify-center ${status.color}`}>
@@ -237,7 +237,7 @@ export default async function DashboardPage() {
 
           {activeCompany && (
             <div className="mt-4 flex flex-wrap gap-2">
-              <Link href={`/api/companies/good-standing?companyId=${activeCompany.id}`} className="inline-flex items-center gap-1.5 bg-primary/5 text-primary text-xs font-semibold px-3 py-1.5 rounded-md hover:bg-primary/10 transition-colors">
+              <Link href={`/api/companies/good-standing?companyId=${activeCompany.id}`} className="inline-flex items-center gap-1.5 bg-primary/5 text-primary text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-primary/10 transition-colors">
                 <SealCheck size={14} />
                 Download Good Standing Letter
               </Link>
@@ -247,7 +247,7 @@ export default async function DashboardPage() {
 
         {/* SECTION 2: Pipeline Progress */}
         {activeCompany && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+          <div className="bg-[#FFFFFF] rounded-2xl sm:rounded-3xl border border-[#E2E8F0] p-6 sm:p-7 shadow-[0_10px_25px_-5px_rgba(10,20,47,0.06)]">
             <h3 className="text-sm font-bold text-gray-900 mb-1">Application Progress</h3>
             <PipelineStepTracker steps={STAGE_LABELS} currentStep={STATUS_TO_STEP[activeCompany.status] ?? 0} />
           </div>
@@ -255,7 +255,7 @@ export default async function DashboardPage() {
 
         {/* SECTION 3: Deadline Tracker */}
         {allRenewals.length > 0 && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+          <div className="bg-[#FFFFFF] rounded-2xl sm:rounded-3xl border border-[#E2E8F0] p-6 sm:p-7 shadow-[0_10px_25px_-5px_rgba(10,20,47,0.06)]">
             <h3 className="text-sm font-bold text-gray-900 mb-3">
               <CalendarCheck size={16} className="inline mr-1.5 text-primary" />
               Upcoming Deadlines
@@ -282,7 +282,7 @@ export default async function DashboardPage() {
         )}
 
         {/* SECTION 4: Documents */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+        <div className="bg-[#FFFFFF] rounded-2xl sm:rounded-3xl border border-[#E2E8F0] p-6 sm:p-7 shadow-[0_10px_25px_-5px_rgba(10,20,47,0.06)]">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-bold text-gray-900">
               <FolderOpen size={16} className="inline mr-1.5 text-primary" />
@@ -308,7 +308,7 @@ export default async function DashboardPage() {
               action={
                 <Link
                   href="/vault"
-                  className="inline-flex items-center gap-1.5 bg-cta hover:bg-cta-600 text-cta-foreground text-xs font-bold px-4 py-2 rounded-md transition-colors"
+                  className="inline-flex items-center gap-1.5 bg-[#F26522] hover:bg-[#14204A] text-white text-xs font-bold px-4 py-2 rounded-full transition-colors"
                 >
                   <Upload size={14} />
                   Upload Documents
@@ -320,7 +320,7 @@ export default async function DashboardPage() {
               {allDocuments.map((doc) => (
                 <div key={doc.id} className="flex items-center justify-between p-2.5 rounded-lg hover:bg-gray-50 transition-colors">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-8 h-8 rounded-md bg-primary-50 flex items-center justify-center shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-primary-50 flex items-center justify-center shrink-0">
                       <FileText size={16} className="text-primary" />
                     </div>
                     <div className="min-w-0">
@@ -350,7 +350,7 @@ export default async function DashboardPage() {
         </div>
 
         {/* SECTION 5: Payments */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+        <div className="bg-[#FFFFFF] rounded-2xl sm:rounded-3xl border border-[#E2E8F0] p-6 sm:p-7 shadow-[0_10px_25px_-5px_rgba(10,20,47,0.06)]">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-bold text-gray-900">
               <CurrencyDollar size={16} className="inline mr-1.5 text-primary" />
@@ -369,7 +369,7 @@ export default async function DashboardPage() {
               {allOrders.map((o) => (
                 <div key={o.id} className="flex items-center justify-between p-2.5 rounded-lg hover:bg-gray-50 transition-colors">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-md bg-primary-50 flex items-center justify-center shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-primary-50 flex items-center justify-center shrink-0">
                       <Receipt size={16} className="text-primary" />
                     </div>
                     <div>
@@ -396,7 +396,7 @@ export default async function DashboardPage() {
                     {o.payment_status === 'unpaid' && (
                       <Link
                         href={buildPayNowUrl(o, allUserCompanies.length > 0 ? allUserCompanies : activeCompany)}
-                        className="text-xs font-bold bg-cta hover:bg-cta-600 text-cta-foreground px-3 py-1.5 rounded-md transition-colors"
+                        className="text-xs font-bold bg-[#F26522] hover:bg-[#14204A] text-white px-3 py-1.5 rounded-full transition-colors"
                       >
                         Pay Now
                       </Link>
@@ -409,7 +409,7 @@ export default async function DashboardPage() {
         </div>
 
         {/* SECTION 6: Affiliate / Referral Tracker */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+        <div className="bg-[#FFFFFF] rounded-2xl sm:rounded-3xl border border-[#E2E8F0] p-6 sm:p-7 shadow-[0_10px_25px_-5px_rgba(10,20,47,0.06)]">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-bold text-gray-900">
               <ShareNetwork size={16} className="inline mr-1.5 text-primary" />
@@ -455,7 +455,7 @@ export default async function DashboardPage() {
         )}
 
         {/* SECTION 8: Recent Notifications / Jurisdiction Updates */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+        <div className="bg-[#FFFFFF] rounded-2xl sm:rounded-3xl border border-[#E2E8F0] p-6 sm:p-7 shadow-[0_10px_25px_-5px_rgba(10,20,47,0.06)]">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-bold text-gray-900">
               <Bell size={16} className="inline mr-1.5 text-primary" />

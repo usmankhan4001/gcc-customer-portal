@@ -6,6 +6,7 @@ import { db } from '@/lib/db';
 import { leads, users } from '@/lib/db/schema';
 import { classifyPersona, bandFromAnnualProfit, type PersonaSignals } from '@/lib/persona';
 import { captureServerEvent, identifyServer } from '@/lib/posthog-server';
+import { sendWelcomeEmail } from '@/lib/email';
 
 const BUDGET_MIDPOINTS: Record<string, number> = {
   under_50k: 25000,
@@ -174,6 +175,12 @@ export async function POST(request: Request) {
       funnel_track: classification.funnel_track,
     });
     captureServerEvent(user.id, 'registration_completed', { funnel_track: classification.funnel_track });
+
+    if (user.email) {
+      sendWelcomeEmail(user.email, user.full_name || 'Valued Client', 'GCC Startup').catch((err) => {
+        console.error('[onboarding/complete] Welcome email error:', err);
+      });
+    }
 
     return NextResponse.json({
       success: true,

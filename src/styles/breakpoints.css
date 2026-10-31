@@ -1,0 +1,135 @@
+/* Shared layout constants — the breakpoint scale and the fixed-bottom stacking
+   order. Two things that several stylesheets have to agree on, and that were
+   previously re-guessed in each file.
+
+   Imported from the top of components.css, which app/layout.tsx already loads
+   globally, so these custom properties are available to every stylesheet in the
+   app (site and admin alike). */
+
+/* ─── Breakpoint scale ───────────────────────────────────────────────────────
+
+   THREE breakpoints. Not four, not nine.
+
+     --bp-sm   640px   phone            single column, bottom-anchored chrome
+     --bp-md   900px   tablet / narrow  two columns, sidebars unstack
+     --bp-lg  1024px   desktop entry    full grids, admin sidebar becomes static
+
+   ⚠ READ THIS BEFORE USING THEM ⚠
+   A CSS custom property CANNOT be used inside a media query condition. This:
+
+       @media (max-width: var(--bp-md)) { … }      ← SILENTLY NEVER MATCHES
+
+   is not a syntax error the browser reports; the query simply never evaluates
+   true and the rules inside it are dead. `@custom-media` is also unavailable —
+   this project has no postcss.config, so it runs Next.js's default pipeline,
+   where postcss-preset-env sits at stage 3 and `@custom-media` (a stage-2
+   feature) is off.
+
+   So: write the LITERAL pixel value in the @media condition, and use the
+   variables for anything that is a normal property value (heights, offsets,
+   container widths). The variables below exist to document the scale and to
+   give a single place to grep when the scale changes.
+
+   Consolidated from the nine ad-hoc values that were spread across nine files:
+     380 · 420 · 480 · 520 · 540 · 560 · 639 · 640  →   640   (--bp-sm)
+     700 · 740 · 760 · 767 · 768 · 800 · 900        →   900   (--bp-md)
+     1024 · 1200                                    →  1024   (--bp-lg)
+
+   Files that follow this scale:
+     src/styles/components.css
+     src/styles/cookie-consent.css
+     src/app/admin/admin.css
+     src/app/admin/crm/crm.css
+     src/app/admin/operations.css
+   Files still on their own values (owned elsewhere, listed here so the gap is
+   visible rather than forgotten):
+     src/styles/tokens.css
+     src/components/admin/puck-canvas-theme.css
+     src/components/public-hubs/PublicHub.module.css
+     src/app/philippines-partners/philippines-partners.css                    */
+
+:root {
+  --bp-sm: 640px;
+  --bp-md: 900px;
+  --bp-lg: 1024px;
+}
+
+/* ─── Touch targets ──────────────────────────────────────────────────────────
+   44px is the WCAG 2.2 §2.5.8 / Apple HIG minimum for a tap target. Anything a
+   finger has to hit on a phone gets at least this. */
+
+:root {
+  --touch-target: 44px;
+}
+
+/* ─── Admin bottom navigation ────────────────────────────────────────────────
+   The bar is the primary navigation on mobile, so the space the page has to
+   reserve for it is derived from its own height rather than guessed.
+
+   --admin-bottom-nav-h     the bar's visible chrome (icons + labels)
+   --admin-bottom-nav-safe  the home-indicator inset underneath it
+   --admin-bottom-nav-total what the bar actually occupies on screen
+   --admin-bottom-nav-gap   breathing room between page content and the bar
+
+   .admin-bottom-nav sets its height to --admin-bottom-nav-total and
+   .admin-main-inner reserves --admin-bottom-nav-total + gap. On a device with
+   no inset that is 64 + 16 = 80px, which is what the reservation used to be
+   hard-coded to — the number is now a consequence of the bar rather than a
+   coincidence that matched it.                                              */
+
+:root {
+  --admin-bottom-nav-h: 64px;
+  --admin-bottom-nav-safe: env(safe-area-inset-bottom, 0px);
+  --admin-bottom-nav-total: calc(var(--admin-bottom-nav-h) + var(--admin-bottom-nav-safe));
+  --admin-bottom-nav-gap: 16px;
+}
+
+/* ─── Public-site fixed-bottom stack ─────────────────────────────────────────
+   Four things anchor themselves to the bottom of a phone screen and used to
+   pick their own bottom offsets and z-indexes independently:
+
+     .mobile-cta-bar          full width, flush to the bottom
+     .wa-bubble / .wa-panel   right-hand floating WhatsApp widget
+     .cookie-settings-control left-hand "Cookie settings" pill
+     .cookie-banner           full-width consent sheet
+
+   Measured height of .mobile-cta-bar, which everything else stacks on top of:
+     12px  padding-top             (--space-3)
+   + 44.8px button                 (14px x 1.2 line-height + 2x12px padding + 2x2px border)
+   + 16px  padding-bottom          (--space-4)
+   + safe-area-inset-bottom
+   = 72.8px + inset
+
+   --cta-bar-h rounds that to 73px and is applied to the bar as a min-height so
+   the number and the rendered box cannot drift apart. Everything above the bar
+   offsets from --cta-bar-stack-top.
+
+   Ordering rule, lowest to highest: page chrome → floating widget → consent.
+   Consent wins because it is an interrupt the user has to answer; the widget
+   sits above the CTA bar because it is interactive and smaller.             */
+
+:root {
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --cta-bar-h: 73px;
+  --cta-bar-stack-top: calc(var(--cta-bar-h) + var(--safe-bottom) + 8px);
+
+  --z-cta-bar: 9998;
+  --z-wa-widget: 9999;
+  --z-cookie-settings: 9999;
+  --z-modal: 10000;
+  --z-toast: 10000;
+  --z-cookie-banner: 10001;
+  --z-cookie-dialog: 10002;
+}
+
+/* ─── Admin shell stacking ───────────────────────────────────────────────────
+   A separate, much lower band: the admin never renders the public site's
+   fixed-bottom widgets, so these do not need to interleave with the values
+   above. Order: content < bottom nav < overflow-drawer scrim < drawer.       */
+
+:root {
+  --z-admin-header: 90;
+  --z-admin-bottom-nav: 800;
+  --z-admin-overlay: 900;
+  --z-admin-sidebar: 1000;
+}

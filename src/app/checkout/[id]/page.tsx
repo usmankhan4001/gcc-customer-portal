@@ -428,7 +428,7 @@ export default function CheckoutWizard({ params }: { params: Promise<{ id: strin
                 (step === 1 && !formData.nameOption1) ||
                 (step === 3 && !otpVerified)
               }
-              className="w-full flex items-center justify-center gap-2 bg-primary disabled:bg-primary-300 hover:bg-primary-700 text-white font-black py-3.5 px-6 rounded-md shadow-sm transition duration-200 text-sm uppercase tracking-widest"
+              className="w-full flex items-center justify-center gap-2 bg-[#F26522] disabled:opacity-50 hover:bg-[#14204A] text-white font-bold py-3.5 px-6 rounded-full shadow-[0_4px_14px_rgba(242,101,34,0.25)] transition duration-200 text-sm tracking-wider cursor-pointer"
             >
               Continue <CaretRight size={16} weight="bold" />
             </button>
@@ -436,7 +436,7 @@ export default function CheckoutWizard({ params }: { params: Promise<{ id: strin
             <button
               onClick={handleCheckout}
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 bg-gray-900 hover:bg-black text-white font-black py-3.5 px-6 rounded-md shadow-sm transition duration-200 text-sm uppercase tracking-widest relative overflow-hidden"
+              className="w-full flex items-center justify-center gap-2 bg-[#F26522] hover:bg-[#14204A] text-white font-bold py-3.5 px-6 rounded-full shadow-[0_4px_14px_rgba(242,101,34,0.25)] transition duration-200 text-sm tracking-wider cursor-pointer relative overflow-hidden"
             >
               {loading ? (
                 <span className="flex items-center gap-2">

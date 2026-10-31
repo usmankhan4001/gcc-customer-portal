@@ -173,7 +173,7 @@ export default function DocumentLocker({
       )}
 
       {/* Main Locker Container */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-[#FFFFFF] rounded-2xl sm:rounded-3xl border border-[#E2E8F0] shadow-[0_10px_25px_-5px_rgba(10,20,47,0.06)] overflow-hidden">
         {/* Header Bar */}
         <div className="p-4 md:p-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-gray-50/50 to-white">
           <div className="flex items-center gap-3">
@@ -202,7 +202,7 @@ export default function DocumentLocker({
               placeholder="Search documents..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 text-xs md:text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all bg-white"
+              className="w-full pl-9 pr-3 py-1.5 text-xs md:text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F26522]/20 focus:border-[#F26522] transition-all bg-white"
             />
           </div>
         </div>
@@ -214,7 +214,7 @@ export default function DocumentLocker({
               onClick={() => setActiveTab('all')}
               className={`pb-3 px-3 text-xs md:text-sm font-semibold border-b-2 flex items-center gap-2 transition-all ${
                 activeTab === 'all'
-                  ? 'border-primary text-primary font-bold'
+                  ? 'border-[#F26522] text-[#F26522] font-bold'
                   : 'border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300'
               }`}
             >
@@ -222,7 +222,7 @@ export default function DocumentLocker({
               <span>All Documents</span>
               <span
                 className={`text-[11px] px-1.5 py-0.2 rounded-full font-bold ${
-                  activeTab === 'all' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-700'
+                  activeTab === 'all' ? 'bg-[#F26522] text-white' : 'bg-gray-200 text-gray-700'
                 }`}
               >
                 {documents.length}
@@ -238,7 +238,7 @@ export default function DocumentLocker({
                   onClick={() => setActiveTab(folder.id)}
                   className={`pb-3 px-3 text-xs md:text-sm font-semibold border-b-2 flex items-center gap-2 transition-all ${
                     isActive
-                      ? 'border-primary text-primary font-bold'
+                      ? 'border-[#F26522] text-[#F26522] font-bold'
                       : 'border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300'
                   }`}
                 >
@@ -246,7 +246,7 @@ export default function DocumentLocker({
                   <span>{folder.name}</span>
                   <span
                     className={`text-[11px] px-1.5 py-0.2 rounded-full font-bold ${
-                      isActive ? 'bg-primary text-white' : 'bg-gray-200 text-gray-700'
+                      isActive ? 'bg-[#F26522] text-white' : 'bg-gray-200 text-gray-700'
                     }`}
                   >
                     {count}

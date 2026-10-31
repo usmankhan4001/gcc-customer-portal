@@ -261,7 +261,7 @@ export default function AdminDashboard() {
                 placeholder="Search company, client, phone..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:bg-white"
+                className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#F26522] focus:bg-white"
               />
               {searchQuery && (
                 <button
@@ -304,7 +304,7 @@ export default function AdminDashboard() {
             {/* New Order Button */}
             <button
               onClick={() => setShowNewModal(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors shadow-2xs cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#F26522] hover:bg-[#14204A] text-white text-xs font-bold rounded-full transition-colors shadow-2xs cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>New Order</span>
@@ -357,11 +357,11 @@ export default function AdminDashboard() {
 
       {/* New Order Modal */}
       {showNewModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-[#14204A]/40 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-xl border border-slate-200 w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-slate-50/50">
               <div className="flex items-center gap-2">
-                <Building className="w-5 h-5 text-blue-600" />
+                <Building className="w-5 h-5 text-[#F26522]" />
                 <h3 className="font-bold text-slate-900 text-base">Create Company Order</h3>
               </div>
               <button
@@ -383,7 +383,7 @@ export default function AdminDashboard() {
                   placeholder="e.g. Apex Horizon FZE"
                   value={formCompanyName}
                   onChange={(e) => setFormCompanyName(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#F26522]"
                 />
               </div>
 
@@ -393,7 +393,7 @@ export default function AdminDashboard() {
                   <select
                     value={formJurisdiction}
                     onChange={(e) => setFormJurisdiction(e.target.value)}
-                    className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
+                    className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#F26522] bg-white"
                   >
                     <option value="uae">🇦🇪 United Arab Emirates</option>
                     <option value="hong-kong">🇭🇰 Hong Kong</option>
@@ -409,7 +409,7 @@ export default function AdminDashboard() {
                   <select
                     value={formTier}
                     onChange={(e) => setFormTier(e.target.value)}
-                    className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
+                    className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#F26522] bg-white"
                   >
                     <option value="tier_1_self">Tier 1: Self UBO</option>
                     <option value="tier_2_nominee">Tier 2: Nominee UBO</option>
@@ -424,7 +424,7 @@ export default function AdminDashboard() {
                   <select
                     value={formStatus}
                     onChange={(e) => setFormStatus(e.target.value)}
-                    className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
+                    className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#F26522] bg-white"
                   >
                     <option value="lead">1. New Lead</option>
                     <option value="onboarding">2. Onboarding</option>
@@ -441,7 +441,7 @@ export default function AdminDashboard() {
                     placeholder="e.g. Tariq Mansoor"
                     value={formClientName}
                     onChange={(e) => setFormClientName(e.target.value)}
-                    className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#F26522]"
                   />
                 </div>
               </div>
@@ -454,7 +454,7 @@ export default function AdminDashboard() {
                     placeholder="client@domain.com"
                     value={formClientEmail}
                     onChange={(e) => setFormClientEmail(e.target.value)}
-                    className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#F26522]"
                   />
                 </div>
                 <div>
@@ -464,7 +464,7 @@ export default function AdminDashboard() {
                     placeholder="+971501234567"
                     value={formClientPhone}
                     onChange={(e) => setFormClientPhone(e.target.value)}
-                    className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#F26522]"
                   />
                 </div>
               </div>
@@ -480,7 +480,7 @@ export default function AdminDashboard() {
                 <button
                   type="submit"
                   disabled={submittingNew}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors shadow-xs disabled:opacity-50"
+                  className="px-4 py-2 bg-[#F26522] hover:bg-[#14204A] text-white text-xs font-bold rounded-full transition-colors shadow-xs disabled:opacity-50"
                 >
                   {submittingNew ? 'Creating...' : 'Create Order Card'}
                 </button>
@@ -674,7 +674,7 @@ function KanbanCard({
             <button
               onClick={() => onUpdateStatus(card.id, nextStage)}
               title="Advance to next stage"
-              className="inline-flex items-center gap-1 px-2 py-1 bg-slate-900 hover:bg-slate-800 text-white text-[11px] font-semibold rounded-md transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1 px-2 py-1 bg-[#14204A] hover:bg-slate-800 text-white text-[11px] font-semibold rounded-md transition-colors cursor-pointer"
             >
               <span>Advance</span>
               <ChevronRight className="w-3 h-3" />
@@ -711,11 +711,11 @@ function KanbanCard({
                         }
                       }}
                       className={`w-full text-left px-3 py-1.5 text-xs hover:bg-slate-50 transition-colors flex items-center justify-between ${
-                        opt.value === card.status ? 'font-bold text-blue-600 bg-blue-50/50' : 'text-slate-700'
+                        opt.value === card.status ? 'font-bold text-[#F26522] bg-blue-50/50' : 'text-slate-700'
                       }`}
                     >
                       <span>{opt.label}</span>
-                      {opt.value === card.status && <CheckCircle2 className="w-3.5 h-3.5 text-blue-600" />}
+                      {opt.value === card.status && <CheckCircle2 className="w-3.5 h-3.5 text-[#F26522]" />}
                     </button>
                   ))}
                 </div>
