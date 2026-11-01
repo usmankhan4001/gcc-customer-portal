@@ -1,0 +1,25 @@
+/* Board on desktop; on phones the chips pick one stage and only that column shows. */
+.chips { display: flex; }
+.board { display: block; }
+.column { display: none; }
+.columnOn { display: block; }
+.columnHead { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); margin-bottom: var(--space-3); }
+.columnTitle { margin: 0; font-size: 13px; text-transform: uppercase; letter-spacing: 0.04em; }
+.stack { display: grid; gap: var(--space-3); }
+.case { display: grid; gap: var(--space-3); padding: var(--space-4); }
+.caseTop { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-2); }
+.caseName { margin: 0; font-size: 15px; overflow-wrap: anywhere; }
+.badges { display: flex; flex-wrap: wrap; gap: 6px; }
+.summary { margin-bottom: var(--space-3); }
+.meta { display: grid; gap: 4px; font-size: 13px; color: var(--text-secondary); }
+.metaRow { display: flex; justify-content: space-between; gap: var(--space-2); }
+.foot { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); flex-wrap: wrap; }
+.actions { display: flex; align-items: center; gap: var(--space-2); }
+.jump { max-width: 170px; }
+.updating { opacity: 0.5; pointer-events: none; }
+
+@media (min-width: 900px) {
+  .chips { display: none; }
+  .board { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-4); align-items: start; }
+  .column { display: block; }
+}
