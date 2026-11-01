@@ -11,7 +11,8 @@ Admins open `/admin/pricing` to see every `jurisdiction_pricing` row (jurisdicti
 - Seed: `npx tsx scripts/seed.ts` (`npm run db:seed` per UI hint).
 
 ## Files
-- `src/app/admin/pricing/page.tsx:28-186` - pricing table; `handleSave` 81-106; TIER_LABELS 22-26. Lines 188-249 banner UI (not part of this feature).
+- `src/app/admin/pricing/page.tsx` - pricing table (CMS admin style, see [022-admin-pricing-restyle](022-admin-pricing-restyle.md)) and `handleSave`; banner UI below it (not part of this feature).
+- `src/lib/admin-ui/pricing.ts` - `parsePriceToCents`, `formatCents`, `tierLabel` (TIER_LABELS) used by the page.
 - `src/app/api/admin/pricing/route.ts:7-39` - GET/PATCH.
 - `src/lib/admin-auth.ts` - `requireAdmin()` (cookie JWT, role admin or super_admin).
 - `src/middleware.ts` - `/admin*` prefix: redirects to `/` if no/invalid session or role not admin/super_admin. `/api/` is public to middleware, so the API guards itself.

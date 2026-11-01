@@ -1,7 +1,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { DollarSign, Save, Megaphone, Plus } from 'lucide-react';
+import { Save, Plus } from 'lucide-react';
+import { PageHeader } from '@/components/admin/PageHeader';
+import {
+  bannerBadgeTone,
+  bannerStatusLabel,
+  formatCents,
+  jurisdictionLabel,
+  parsePriceToCents,
+  tierLabel,
+} from '@/lib/admin-ui/pricing';
 
 interface PricingRow {
   id: string;
@@ -19,17 +28,12 @@ interface BannerRow {
   active: boolean;
 }
 
-const TIER_LABELS: Record<string, string> = {
-  tier_1_self: 'Self UBO (Basic)',
-  tier_2_nominee: 'Nominee UBO',
-  tier_3_shelf: 'Shelf Company',
-};
-
 export default function AdminPricingPage() {
   const [rows, setRows] = useState<PricingRow[]>([]);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [savingId, setSavingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
 
   const [banners, setBanners] = useState<BannerRow[]>([]);
   const [newBanner, setNewBanner] = useState({ title: '', body: '', link_url: '' });
@@ -39,6 +43,7 @@ export default function AdminPricingPage() {
     fetch('/api/admin/pricing')
       .then((res) => res.json())
       .then((data) => setRows(data.pricing ?? []))
+      .catch(() => setLoadError(true))
       .finally(() => setLoading(false));
 
     fetch('/api/admin/promo-banners')
@@ -81,8 +86,8 @@ export default function AdminPricingPage() {
   const handleSave = async (id: string) => {
     const draft = drafts[id];
     if (draft === undefined) return;
-    const priceUsd = Math.round(parseFloat(draft) * 100);
-    if (Number.isNaN(priceUsd) || priceUsd < 0) return;
+    const priceUsd = parsePriceToCents(draft);
+    if (priceUsd === null) return;
 
     setSavingId(id);
     try {
@@ -106,74 +111,65 @@ export default function AdminPricingPage() {
   };
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Jurisdiction Pricing</h1>
-        <p className="text-gray-500 mt-1">
-          Prices charged at checkout, per jurisdiction and tier. Changes take effect immediately.
-        </p>
-      </div>
+    <div className="wrap admin-page">
+      <PageHeader
+        eyebrow="Operations"
+        title="Jurisdiction Pricing"
+        subtitle="Prices charged at checkout, per jurisdiction and tier. Changes take effect immediately."
+      />
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
-          <DollarSign className="w-5 h-5 text-gray-500" />
-          <h2 className="text-lg font-semibold text-gray-800">Prices</h2>
+      <div className="admin-section-head">
+        <h2>Prices</h2>
+      </div>
+      {loading ? (
+        <div className="admin-state" role="status">Loading pricing…</div>
+      ) : loadError ? (
+        <div className="cl-empty is-error" role="alert">
+          <p>Could not load pricing. Check your connection and try again.</p>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+      ) : rows.length === 0 ? (
+        <div className="cl-empty">
+          <p>No pricing configured yet. Run <code>npm run db:seed</code> for placeholder values.</p>
+        </div>
+      ) : (
+        <div className="admin-table-wrap">
+          <table className="admin-table">
             <thead>
-              <tr className="bg-white border-b border-gray-100 text-sm text-gray-500">
-                <th className="px-6 py-4 font-medium">Jurisdiction</th>
-                <th className="px-6 py-4 font-medium">Tier</th>
-                <th className="px-6 py-4 font-medium">Price (USD)</th>
-                <th className="px-6 py-4 font-medium text-right">Actions</th>
+              <tr>
+                <th>Jurisdiction</th>
+                <th>Tier</th>
+                <th>Price (USD)</th>
+                <th className="is-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
-              {loading && (
-                <tr>
-                  <td colSpan={4} className="px-6 py-8 text-center text-gray-400">
-                    Loading...
-                  </td>
-                </tr>
-              )}
-              {!loading && rows.length === 0 && (
-                <tr>
-                  <td colSpan={4} className="px-6 py-8 text-center text-gray-400">
-                    No pricing configured yet. Run <code>npm run db:seed</code> for placeholder values.
-                  </td>
-                </tr>
-              )}
+            <tbody>
               {rows.map((row) => {
                 const draft = drafts[row.id];
-                const displayValue = draft ?? (row.price_usd / 100).toFixed(2);
+                const displayValue = draft ?? formatCents(row.price_usd);
+                const name = `${jurisdictionLabel(row.jurisdiction)} ${tierLabel(row.tier)}`;
                 return (
-                  <tr key={row.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 text-gray-900 font-medium capitalize">
-                      {row.jurisdiction.replace('-', ' ')}
+                  <tr key={row.id}>
+                    <td style={{ textTransform: 'capitalize' }}>{jurisdictionLabel(row.jurisdiction)}</td>
+                    <td>{tierLabel(row.tier)}</td>
+                    <td>
+                      <input
+                        type="number"
+                        step="0.01"
+                        inputMode="decimal"
+                        aria-label={`Price in USD for ${name}`}
+                        value={displayValue}
+                        onChange={(e) => setDrafts((prev) => ({ ...prev, [row.id]: e.target.value }))}
+                      />
                     </td>
-                    <td className="px-6 py-4 text-gray-600">{TIER_LABELS[row.tier] ?? row.tier}</td>
-                    <td className="px-6 py-4">
-                      <div className="relative w-32">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
-                        <input
-                          type="number"
-                          step="0.01"
-                          value={displayValue}
-                          onChange={(e) =>
-                            setDrafts((prev) => ({ ...prev, [row.id]: e.target.value }))
-                          }
-                          className="w-full pl-6 pr-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-slate-900 focus:border-slate-900"
-                        />
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="is-right">
                       <button
+                        type="button"
+                        className="btn btn-primary"
+                        aria-label={`Save price for ${name}`}
                         onClick={() => handleSave(row.id)}
                         disabled={draft === undefined || savingId === row.id}
-                        className="inline-flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed text-white px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
                       >
-                        <Save className="w-3.5 h-3.5" />
+                        <Save size={14} />
                         {savingId === row.id ? 'Saving...' : 'Save'}
                       </button>
                     </td>
@@ -183,70 +179,85 @@ export default function AdminPricingPage() {
             </tbody>
           </table>
         </div>
+      )}
+
+      <div className="admin-section-head">
+        <h2>Dashboard Announcements</h2>
       </div>
 
-      <div className="mt-8 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
-          <Megaphone className="w-5 h-5 text-gray-500" />
-          <h2 className="text-lg font-semibold text-gray-800">Dashboard Announcements</h2>
-        </div>
-
-        <form onSubmit={handleCreateBanner} className="p-6 border-b border-gray-100 space-y-3">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <input
-              type="text"
-              placeholder="Title (e.g. Finish your KYC)"
-              value={newBanner.title}
-              onChange={(e) => setNewBanner((prev) => ({ ...prev, title: e.target.value }))}
-              className="px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-slate-900 focus:border-slate-900"
-            />
-            <input
-              type="text"
-              placeholder="Link URL (optional)"
-              value={newBanner.link_url}
-              onChange={(e) => setNewBanner((prev) => ({ ...prev, link_url: e.target.value }))}
-              className="px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-slate-900 focus:border-slate-900"
+      <form onSubmit={handleCreateBanner} className="card admin-form-card">
+        <div className="admin-form-stack">
+          <div className="admin-form-grid-2">
+            <div className="field">
+              <label htmlFor="banner-title">Title</label>
+              <input
+                id="banner-title"
+                type="text"
+                placeholder="Title (e.g. Finish your KYC)"
+                value={newBanner.title}
+                onChange={(e) => setNewBanner((prev) => ({ ...prev, title: e.target.value }))}
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="banner-link">Link URL</label>
+              <input
+                id="banner-link"
+                type="text"
+                placeholder="Link URL (optional)"
+                value={newBanner.link_url}
+                onChange={(e) => setNewBanner((prev) => ({ ...prev, link_url: e.target.value }))}
+              />
+            </div>
+          </div>
+          <div className="field">
+            <label htmlFor="banner-body">Body text</label>
+            <textarea
+              id="banner-body"
+              placeholder="Body text"
+              value={newBanner.body}
+              onChange={(e) => setNewBanner((prev) => ({ ...prev, body: e.target.value }))}
+              rows={2}
             />
           </div>
-          <textarea
-            placeholder="Body text"
-            value={newBanner.body}
-            onChange={(e) => setNewBanner((prev) => ({ ...prev, body: e.target.value }))}
-            rows={2}
-            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-slate-900 focus:border-slate-900"
-          />
+        </div>
+        <div className="admin-form-actions">
           <button
             type="submit"
+            className="btn btn-primary"
             disabled={creatingBanner || !newBanner.title || !newBanner.body}
-            className="inline-flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed text-white px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
           >
-            <Plus className="w-3.5 h-3.5" />
+            <Plus size={14} />
             {creatingBanner ? 'Creating...' : 'Create banner'}
           </button>
-        </form>
+        </div>
+      </form>
 
-        <div className="divide-y divide-gray-100">
-          {banners.length === 0 && (
-            <p className="p-6 text-center text-sm text-gray-400">No announcements yet.</p>
-          )}
+      {banners.length === 0 ? (
+        <div className="cl-empty">
+          <p>No announcements yet.</p>
+        </div>
+      ) : (
+        <div className="admin-form-stack">
           {banners.map((banner) => (
-            <div key={banner.id} className="p-4 flex items-center justify-between gap-4">
-              <div>
-                <p className="text-sm font-semibold text-gray-900">{banner.title}</p>
-                <p className="text-xs text-gray-500">{banner.body}</p>
+            <div key={banner.id} className="card admin-form-card">
+              <div className="admin-section-head">
+                <div>
+                  <strong>{banner.title}</strong>
+                  <p className="admin-form-note">{banner.body}</p>
+                </div>
+                <button
+                  type="button"
+                  className={`badge ${bannerBadgeTone(banner.active)}`}
+                  aria-label={`${banner.title}: ${bannerStatusLabel(banner.active)}. Toggle`}
+                  onClick={() => handleToggleBanner(banner.id, !banner.active)}
+                >
+                  {bannerStatusLabel(banner.active)}
+                </button>
               </div>
-              <button
-                onClick={() => handleToggleBanner(banner.id, !banner.active)}
-                className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-colors shrink-0 ${
-                  banner.active ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-                }`}
-              >
-                {banner.active ? 'Active' : 'Inactive'}
-              </button>
             </div>
           ))}
         </div>
-      </div>
+      )}
     </div>
   );
 }
