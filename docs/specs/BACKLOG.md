@@ -19,6 +19,11 @@ How the automated cycle uses this: pick specs whose **Depends on** are merged, w
 | 013 | Dashboard fixes (Pay Now, copy button, PDF link, revenue 500) | shipped (verified) | no | no | - | 010, 011, 012 |
 | 014 | Wire tools to lead capture | shipped (verified) | no | no | 010, 011, 012 | - |
 | 015 | Events and User Consent Schema (F0.6) | shipped (verified) | no | yes | 014 | 017 |
+| 018 | Admin pipeline page restyle | approved | no | no | admin shell | 019, 020, 021, 022 |
+| 019 | Admin clients and KYC page restyle | approved | no | no | admin shell | 018, 020, 021, 022 |
+| 020 | Admin leads page restyle | approved | no | no | admin shell | 018, 019, 021, 022 |
+| 021 | Admin renewals page restyle | approved | no | no | admin shell | 018, 019, 020, 022 |
+| 022 | Admin pricing page restyle | approved | no | no | admin shell | 018, 019, 020, 021 |
 | 016 | Stateful Compliance Calendar (F1.2) | shipped (verified) | no | no | 015 | 017 |
 | 017 | Document Locker v1 (F1.7) | shipped (verified) | yes (vault) | no | - | 015, 016 |
 
