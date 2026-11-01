@@ -14,7 +14,7 @@ export default function SummaryCard({
   totalExpense = '$0.00' 
 }: SummaryCardProps) {
   return (
-    <div className="bg-[#14204A] border border-[#1E293B] rounded-2xl sm:rounded-3xl shadow-[0_10px_25px_-5px_rgba(10,20,47,0.15)] p-6 sm:p-7 text-white w-full max-w-md mx-auto lg:max-w-none">
+    <div className="bg-[#0A142F] border border-[#1E293B] rounded-2xl sm:rounded-3xl shadow-[0_10px_25px_-5px_rgba(10,20,47,0.15)] p-6 sm:p-7 text-white w-full max-w-md mx-auto lg:max-w-none">
       <div className="flex items-center justify-between mb-2">
         <span className="text-[11px] font-bold uppercase tracking-widest text-[#F26522]">{title}</span>
         <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/10 text-white/90">FINANCIAL OVERVIEW</span>

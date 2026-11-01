@@ -56,7 +56,7 @@ export default function NavLinks() {
       <nav className="hidden lg:flex lg:flex-col lg:w-64 lg:shrink-0 lg:py-6 lg:px-4 lg:border-r lg:border-[#E2E8F0] lg:bg-[#FFFFFF]">
         <div className="px-3 mb-8">
           <Link href="/dashboard" className="flex items-center gap-2">
-            <span className="text-xl font-bold tracking-tight text-[#14204A] font-heading">
+            <span className="text-xl font-bold tracking-tight text-[#0A142F] font-heading">
               GCC<span className="text-[#F26522]">Startup</span>
             </span>
             <span className="text-[10px] font-bold px-2 py-0.5 bg-[#FEF1E9] text-[#F26522] rounded-full border border-[#FDE4D3]">
@@ -98,7 +98,7 @@ export default function NavLinks() {
             Live Concierge Support
           </button>
           <div className="bg-[#F8FAFC] p-3 rounded-xl border border-[#E2E8F0] mt-3">
-            <div className="flex items-center gap-1.5 text-[11px] font-bold text-[#14204A]">
+            <div className="flex items-center gap-1.5 text-[11px] font-bold text-[#0A142F]">
               <ShieldCheck size={14} className="text-[#16A34A]" weight="fill" />
               Regulated Entity
             </div>

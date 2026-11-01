@@ -10,7 +10,7 @@ export default function TopBar({ name, unreadCount }: TopBarProps) {
   return (
     <header className="sticky top-0 z-30 bg-[#FFFFFF] border-b border-[#E2E8F0] h-16 flex items-center justify-between px-4 lg:px-8">
       <div className="flex items-center gap-3 truncate">
-        <div className="w-8 h-8 rounded-full bg-[#14204A] text-white flex items-center justify-center font-bold text-xs">
+        <div className="w-8 h-8 rounded-full bg-[#0A142F] text-white flex items-center justify-center font-bold text-xs">
           {name.charAt(0).toUpperCase()}
         </div>
         <div>

@@ -177,7 +177,7 @@ Authorized Signatory                         Authorized Signatory`;
               <button
                 type="submit"
                 disabled={!yourCompany || !otherParty}
-                className="w-full mt-2 bg-[#F26522] hover:bg-[#14204A] text-white text-sm font-bold py-3.5 px-6 rounded-full shadow-[0_4px_14px_rgba(242,101,34,0.25)] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 cursor-pointer"
+                className="w-full mt-2 bg-[#F26522] hover:bg-[#0A142F] text-white text-sm font-bold py-3.5 px-6 rounded-full shadow-[0_4px_14px_rgba(242,101,34,0.25)] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 cursor-pointer"
               >
                 Generate Mutual NDA
               </button>
@@ -205,7 +205,7 @@ Authorized Signatory                         Authorized Signatory`;
                       type="button"
                       onClick={handleDownloadPdf}
                       disabled={downloading}
-                      className="flex items-center gap-1.5 bg-[#F26522] hover:bg-[#14204A] text-white text-xs font-bold px-3 py-1.5 rounded-full transition-colors shadow-xs cursor-pointer"
+                      className="flex items-center gap-1.5 bg-[#F26522] hover:bg-[#0A142F] text-white text-xs font-bold px-3 py-1.5 rounded-full transition-colors shadow-xs cursor-pointer"
                     >
                       {downloading ? <CircleNotch className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
                       Download PDF

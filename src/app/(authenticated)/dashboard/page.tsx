@@ -308,7 +308,7 @@ export default async function DashboardPage() {
               action={
                 <Link
                   href="/vault"
-                  className="inline-flex items-center gap-1.5 bg-[#F26522] hover:bg-[#14204A] text-white text-xs font-bold px-4 py-2 rounded-full transition-colors"
+                  className="inline-flex items-center gap-1.5 bg-[#F26522] hover:bg-[#0A142F] text-white text-xs font-bold px-4 py-2 rounded-full transition-colors"
                 >
                   <Upload size={14} />
                   Upload Documents
@@ -396,7 +396,7 @@ export default async function DashboardPage() {
                     {o.payment_status === 'unpaid' && (
                       <Link
                         href={buildPayNowUrl(o, allUserCompanies.length > 0 ? allUserCompanies : activeCompany)}
-                        className="text-xs font-bold bg-[#F26522] hover:bg-[#14204A] text-white px-3 py-1.5 rounded-full transition-colors"
+                        className="text-xs font-bold bg-[#F26522] hover:bg-[#0A142F] text-white px-3 py-1.5 rounded-full transition-colors"
                       >
                         Pay Now
                       </Link>

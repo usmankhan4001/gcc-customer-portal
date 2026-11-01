@@ -102,8 +102,8 @@ The platform operates on a **hybrid conversion model**:
   * **Phosphor Icons**: For client portal UI elements (`@phosphor-icons/react/dist/ssr` for server components, `@phosphor-icons/react` for client components).
   * **Lucide React**: For admin operations, tables, and system tools (`lucide-react`).
 * **Design Tokens & Brand Colors**:
-  * **Navy (Primary)**: `#14204A` (Tailwind class: `bg-primary`, `text-primary`)
-  * **Gold / CTA (Accent)**: `#C5A572` (Tailwind class: `bg-cta`, `text-cta`)
+  * **Navy (Primary)**: `#0A142F` (Tailwind class: `bg-primary`, `text-primary`)
+  * **Orange / CTA (Accent)**: `#F26522` (Tailwind class: `bg-cta`, `text-cta`). Fonts: Clash Display (headings), Satoshi (body). CMS tokens live in `src/styles/tokens.css`; they sit inside Tailwind's cascade layers (see `globals.css`), so utilities always win.
   * **Backgrounds**: Slate-50 / Slate-100 neutral surfaces for elevated clarity.
   * Preview all tokens at `/dev/style-guide`.
 

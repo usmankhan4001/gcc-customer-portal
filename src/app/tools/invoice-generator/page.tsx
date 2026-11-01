@@ -253,14 +253,14 @@ export default function InvoiceGenerator() {
                   <p className="text-xs text-[#64748B]">Subtotal</p>
                   <p className="text-base font-bold text-[#0F172A] font-mono">${subtotal.toFixed(2)}</p>
                   <p className="text-xs text-[#64748B] mt-2">Total</p>
-                  <p className="text-xl font-bold text-[#14204A] font-mono">${total.toFixed(2)}</p>
+                  <p className="text-xl font-bold text-[#0A142F] font-mono">${total.toFixed(2)}</p>
                 </div>
               </div>
 
               <button
                 type="submit"
                 disabled={loading || !companyName.trim()}
-                className="w-full bg-[#F26522] hover:bg-[#14204A] text-white font-bold py-3.5 px-6 rounded-full transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 text-sm shadow-[0_4px_14px_rgba(242,101,34,0.25)] cursor-pointer"
+                className="w-full bg-[#F26522] hover:bg-[#0A142F] text-white font-bold py-3.5 px-6 rounded-full transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 text-sm shadow-[0_4px_14px_rgba(242,101,34,0.25)] cursor-pointer"
               >
                 {loading ? <CircleNotch className="w-5 h-5 animate-spin" /> : <FileText className="w-5 h-5" />}
                 {loading ? 'Generating & Downloading PDF...' : 'Generate & Download PDF'}
@@ -280,7 +280,7 @@ export default function InvoiceGenerator() {
                   type="button"
                   onClick={downloadInvoicePdf}
                   disabled={downloading}
-                  className="inline-flex items-center gap-2 bg-[#F26522] hover:bg-[#14204A] text-white text-sm font-bold px-6 py-3 rounded-full transition-all shadow-[0_4px_14px_rgba(242,101,34,0.25)] cursor-pointer"
+                  className="inline-flex items-center gap-2 bg-[#F26522] hover:bg-[#0A142F] text-white text-sm font-bold px-6 py-3 rounded-full transition-all shadow-[0_4px_14px_rgba(242,101,34,0.25)] cursor-pointer"
                 >
                   {downloading ? <CircleNotch className="w-4 h-4 animate-spin" /> : <Download size={18} />}
                   Download PDF Again
@@ -288,7 +288,7 @@ export default function InvoiceGenerator() {
                 <button
                   type="button"
                   onClick={handleCopyLink}
-                  className="inline-flex items-center gap-2 border border-[#E2E8F0] text-[#14204A] hover:bg-[#F8FAFC] text-sm font-bold px-6 py-3 rounded-full transition-all cursor-pointer"
+                  className="inline-flex items-center gap-2 border border-[#E2E8F0] text-[#0A142F] hover:bg-[#F8FAFC] text-sm font-bold px-6 py-3 rounded-full transition-all cursor-pointer"
                 >
                   <Copy size={18} />
                   {copied ? 'Link Copied!' : 'Copy Tool Link'}

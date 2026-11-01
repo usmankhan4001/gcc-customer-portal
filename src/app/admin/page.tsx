@@ -304,7 +304,7 @@ export default function AdminDashboard() {
             {/* New Order Button */}
             <button
               onClick={() => setShowNewModal(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#F26522] hover:bg-[#14204A] text-white text-xs font-bold rounded-full transition-colors shadow-2xs cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#F26522] hover:bg-[#0A142F] text-white text-xs font-bold rounded-full transition-colors shadow-2xs cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>New Order</span>
@@ -357,7 +357,7 @@ export default function AdminDashboard() {
 
       {/* New Order Modal */}
       {showNewModal && (
-        <div className="fixed inset-0 z-50 bg-[#14204A]/40 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-[#0A142F]/40 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-xl border border-slate-200 w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-slate-50/50">
               <div className="flex items-center gap-2">
@@ -480,7 +480,7 @@ export default function AdminDashboard() {
                 <button
                   type="submit"
                   disabled={submittingNew}
-                  className="px-4 py-2 bg-[#F26522] hover:bg-[#14204A] text-white text-xs font-bold rounded-full transition-colors shadow-xs disabled:opacity-50"
+                  className="px-4 py-2 bg-[#F26522] hover:bg-[#0A142F] text-white text-xs font-bold rounded-full transition-colors shadow-xs disabled:opacity-50"
                 >
                   {submittingNew ? 'Creating...' : 'Create Order Card'}
                 </button>
@@ -674,7 +674,7 @@ function KanbanCard({
             <button
               onClick={() => onUpdateStatus(card.id, nextStage)}
               title="Advance to next stage"
-              className="inline-flex items-center gap-1 px-2 py-1 bg-[#14204A] hover:bg-slate-800 text-white text-[11px] font-semibold rounded-md transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1 px-2 py-1 bg-[#0A142F] hover:bg-slate-800 text-white text-[11px] font-semibold rounded-md transition-colors cursor-pointer"
             >
               <span>Advance</span>
               <ChevronRight className="w-3 h-3" />

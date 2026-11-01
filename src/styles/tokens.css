@@ -14,6 +14,9 @@
   --orange: #F26522;
   --orange-dk: #C9511A;
   --orange-lt: #FEF1E9;
+  --orange-text: #B4461A;
+  --orange-bright: #FF7A3D;
+  --orange-btn: #C44C16;
 
   --gold: #D97706;
   --gold-dk: #B45309;
@@ -33,6 +36,7 @@
   /* Borders — Crisp Slate */
   --border: #E2E8F0;
   --border-hover: #CBD5E1;
+  --border-strong: #94A3B8;
 
   /* Text — Deep Corporate Slate Navy */
   --text: #0F172A;
@@ -104,6 +108,7 @@
   --space-5: 20px;
   --space-6: 24px;
   --space-8: 32px;
+  --space-10: 40px;
   --space-12: 48px;
   --space-16: 64px;
   --space-20: 80px;

@@ -36,7 +36,7 @@ export async function sendWelcomeEmail(
         <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
         <body style="margin:0;padding:0;background:#FFFFFF;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#0F172A;">
           <div style="max-width:560px;margin:40px auto;background:#FFFFFF;border:1px solid #E2E8F0;border-radius:24px;overflow:hidden;box-shadow:0 10px 25px -5px rgba(10,20,47,0.08);">
-            <div style="background:#14204A;padding:36px;text-align:center;">
+            <div style="background:#0A142F;padding:36px;text-align:center;">
               <span style="font-size:11px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:#F26522;display:block;margin-bottom:8px;">Welcome Aboard</span>
               <h1 style="color:#FFFFFF;font-size:26px;font-weight:700;margin:0;letter-spacing:-0.02em;">GCC Startup Member Portal</h1>
             </div>
@@ -46,7 +46,7 @@ export async function sendWelcomeEmail(
                 Welcome to GCC Startup. Your dedicated client portal and KYC document locker for <strong>${companyName}</strong> are now active.
               </p>
               <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:16px;padding:20px;margin:24px 0;">
-                <p style="font-size:13px;font-weight:700;color:#14204A;text-transform:uppercase;letter-spacing:0.06em;margin:0 0 12px 0;">Next Steps:</p>
+                <p style="font-size:13px;font-weight:700;color:#0A142F;text-transform:uppercase;letter-spacing:0.06em;margin:0 0 12px 0;">Next Steps:</p>
                 <ol style="font-size:14px;color:#334155;line-height:1.8;padding-left:20px;margin:0;">
                   <li>Upload your passport & proof of address to your secure Vault</li>
                   <li>Verify corporate formation details & trade name choices</li>
@@ -99,7 +99,7 @@ export async function sendKYCReminder(
         <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
         <body style="margin:0;padding:0;background:#FFFFFF;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#0F172A;">
           <div style="max-width:560px;margin:40px auto;background:#FFFFFF;border:1px solid #E2E8F0;border-radius:24px;overflow:hidden;box-shadow:0 10px 25px -5px rgba(10,20,47,0.08);">
-            <div style="background:#14204A;padding:32px;text-align:center;">
+            <div style="background:#0A142F;padding:32px;text-align:center;">
               <span style="font-size:11px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:#F26522;display:block;margin-bottom:8px;">Regulatory Compliance</span>
               <h1 style="color:#FFFFFF;font-size:24px;font-weight:700;margin:0;">Identity Verification Required</h1>
             </div>
@@ -152,7 +152,7 @@ export async function sendOrderConfirmation(
         <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
         <body style="margin:0;padding:0;background:#FFFFFF;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
           <div style="max-width:560px;margin:40px auto;background:#fff;border:1px solid #E2E8F0;border-radius:24px;overflow:hidden;">
-            <div style="background:#14204A;padding:32px;text-align:center;">
+            <div style="background:#0A142F;padding:32px;text-align:center;">
               <span style="font-size:11px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:#16A34A;display:block;margin-bottom:8px;">Payment Received</span>
               <h1 style="color:#fff;font-size:24px;margin:0;">Order Confirmed</h1>
             </div>
@@ -200,7 +200,7 @@ export async function sendRenewalReminder(
         <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
         <body style="margin:0;padding:0;background:#FFFFFF;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
           <div style="max-width:560px;margin:40px auto;background:#fff;border:1px solid #E2E8F0;border-radius:24px;overflow:hidden;">
-            <div style="background:#14204A;padding:32px;text-align:center;">
+            <div style="background:#0A142F;padding:32px;text-align:center;">
               <h1 style="color:#fff;font-size:24px;margin:0;">Annual Renewal Reminder</h1>
             </div>
             <div style="padding:32px;">
@@ -247,7 +247,7 @@ export async function sendToolResultEmail(
       <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
       <body style="margin:0;padding:0;background:#FFFFFF;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
         <div style="max-width:560px;margin:40px auto;background:#fff;border:1px solid #E2E8F0;border-radius:24px;overflow:hidden;box-shadow:0 10px 25px -5px rgba(10,20,47,0.08);">
-          <div style="background:#14204A;padding:32px;text-align:center;">
+          <div style="background:#0A142F;padding:32px;text-align:center;">
             <span style="font-size:11px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:#F26522;display:block;margin-bottom:8px;">Estimate &amp; Document Service</span>
             <h1 style="color:#fff;font-size:22px;margin:0;">${escapeHtml(title)}</h1>
           </div>

@@ -120,7 +120,7 @@ export default function CountryFlag({
       default:
         return (
           <svg viewBox="0 0 64 64" width={dimension} height={dimension} className={className}>
-            <circle cx="32" cy="32" r="30" fill="#14204A" />
+            <circle cx="32" cy="32" r="30" fill="#0A142F" />
             <text x="32" y="38" fill="#FFFFFF" fontSize="18" fontWeight="800" textAnchor="middle" fontFamily="sans-serif">
               {normalized.slice(0, 2).toUpperCase()}
             </text>

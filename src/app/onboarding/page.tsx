@@ -253,7 +253,7 @@ function OnboardingWizard() {
                       >
                         <div
                           className={`p-2 rounded-lg flex-shrink-0 ${
-                            isSelected ? 'bg-[#F26522] text-white' : 'bg-[#F8FAFC] text-[#14204A]'
+                            isSelected ? 'bg-[#F26522] text-white' : 'bg-[#F8FAFC] text-[#0A142F]'
                           }`}
                         >
                           <Icon className="w-4 h-4" />
@@ -403,7 +403,7 @@ function OnboardingWizard() {
               <button
                 type="button"
                 onClick={nextStep}
-                className="ml-auto px-6 py-2.5 bg-[#F26522] hover:bg-[#14204A] text-white text-xs font-bold rounded-full transition-all duration-300 flex items-center gap-1.5 shadow-[0_4px_14px_rgba(242,101,34,0.25)] cursor-pointer"
+                className="ml-auto px-6 py-2.5 bg-[#F26522] hover:bg-[#0A142F] text-white text-xs font-bold rounded-full transition-all duration-300 flex items-center gap-1.5 shadow-[0_4px_14px_rgba(242,101,34,0.25)] cursor-pointer"
               >
                 Continue
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -413,7 +413,7 @@ function OnboardingWizard() {
                 type="button"
                 onClick={() => handleFinalSubmit()}
                 disabled={loading || !password || password.length < 6}
-                className="ml-auto px-6 py-2.5 bg-[#F26522] hover:bg-[#14204A] disabled:opacity-50 text-white text-xs font-bold rounded-full transition-all duration-300 flex items-center gap-1.5 shadow-[0_4px_14px_rgba(242,101,34,0.25)] cursor-pointer"
+                className="ml-auto px-6 py-2.5 bg-[#F26522] hover:bg-[#0A142F] disabled:opacity-50 text-white text-xs font-bold rounded-full transition-all duration-300 flex items-center gap-1.5 shadow-[0_4px_14px_rgba(242,101,34,0.25)] cursor-pointer"
               >
                 {loading ? (
                   <>

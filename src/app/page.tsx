@@ -10,7 +10,7 @@ export default function WelcomeScreen() {
         </span>
 
         <h1 className="text-5xl sm:text-7xl font-bold tracking-tight font-heading leading-[1.05]">
-          <span className="text-[#14204A]">GCC</span>
+          <span className="text-[#0A142F]">GCC</span>
           <span className="text-[#F26522]">Startup</span>
         </h1>
 
@@ -27,14 +27,14 @@ export default function WelcomeScreen() {
       <div className="w-full max-w-md mx-auto pb-8 space-y-3">
         <Link
           href="/welcome"
-          className="w-full flex items-center justify-center gap-2 bg-[#F26522] hover:bg-[#14204A] text-white font-bold py-4 px-6 rounded-full shadow-[0_4px_16px_rgba(242,101,34,0.3)] transition-all duration-300 text-base cursor-pointer"
+          className="w-full flex items-center justify-center gap-2 bg-[#F26522] hover:bg-[#0A142F] text-white font-bold py-4 px-6 rounded-full shadow-[0_4px_16px_rgba(242,101,34,0.3)] transition-all duration-300 text-base cursor-pointer"
         >
           Explore Corporate Platform
           <ArrowRight size={18} weight="bold" />
         </Link>
 
         <div className="flex items-center justify-center gap-4 text-xs font-semibold text-[#64748B] pt-2">
-          <Link href="/auth" className="text-[#14204A] hover:underline font-bold">
+          <Link href="/auth" className="text-[#0A142F] hover:underline font-bold">
             Sign In to Portal
           </Link>
           <span>&bull;</span>

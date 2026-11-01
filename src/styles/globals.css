@@ -31,7 +31,7 @@
   --primary-700: #14204A; /* Base Brand Navy */
   --primary-800: #0A142F;
   --primary-900: #060D20;
-  --primary: #14204A;
+  --primary: #0A142F;
   --primary-foreground: #FFFFFF;
 
   /* CTA / Accent — Vibrant GCC Orange (#F26522) */
@@ -95,7 +95,7 @@
 
   --sidebar-background: #FFFFFF;
   --sidebar-foreground: #0F172A;
-  --sidebar-primary: #14204A;
+  --sidebar-primary: #0A142F;
   --sidebar-primary-foreground: #FFFFFF;
   --sidebar-accent: #FEF1E9;
   --sidebar-accent-foreground: #F26522;

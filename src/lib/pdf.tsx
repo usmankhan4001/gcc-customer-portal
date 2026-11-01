@@ -5,7 +5,7 @@ import { uploadBuffer } from '@/lib/r2';
 
 const styles = StyleSheet.create({
   page: { padding: 40, fontSize: 11, fontFamily: 'Helvetica', color: '#0F172A', backgroundColor: '#FFFFFF' },
-  header: { backgroundColor: '#14204A', padding: 24, marginBottom: 24, borderRadius: 8 },
+  header: { backgroundColor: '#0A142F', padding: 24, marginBottom: 24, borderRadius: 8 },
   brand: { color: '#F26522', fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 6 },
   title: { color: '#FFFFFF', fontSize: 20, fontWeight: 700 },
   subtitle: { color: '#FFFFFF', fontSize: 11, marginTop: 4, opacity: 0.85 },

@@ -69,7 +69,7 @@ export default function WelcomeCarouselPage() {
           const Icon = slide.icon;
           return (
             <div key={slide.id} className="min-w-full h-full flex flex-col items-center justify-center p-6 snap-center">
-              <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-3xl bg-[#14204A] text-[#F26522] flex items-center justify-center mb-6 shadow-[0_10px_25px_-5px_rgba(20,32,74,0.15)] transition-transform">
+              <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-3xl bg-[#0A142F] text-[#F26522] flex items-center justify-center mb-6 shadow-[0_10px_25px_-5px_rgba(20,32,74,0.15)] transition-transform">
                 <Icon size={52} weight="duotone" />
               </div>
               <h2 className="text-2xl sm:text-3xl font-bold text-[#0F172A] font-heading mb-2.5 text-center tracking-tight">
@@ -106,7 +106,7 @@ export default function WelcomeCarouselPage() {
             <>
               <Link
                 href="/onboarding"
-                className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-full font-bold text-sm text-white bg-[#F26522] hover:bg-[#14204A] shadow-[0_4px_14px_rgba(242,101,34,0.25)] transition-all duration-300 cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-full font-bold text-sm text-white bg-[#F26522] hover:bg-[#0A142F] shadow-[0_4px_14px_rgba(242,101,34,0.25)] transition-all duration-300 cursor-pointer"
               >
                 Start Incorporation Intake <ArrowRight size={16} weight="bold" />
               </Link>
@@ -121,7 +121,7 @@ export default function WelcomeCarouselPage() {
             <button
               type="button"
               onClick={() => scrollToSlide(currentSlide + 1)}
-              className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-full font-bold text-sm text-white bg-[#F26522] hover:bg-[#14204A] shadow-[0_4px_14px_rgba(242,101,34,0.25)] transition-all duration-300 cursor-pointer"
+              className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-full font-bold text-sm text-white bg-[#F26522] hover:bg-[#0A142F] shadow-[0_4px_14px_rgba(242,101,34,0.25)] transition-all duration-300 cursor-pointer"
             >
               Next Step <ArrowRight size={16} weight="bold" />
             </button>

@@ -258,7 +258,7 @@ function AuthPageInner() {
 
         {/* Sandbox Demo Quick Fill & Auto-Seed */}
         <div className="mb-5 p-3.5 bg-[#FEF1E9] border border-[#F26522]/20 rounded-2xl text-xs">
-          <div className="flex items-center justify-between font-bold text-[#14204A] mb-2">
+          <div className="flex items-center justify-between font-bold text-[#0A142F] mb-2">
             <span className="text-[#F26522] uppercase tracking-wider text-[11px] flex items-center gap-1.5 font-bold">
               <ShieldCheck className="w-4 h-4 text-[#F26522]" /> Sandbox Demo Access
             </span>
@@ -274,7 +274,7 @@ function AuthPageInner() {
               }}
               className="p-2.5 text-left bg-white border border-[#E2E8F0] hover:border-[#F26522] rounded-xl transition-all group cursor-pointer shadow-xs"
             >
-              <div className="font-bold text-[#14204A] text-xs group-hover:text-[#F26522] flex items-center justify-between">
+              <div className="font-bold text-[#0A142F] text-xs group-hover:text-[#F26522] flex items-center justify-between">
                 <span>Admin User</span>
                 <span className="text-[10px] text-[#F26522] font-bold">&rarr;</span>
               </div>
@@ -291,7 +291,7 @@ function AuthPageInner() {
               }}
               className="p-2.5 text-left bg-white border border-[#E2E8F0] hover:border-[#F26522] rounded-xl transition-all group cursor-pointer shadow-xs"
             >
-              <div className="font-bold text-[#14204A] text-xs group-hover:text-[#F26522] flex items-center justify-between">
+              <div className="font-bold text-[#0A142F] text-xs group-hover:text-[#F26522] flex items-center justify-between">
                 <span>Client User</span>
                 <span className="text-[10px] text-[#F26522] font-bold">&rarr;</span>
               </div>
@@ -367,7 +367,7 @@ function AuthPageInner() {
             <button
               type="submit"
               disabled={isLoading || !identifier || !password}
-              className="w-full bg-[#F26522] hover:bg-[#14204A] text-white font-bold py-3.5 px-6 rounded-full transition-all duration-300 disabled:opacity-50 flex justify-center items-center gap-2 text-sm shadow-[0_4px_14px_rgba(242,101,34,0.25)] cursor-pointer"
+              className="w-full bg-[#F26522] hover:bg-[#0A142F] text-white font-bold py-3.5 px-6 rounded-full transition-all duration-300 disabled:opacity-50 flex justify-center items-center gap-2 text-sm shadow-[0_4px_14px_rgba(242,101,34,0.25)] cursor-pointer"
             >
               {isLoading ? <CircleNotch className="w-4 h-4 animate-spin" /> : "Sign In with Password"}
             </button>
@@ -422,7 +422,7 @@ function AuthPageInner() {
                 <button
                   type="submit"
                   disabled={isLoading || otp.length !== 6}
-                  className="w-full bg-[#F26522] hover:bg-[#14204A] text-white font-bold py-3.5 px-6 rounded-full transition-all duration-300 disabled:opacity-50 flex justify-center items-center gap-2 text-sm shadow-[0_4px_14px_rgba(242,101,34,0.25)] cursor-pointer"
+                  className="w-full bg-[#F26522] hover:bg-[#0A142F] text-white font-bold py-3.5 px-6 rounded-full transition-all duration-300 disabled:opacity-50 flex justify-center items-center gap-2 text-sm shadow-[0_4px_14px_rgba(242,101,34,0.25)] cursor-pointer"
                 >
                   {isLoading ? <CircleNotch className="w-4 h-4 animate-spin" /> : "Verify & Sign In"}
                 </button>
@@ -521,7 +521,7 @@ function AuthPageInner() {
             <button
               type="submit"
               disabled={isLoading || !regFullName || !regEmail || regPassword.length < 6}
-              className="w-full bg-[#F26522] hover:bg-[#14204A] text-white font-bold py-3.5 px-6 rounded-full transition-all duration-300 disabled:opacity-50 flex justify-center items-center gap-2 text-sm shadow-[0_4px_14px_rgba(242,101,34,0.25)] cursor-pointer"
+              className="w-full bg-[#F26522] hover:bg-[#0A142F] text-white font-bold py-3.5 px-6 rounded-full transition-all duration-300 disabled:opacity-50 flex justify-center items-center gap-2 text-sm shadow-[0_4px_14px_rgba(242,101,34,0.25)] cursor-pointer"
             >
               {isLoading ? <CircleNotch className="w-4 h-4 animate-spin" /> : "Create Account &amp; Access Portal"}
             </button>
@@ -547,7 +547,7 @@ function AuthPageInner() {
               <button
                 type="button"
                 onClick={() => setAuthMethod("password")}
-                className="text-[#14204A] font-bold hover:underline cursor-pointer"
+                className="text-[#0A142F] font-bold hover:underline cursor-pointer"
               >
                 Sign In &rarr;
               </button>
@@ -558,7 +558,7 @@ function AuthPageInner() {
             Need a tailored corporate package?{" "}
             <Link
               href={`/onboarding${redirectTo ? `?redirect=${encodeURIComponent(redirectTo)}` : ""}`}
-              className="text-[#14204A] font-semibold hover:underline inline-flex items-center gap-1"
+              className="text-[#0A142F] font-semibold hover:underline inline-flex items-center gap-1"
             >
               Start Guided Onboarding <ArrowRight className="w-3 h-3" />
             </Link>
