@@ -1,6 +1,6 @@
 # Spec: Admin leads page in the CMS admin style
 
-**Status**: approved
+**Status**: shipped
 **Requested by**: owner (replicate the revamped gccstartup-cms admin UI in the customer portal admin)
 **Roadmap ref**: docs/versions/v2.1-engage-retain-core.md (UI parity); docs/ai/features/admin-shell-cms-port.md
 **Protected files approved**: none

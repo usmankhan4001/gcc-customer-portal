@@ -1,7 +1,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Contact2, Mail, MessageCircle } from 'lucide-react';
+import { PageHeader } from '@/components/admin/PageHeader';
+import {
+  formatCaptured,
+  formatInterest,
+  leadCountLabel,
+  personaBadge,
+  sourceBadge,
+  trackBadge,
+} from '@/lib/admin-ui/leads';
 
 interface LeadRow {
   id: string;
@@ -17,123 +25,86 @@ interface LeadRow {
   created_at: string;
 }
 
-const SOURCE_LABELS: Record<string, string> = {
-  tax_calculator: 'Tax Calculator',
-  banking_odds: 'Banking Odds',
-  nda_generator: 'NDA Generator',
-  jurisdiction_quiz: 'Jurisdiction Fit Quiz',
-  vat_scorer: 'VAT Scorer',
-  ubo_privacy: 'UBO Privacy',
-  compliance_calendar: 'Compliance Calendar',
-  visa_estimator: 'Visa Estimator',
-  name_checker: 'Name Checker',
-  qfzp_eligibility: 'QFZP Eligibility',
-};
-
 export default function AdminLeadsPage() {
   const [rows, setRows] = useState<LeadRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     fetch('/api/admin/leads')
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error(String(res.status));
+        return res.json();
+      })
       .then((data) => setRows(data.leads ?? []))
+      .catch(() => setError(true))
       .finally(() => setLoading(false));
   }, []);
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Leads</h1>
-        <p className="text-gray-500 mt-1">
-          Contacts captured by the lead-gen tools, newest first.
-        </p>
-      </div>
+    <div className="wrap admin-page">
+      <PageHeader
+        eyebrow="Operations"
+        title="Leads"
+        subtitle={`Contacts captured by the lead-gen tools, newest first. ${loading || error ? '' : leadCountLabel(rows.length)}`.trim()}
+      />
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
-          <Contact2 className="w-5 h-5 text-gray-500" />
-          <h2 className="text-lg font-semibold text-gray-800">{rows.length} lead{rows.length === 1 ? '' : 's'}</h2>
+      {loading && (
+        <div className="admin-state" role="status">
+          Loading leads…
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+      )}
+      {!loading && error && (
+        <div className="cl-empty is-error" role="alert">
+          <p>Could not load leads. Check your connection and try again.</p>
+        </div>
+      )}
+      {!loading && !error && rows.length === 0 && (
+        <div className="cl-empty">
+          <p>No leads have been captured yet.</p>
+        </div>
+      )}
+      {!loading && !error && rows.length > 0 && (
+        <div className="admin-table-wrap">
+          <table className="admin-table">
             <thead>
-              <tr className="bg-white border-b border-gray-100 text-sm text-gray-500">
-                <th className="px-6 py-4 font-medium">Contact</th>
-                <th className="px-6 py-4 font-medium">Source Tool</th>
-                <th className="px-6 py-4 font-medium">Persona</th>
-                <th className="px-6 py-4 font-medium">Interest</th>
-                <th className="px-6 py-4 font-medium">Track</th>
-                <th className="px-6 py-4 font-medium">Captured</th>
+              <tr>
+                <th>Contact</th>
+                <th>Source Tool</th>
+                <th>Persona</th>
+                <th className="hide-phone">Interest</th>
+                <th className="hide-phone">Track</th>
+                <th>Captured</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
-              {loading && (
-                <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center text-gray-400">
-                    Loading...
-                  </td>
-                </tr>
-              )}
-              {!loading && rows.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center text-gray-400">
-                    No leads captured yet.
-                  </td>
-                </tr>
-              )}
-              {rows.map((row) => (
-                <tr key={row.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4">
-                    <div className="flex flex-col gap-0.5 text-sm">
-                      {row.email && (
-                        <span className="flex items-center gap-1.5 text-gray-900">
-                          <Mail className="w-3.5 h-3.5 text-gray-400" /> {row.email}
-                        </span>
-                      )}
-                      {row.whatsapp_number && (
-                        <span className="flex items-center gap-1.5 text-gray-600">
-                          <MessageCircle className="w-3.5 h-3.5 text-gray-400" /> {row.whatsapp_number}
-                        </span>
-                      )}
-                      {row.converted_user_id && (
-                        <span className="text-xs font-medium text-green-700 bg-green-50 w-fit px-1.5 py-0.5 rounded-sm mt-0.5">
-                          Converted to client
-                        </span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-gray-600 text-sm">
-                    {SOURCE_LABELS[row.source_tool] ?? row.source_tool}
-                  </td>
-                  <td className="px-6 py-4 text-gray-600 text-sm">{row.persona_tag ?? '—'}</td>
-                  <td className="px-6 py-4 text-gray-600 text-sm capitalize">
-                    {row.primary_interest_jurisdiction?.replace('-', ' ') ?? '—'}
-                  </td>
-                  <td className="px-6 py-4 text-sm">
-                    {row.funnel_track ? (
-                      <span
-                        className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                          row.funnel_track === 'consultation_led'
-                            ? 'bg-amber-100 text-amber-700'
-                            : 'bg-blue-100 text-blue-700'
-                        }`}
-                      >
-                        {row.funnel_track === 'consultation_led' ? 'Consultation' : 'Self-serve'}
-                      </span>
-                    ) : (
-                      '—'
-                    )}
-                  </td>
-                  <td className="px-6 py-4 text-gray-500 text-sm whitespace-nowrap">
-                    {new Date(row.created_at).toLocaleString()}
-                  </td>
-                </tr>
-              ))}
+            <tbody>
+              {rows.map((row) => {
+                const source = sourceBadge(row.source_tool);
+                const persona = personaBadge(row.persona_tag);
+                const track = trackBadge(row.funnel_track);
+                return (
+                  <tr key={row.id}>
+                    <td>
+                      <div>{row.email ?? row.whatsapp_number ?? '—'}</div>
+                      {row.email && row.whatsapp_number && <div>{row.whatsapp_number}</div>}
+                      {row.converted_user_id && <span className="badge badge-success">Converted to client</span>}
+                    </td>
+                    <td>
+                      <span className={source.className}>{source.label}</span>
+                    </td>
+                    <td>{persona ? <span className={persona.className}>{persona.label}</span> : '—'}</td>
+                    <td className="hide-phone">{formatInterest(row.primary_interest_jurisdiction)}</td>
+                    <td className="hide-phone">
+                      {track ? <span className={track.className}>{track.label}</span> : '—'}
+                    </td>
+                    <td>{formatCaptured(row.created_at)}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
-      </div>
+      )}
     </div>
   );
 }

@@ -1,16 +1,17 @@
 # Feature: Admin leads list
 
-**Slug**: admin-leads   **Area**: [admin-operations](../modules/admin-operations.md)   **Status**: working (read-only)   **Last verified against code**: 2026-10-30
+**Slug**: admin-leads   **Area**: [admin-operations](../modules/admin-operations.md)   **Status**: working (read-only)   **Last verified against code**: 2026-11-02
 
 ## What it does
 `/admin/leads` shows the newest 200 contacts captured by the lead-gen tools (tax calculator, quiz, etc.) in a read-only table. Admins see who the lead is, which tool captured them, persona, interest jurisdiction, funnel track and capture time. There is no way to filter, search, edit, assign, convert or contact a lead from this page.
 
 ## Entry points
-- UI: `src/app/admin/leads/page.tsx` (`AdminLeadsPage`), linked from the sidebar ("Leads", `layout.tsx:53-58`).
+- UI: `src/app/admin/leads/page.tsx` (`AdminLeadsPage`, CMS admin style since spec 020, see [020-admin-leads-restyle](020-admin-leads-restyle.md)), linked from the sidebar ("Leads", `layout.tsx:53-58`).
 - API: `GET /api/admin/leads` (`src/app/api/admin/leads/route.ts`).
 
 ## Files
-- `src/app/admin/leads/page.tsx:6-18` row type; `:20-31` source labels; `:37-42` fetch; `:62-67` column headers; `:85-132` rows.
+- `src/app/admin/leads/page.tsx` row type (`LeadRow`), fetch with `loading`/`error` state, column headers, rows.
+- `src/lib/admin-ui/leads.ts` `SOURCE_LABELS` and pure helpers (`sourceBadge`, `personaBadge`, `trackBadge`, `formatInterest`, `formatCaptured`, `leadCountLabel`); tests in `leads.test.ts`.
 - `src/app/api/admin/leads/route.ts:7-15` handler.
 - `src/lib/db/schema.ts:304-340` `leads` table. Writers: `src/app/api/leads/capture/route.ts`, `src/app/api/pdf/generate/route.ts`, `src/app/api/onboarding/complete/route.ts` (see [lead-capture-and-persona](lead-capture-and-persona.md)).
 - `tests/fde.test.ts:18` references the route (smoke/path list only).
@@ -21,10 +22,10 @@
 - No pagination, offset, or query params.
 
 ## Step-by-step flow
-1. Page mounts, `fetch('/api/admin/leads')` then `.json()` (`page.tsx:38-41`); `data.leads ?? []`. On 401 the body has no `leads`, so the table shows "No leads captured yet." (error is invisible).
+1. Page mounts, `fetch('/api/admin/leads')`; a non-ok response throws, otherwise `.json()` and `data.leads ?? []`. Any failure (401, 500, network, non-JSON body) sets `error` and shows a `cl-empty is-error` alert "Could not load leads. Check your connection and try again."; `loading` clears in `finally`.
 2. Handler: `requireAdmin()` -> `db.select().from(leads).orderBy(desc(created_at)).limit(200)`.
-3. Table columns (6): Contact (email, WhatsApp, green "Converted to client" chip when `converted_user_id` set), Source Tool (label map, falls back to raw value), Persona (`persona_tag` or em dash), Interest (`primary_interest_jurisdiction` with `-` replaced by space, capitalized), Track (`consultation_led` -> amber "Consultation", else blue "Self-serve"; null -> dash), Captured (`toLocaleString()`).
-4. Header shows `{rows.length} lead(s)` (counts loaded rows, max 200, not total).
+3. Table columns (6): Contact (email, WhatsApp, `badge-success` "Converted to client" when `converted_user_id` set), Source Tool (`badge-info`, label map, falls back to raw value), Persona (`badge` with `persona_tag`, or em dash), Interest (`primary_interest_jurisdiction` with `-` replaced by space and each word capitalized by `formatInterest`; hidden on phones), Track (`consultation_led` -> `badge-accent` "Consultation", else `badge-info` "Self-serve"; null -> dash; hidden on phones), Captured (`toLocaleString()`).
+4. `PageHeader` subtitle ends with `leadCountLabel(rows.length)` ("1 lead", "200 leads"; counts loaded rows, max 200, not total; omitted while loading or on error). An empty list shows `cl-empty` "No leads have been captured yet."
 
 ## Data
 - Read: `leads` only. Source tool enum (10): tax_calculator, banking_odds, nda_generator, jurisdiction_quiz, vat_scorer, ubo_privacy, compliance_calendar, visa_estimator, name_checker, qfzp_eligibility (`schema.ts:308-321`). Revenue band enum: under_50k, 50k_150k, 150k_500k, over_500k. Risk tier: low, medium, high. Funnel track: self_serve, consultation_led.
@@ -32,8 +33,8 @@
 - No join to `users`, `companies` or orders.
 
 ## Business rules and constants
-- Limit 200 (`route.ts:13`). Funnel track colors keyed on exact string `consultation_led` (`page.tsx:117`).
-- Source label map has all 10 enum values; any new tool added to the schema enum shows its raw slug until `SOURCE_LABELS` is updated.
+- Limit 200 (`route.ts:13`). Funnel track badge keyed on exact string `consultation_led` (`trackBadge` in `src/lib/admin-ui/leads.ts`).
+- Source label map has all 10 enum values; any new tool added to the schema enum shows its raw slug until `SOURCE_LABELS` in `src/lib/admin-ui/leads.ts` is updated.
 
 ## Auth, permissions, security
 - Page gate: middleware, JWT role `admin` or `super_admin` (`middleware.ts:78-99`). API gate: `requireAdmin()`.
@@ -41,30 +42,29 @@
 - PII: the API returns `tool_input`/`tool_result` JSON (can contain emails, revenue, answers) to the browser although the UI ignores them. Acceptable for admins but larger than necessary.
 
 ## Failure modes and edge cases
-- 401/500 look like an empty list (page does not check `res.ok`; a non-JSON 500 makes `res.json()` reject with no catch, leaving `loading` false after `finally` and an empty table).
+- 401/500/network errors show the error alert instead of an empty list (the page checks `res.ok` and catches rejections).
 - >200 leads: older ones are unreachable from the UI.
 - Duplicate captures of the same person appear as separate rows (no dedupe).
 - `primary_interest_jurisdiction` null -> dash.
 
 ## Tests
-Only a path reference in `tests/fde.test.ts`. Worth writing:
+`src/lib/admin-ui/leads.test.ts` covers the helpers and page-source assertions; `tests/fde.test.ts` only references the route path. Still worth writing:
 1. GET without cookie -> 401; with client-role JWT -> 401.
 2. GET as admin with 250 seeded leads -> exactly 200, first has newest `created_at`.
 3. Response items include `source_tool` and `converted_user_id` keys.
-4. Page render (component test) with `{leads:[]}` shows "No leads captured yet."; with one lead where `converted_user_id` set shows "Converted to client".
+4. Page render (component test) with `{leads:[]}` shows "No leads have been captured yet."; with one lead where `converted_user_id` set shows "Converted to client".
 5. `funnel_track:'consultation_led'` renders "Consultation".
 
 ## Known bugs and gaps
-- No filter/search/sort/export, no pagination (`route.ts:13`, `page.tsx` has no controls).
-- Missing sales context columns: revenue band, industry risk, tool result (`page.tsx:62-67`).
+- No filter/search/sort/export, no pagination (`route.ts:13`, the page has no controls).
+- Missing sales context columns: revenue band, industry risk, tool result.
 - No lead -> pipeline conversion or assignment; `converted_user_id` is set elsewhere (unverified where; `onboarding/complete` is the likely writer).
-- Error states invisible (`page.tsx:38-42`).
 - No try/catch in handler.
 
 ## Change guide
 - Add filters server-side via query params + `where(...)`, keep `requireAdmin()` first. Add columns by extending `LeadRow` and the table; avoid returning `tool_input`/`tool_result` unless needed (select explicit columns).
 - If adding sales-user access you must change `requireAdmin`, `middleware.ts` and role handling (protected zones, human approval); see [admin-bootstrap-and-guard](admin-bootstrap-and-guard.md).
-- New lead source tool: update schema enum, `SOURCE_LABELS`, and capture route.
+- New lead source tool: update schema enum, `SOURCE_LABELS` (`src/lib/admin-ui/leads.ts`), and capture route.
 
 ## Related features
 [lead-capture-and-persona](lead-capture-and-persona.md), [admin-clients](admin-clients.md), [admin-kanban-pipeline](admin-kanban-pipeline.md), [admin-bootstrap-and-guard](admin-bootstrap-and-guard.md), [tool-result-pdf-and-email](tool-result-pdf-and-email.md)
