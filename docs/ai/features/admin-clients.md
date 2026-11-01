@@ -57,7 +57,7 @@ None. Worth writing once real:
 ## Known bugs and gaps
 - Entire page is mock (`page.tsx:6-13`); Verify/Reject are no-ops against the DB (`:20-26`).
 - Nav label promises "Clients & KYC" but KYC review lives nowhere real; `/api/admin/kyc/review` is also mocked and unused by the UI (see [admin-bootstrap-and-guard](admin-bootstrap-and-guard.md)).
-- Uses `dark:` classes though admin layout is light only.
+- Markup restyled to the CMS admin classes (spec 019, see [019-admin-clients-restyle](019-admin-clients-restyle.md)); the `dark:` classes are gone and the line numbers above predate that rewrite. Logic now lives in `src/lib/admin-ui/clients.ts`.
 
 ## Change guide
 - Build Customer 360 as: `GET /api/admin/clients` (list with search/pagination) and `GET /api/admin/clients/[id]` (detail), both `requireAdmin()` first, reusing the join approach above. Replace the mock in `page.tsx`; keep the sidebar link.
