@@ -19,9 +19,9 @@ export default function BannerHeader({ title, subtitle }: BannerHeaderProps) {
       style={{ background: `linear-gradient(135deg, var(--banner-gradient-start), var(--banner-gradient-end))` }}
     >
       <div className="max-w-4xl mx-auto lg:max-w-none">
-        <h1 className="text-3xl md:text-4xl lg:text-2xl font-bold">{title}</h1>
+        <h1 className="text-3xl md:text-4xl lg:text-2xl font-bold text-white">{title}</h1>
         {subtitle && (
-          <p className="mt-2 text-lg md:text-xl lg:text-sm font-medium opacity-90">{subtitle}</p>
+          <p className="mt-2 text-lg md:text-xl lg:text-sm font-medium opacity-90 text-white">{subtitle}</p>
         )}
       </div>
     </div>

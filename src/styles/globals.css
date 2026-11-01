@@ -1,4 +1,9 @@
 @import "tailwindcss";
+/* CMS tokens and component styles go INSIDE Tailwind's cascade layers. Imported unlayered (as layout.tsx did)
+   their global resets (`* { margin: 0; padding: 0 }`, h1-h4 colour and size, `p` colour and margin) beat every
+   Tailwind utility, collapsing padding and spacing and recolouring headings on every page. */
+@import "./tokens.css" layer(base);
+@import "./components.css" layer(components);
 
 @plugin "tailwindcss-animate";
 
