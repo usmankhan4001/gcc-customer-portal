@@ -71,7 +71,7 @@
   --muted: #F8FAFC;
   --muted-foreground: #64748B;
 
-  --accent: #FEF1E9;
+  --ui-accent: #FEF1E9; /* shadcn accent surface; named apart so it does not shadow the CMS --accent (orange) */
   --accent-foreground: #F26522;
 
   /* Semantic status colors */
@@ -131,7 +131,7 @@
   --muted: #14204A;
   --muted-foreground: #94A3B8;
 
-  --accent: #1B4FD8;
+  --ui-accent: #1B4FD8;
   --accent-foreground: #FFFFFF;
 
   --success: #22C55E;
@@ -207,7 +207,7 @@
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
 
-  --color-accent: var(--accent);
+  --color-accent: var(--ui-accent);
   --color-accent-foreground: var(--accent-foreground);
 
   --color-success: var(--success);

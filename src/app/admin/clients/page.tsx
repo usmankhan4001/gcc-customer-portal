@@ -86,7 +86,7 @@ export default function ClientsPage() {
                     <td className="hide-phone">{client.company}</td>
                     <td className="hide-phone">{client.phone}</td>
                     <td><span className={statusBadgeClass(client.status)}>{client.status}</span></td>
-                    <td className="cl-cell-menu">
+                    <td className={client.status === 'Pending' ? 'is-right' : 'cl-cell-menu'}>
                       {client.status === 'Pending' ? (
                         <>
                           <button type="button" className="btn btn-primary" onClick={() => setStatus(client.id, 'Verified')}>
