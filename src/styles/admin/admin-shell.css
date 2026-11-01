@@ -1,0 +1,159 @@
+/* Admin shell, part two: the grouped menu, the phone header, and the responsive rules
+   every admin page inherits (page headers, modals, buttons). Loaded after admin.css so
+   it can override the older single-purpose rules without editing them. Literal pixel
+   values in media queries, per src/styles/breakpoints.css. */
+
+/* ─── Desktop sidebar: slim, grouped ─── */
+.admin-sidebar { width: 232px; }
+.admin-sidebar-header { padding: 18px 16px 12px; display: flex; flex-direction: column; gap: 12px; align-items: stretch; position: relative; }
+.admin-brand { display: flex; align-items: center; gap: 10px; font-weight: 900; font-size: 19px; color: var(--text); }
+.admin-brand span { color: var(--orange); }
+.admin-sheet-close { display: none; }
+.admin-nav { padding: 8px 10px; gap: 2px; }
+.admin-nav-item { padding: 8px 12px; font-size: 14px; }
+.admin-nav-group-label,
+.admin-nav-group-toggle {
+  padding: 12px 12px 4px;
+  color: var(--text-tertiary);
+  font-size: 12px;
+  font-weight: 700;
+}
+.admin-nav-group-toggle {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: var(--touch-target);
+  margin-top: 8px;
+  padding: 0 12px;
+  border-top: 1px solid var(--border);
+  color: var(--text-tertiary);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.admin-nav-group-toggle:hover { color: var(--text); }
+.admin-nav-group-toggle:focus-visible { outline: 2px solid var(--orange); outline-offset: -2px; }
+.admin-nav-group-toggle svg { transition: transform .15s ease-out; }
+.admin-nav-group-toggle svg.is-open { transform: rotate(180deg); }
+.admin-nav-technical { display: flex; flex-direction: column; gap: 2px; }
+.admin-nav-logout { background: none; border: none; width: 100%; text-align: left; cursor: pointer; font: inherit; }
+
+/* ─── Phone / tablet header ─── */
+.admin-header-brand { width: auto; height: 28px; margin: 0 8px; }
+.admin-header-back {
+  display: inline-grid;
+  place-items: center;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  margin-left: -8px;
+  border-radius: var(--radius);
+  color: var(--text);
+  -webkit-tap-highlight-color: transparent;
+}
+.admin-header-back:active { background: var(--surface-hover); }
+.admin-header-title { flex: 1; min-width: 0; font-size: 17px; font-weight: 800; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.admin-sidebar-search { display: block; }
+button.admin-bottom-nav-item { background: none; border: 0; font-family: inherit; cursor: pointer; }
+
+@media (max-width: 1024px) {
+  .admin-mobile-header { padding: 6px 12px; gap: 4px; min-height: 56px; }
+  .admin-sidebar-search { display: none; }
+  /* More sheet: the full grouped list, wide enough to read, sitting above the bar. */
+  .admin-sidebar { width: min(340px, 88vw); left: max(-340px, -88vw); }
+  .admin-sidebar.open { left: 0; }
+  .admin-sidebar-header { flex-direction: row; align-items: center; justify-content: space-between; padding: 8px 8px 8px 20px; }
+  .admin-sheet-close {
+    display: inline-grid;
+    place-items: center;
+    width: var(--touch-target);
+    height: var(--touch-target);
+    border: 0;
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+  }
+  .admin-nav-item { min-height: 48px; }
+  .admin-bottom-nav-item { font-size: 11px; }
+}
+
+/* ─── Content area: full width on desktop, no side gutters wasted on phones ─── */
+.admin-main-inner { min-width: 0; }
+@media (max-width: 640px) {
+  .admin-main-inner .wrap { padding-left: 16px; padding-right: 16px; padding-top: var(--space-4) !important; }
+}
+
+/* ─── Page headers inherit the fix: wrap, never overflow, keep 44px actions ─── */
+.admin-page-header > div { min-width: 0; }
+.admin-page-header-actions { flex-wrap: wrap; }
+@media (max-width: 640px) {
+  .admin-page-header { margin-bottom: var(--space-5); gap: var(--space-3); }
+  .admin-page-header-title { font-size: 22px; overflow-wrap: anywhere; }
+  .admin-page-header-subtitle { font-size: 14px; }
+  .admin-page-header-actions { width: 100%; }
+  .admin-page-header-actions > * { flex: 1 1 auto; }
+  .admin-page-header-back { min-height: var(--touch-target); margin-bottom: 0; }
+}
+
+/* ─── Modals become full-height sheets on phones ─── */
+@media (max-width: 640px) {
+  .admin-modal-overlay { align-items: flex-end; padding: 0; }
+  .admin-modal {
+    max-width: none;
+    max-height: 100dvh;
+    min-height: 60dvh;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding: var(--space-5) var(--space-4) calc(var(--space-5) + env(safe-area-inset-bottom, 0px));
+    animation: admin-sheet-up .2s ease;
+  }
+  .admin-modal-title { padding-right: 52px; }
+  .admin-modal-actions { flex-wrap: wrap; position: sticky; bottom: 0; background: var(--surface); padding-top: var(--space-3); }
+  .admin-modal-actions > * { flex: 1 1 140px; min-height: var(--touch-target); }
+  .admin-modal input, .admin-modal select, .admin-modal textarea { font-size: 16px; }
+}
+@keyframes admin-sheet-up { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .admin-modal { animation: none !important; } }
+
+/* ─── Lists and tables: 44px actions, no horizontal page scroll, 16px inputs ─── */
+.admin-table td .btn, .admin-table td button { min-height: var(--touch-target); }
+@media (max-width: 768px) {
+  .admin-table td > * + * { margin-top: 4px; }
+  .admin-table td .btn, .admin-table td button { width: 100%; justify-content: center; }
+}
+@media (max-width: 1024px) {
+  .admin-main-inner input:not([type='checkbox']):not([type='radio']),
+  .admin-main-inner select,
+  .admin-main-inner textarea { font-size: 16px; }
+}
+
+/* ─── Install-as-app / notifications card ─── */
+.app-prompt {
+  position: fixed;
+  z-index: 60;
+  right: var(--space-4);
+  bottom: var(--space-4);
+  width: min(380px, calc(100vw - 2 * var(--space-4)));
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  padding: var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg, 16px);
+  box-shadow: 0 10px 30px rgba(8, 24, 40, 0.18);
+}
+.app-prompt-icon { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: var(--radius); background: var(--surface-hover); color: var(--primary, #f26522); }
+.app-prompt-text { display: flex; flex-direction: column; gap: 4px; min-width: 0; font-size: 14px; color: var(--text-secondary); }
+.app-prompt-text strong { color: var(--text); font-size: 15px; }
+.app-prompt-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-2); }
+.app-prompt-actions .btn { min-height: var(--touch-target, 44px); }
+.app-prompt-close { flex: none; display: grid; place-items: center; width: 36px; height: 36px; margin: -6px -6px 0 0; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--text-tertiary); cursor: pointer; }
+@media (max-width: 1024px) {
+  /* Sits just above the phone's bottom tab bar, never behind it. */
+  .app-prompt { left: var(--space-4); right: var(--space-4); width: auto; bottom: calc(var(--admin-bottom-nav-total, 80px) + var(--space-2)); }
+}
+@media (prefers-reduced-motion: no-preference) { .app-prompt { animation: app-prompt-in 0.25s ease-out; } }
+@keyframes app-prompt-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }

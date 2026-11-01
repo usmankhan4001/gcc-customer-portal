@@ -4,6 +4,12 @@
    Tailwind utility, collapsing padding and spacing and recolouring headings on every page. */
 @import "./tokens.css" layer(base);
 @import "./components.css" layer(components);
+/* gccstartup-cms admin design (vendored from the CMS repo, unchanged): shell, lists, pages, responsive. */
+@import "./admin/admin.css" layer(components);
+@import "./admin/admin-shell.css" layer(components);
+@import "./admin/admin-responsive.css" layer(components);
+@import "./admin/admin-lists.css" layer(components);
+@import "./admin/admin-pages.css" layer(components);
 
 @plugin "tailwindcss-animate";
 
