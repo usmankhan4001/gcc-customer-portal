@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { X } from '@phosphor-icons/react';
+import s from './dash.module.css';
 
 interface PromoBannerData {
   id: string;
@@ -36,27 +37,28 @@ export default function PromoBanner({ banner }: { banner: PromoBannerData }) {
   if (dismissed) return null;
 
   const content = (
-    <div className="bg-primary/10 border border-primary/20 rounded-md p-3 flex items-start gap-3">
-      <div className="flex-1">
-        <p className="text-sm font-bold text-gray-900">{banner.title}</p>
-        <p className="text-xs text-gray-600 mt-0.5">{banner.body}</p>
+    <div className={s.promo}>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <p className={s.promoTitle}>{banner.title}</p>
+        <p className={s.promoBody}>{banner.body}</p>
       </div>
       <button
+        type="button"
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
           handleDismiss();
         }}
-        className="text-gray-400 hover:text-gray-600 shrink-0"
+        className={s.promoClose}
         aria-label="Dismiss"
       >
-        <X className="w-4 h-4" />
+        <X size={18} />
       </button>
     </div>
   );
 
   return banner.link_url ? (
-    <Link href={banner.link_url} className="block">
+    <Link href={banner.link_url} style={{ display: 'block', textDecoration: 'none' }}>
       {content}
     </Link>
   ) : (

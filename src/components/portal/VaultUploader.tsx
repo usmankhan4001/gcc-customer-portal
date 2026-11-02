@@ -63,12 +63,14 @@ export default function VaultUploader() {
   };
 
   return (
-    <div className="flex flex-col items-end gap-2">
-      <div className="flex items-center gap-2">
+    <div style={{ display: 'grid', gap: 'var(--space-2)' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
         <select
+          aria-label="Document category"
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          className="text-sm border border-gray-300 rounded-md px-2 py-2 bg-white"
+          className="cl-select"
+          style={{ flex: '1 1 160px' }}
           disabled={uploading}
         >
           {CATEGORIES.map((c) => (
@@ -76,16 +78,26 @@ export default function VaultUploader() {
           ))}
         </select>
         <button
+          type="button"
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
-          className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-md hover:bg-primary-700 disabled:opacity-60 transition-colors font-bold text-sm shadow-sm"
+          className="btn btn-primary"
+          style={{ flex: '1 1 140px', minHeight: 'var(--touch-target)' }}
         >
-          {uploading ? <CircleNotch className="w-4 h-4 animate-spin" /> : <UploadSimple className="w-4 h-4" />}
-          {uploading ? 'UPLOADING...' : 'UPLOAD'}
+          {uploading ? (
+            <CircleNotch className="animate-spin" aria-hidden="true" />
+          ) : (
+            <UploadSimple aria-hidden="true" />
+          )}
+          {uploading ? 'Uploading…' : 'Upload document'}
         </button>
-        <input ref={inputRef} type="file" className="hidden" onChange={handleFileChange} />
+        <input ref={inputRef} type="file" hidden onChange={handleFileChange} />
       </div>
-      {error && <p className="text-xs text-destructive">{error}</p>}
+      {error && (
+        <p role="alert" style={{ margin: 0, fontSize: 14, color: 'var(--danger)' }}>
+          {error}
+        </p>
+      )}
     </div>
   );
 }

@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { WarningCircle, CircleNotch } from '@phosphor-icons/react';
+import { CircleNotch } from '@phosphor-icons/react';
+import s from './dash.module.css';
 
 interface TaxRule {
   tax_type: 'corporate' | 'vat' | 'other';
@@ -70,8 +71,8 @@ export default function ComplianceSnapshot({ jurisdiction, annualRevenueEstimate
 
   if (rules === null) {
     return (
-      <div className="bg-white rounded-md border border-gray-200 p-4 flex items-center justify-center text-gray-400 text-sm">
-        <CircleNotch className="w-4 h-4 animate-spin mr-2" /> Loading compliance data...
+      <div className="admin-state" role="status">
+        <CircleNotch size={20} className="animate-spin" /> Loading compliance data...
       </div>
     );
   }
@@ -79,56 +80,45 @@ export default function ComplianceSnapshot({ jurisdiction, annualRevenueEstimate
   const corporateRule = rules.find((r) => r.tax_type === 'corporate');
 
   return (
-    <div className="bg-white rounded-md shadow-sm border border-gray-200 p-4">
-      <h3 className="text-sm font-bold text-gray-900 mb-3">Compliance Snapshot</h3>
+    <div className="card">
+      <div className={s.head}>
+        <h2>Compliance snapshot</h2>
+      </div>
 
       {savedRevenue == null ? (
-        <form onSubmit={handleSave} className="flex items-center gap-2">
+        <form onSubmit={handleSave} className={s.inline}>
           <input
             type="number"
             value={revenueInput}
             onChange={(e) => setRevenueInput(e.target.value)}
             placeholder="Estimated annual revenue ($)"
-            className="flex-1 px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+            aria-label="Estimated annual revenue in dollars"
           />
-          <button
-            type="submit"
-            disabled={saving}
-            className="bg-primary hover:bg-primary/90 disabled:opacity-60 text-white text-xs font-bold px-3 py-1.5 rounded-md transition-colors whitespace-nowrap"
-          >
+          <button type="submit" disabled={saving} className="btn btn-primary">
             {saving ? 'Saving...' : 'Save'}
           </button>
         </form>
       ) : corporateRule ? (
-        <div className="space-y-2">
-          <div className="flex justify-between text-sm">
-            <span className="text-gray-500">Est. corporate tax</span>
-            <span className="font-bold text-gray-900">
-              ${Math.round((savedRevenue * corporateRule.rate_percent) / 10000).toLocaleString()}/yr
-            </span>
+        <div>
+          <div className={s.kv}>
+            <span>Est. corporate tax</span>
+            <span>${Math.round((savedRevenue * corporateRule.rate_percent) / 10000).toLocaleString()}/yr</span>
           </div>
           {(() => {
             const deadline = nextDeadlineFromRule(corporateRule.filing_deadline_rule, fiscalYearEnd);
             return (
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Next filing deadline</span>
-                <span className="font-semibold text-gray-800">
-                  {deadline ? deadline.toLocaleDateString() : corporateRule.filing_deadline_rule}
-                </span>
+              <div className={s.kv}>
+                <span>Next filing deadline</span>
+                <span>{deadline ? deadline.toLocaleDateString() : corporateRule.filing_deadline_rule}</span>
               </div>
             );
           })()}
         </div>
       ) : (
-        <p className="text-sm text-gray-400">No tax rules configured for this jurisdiction yet.</p>
+        <p className="admin-form-note">No tax rules configured for this jurisdiction yet.</p>
       )}
 
-      <div className="mt-3 pt-3 border-t border-gray-100 flex items-start gap-2">
-        <WarningCircle className="w-3.5 h-3.5 text-gray-400 shrink-0 mt-0.5" />
-        <p className="text-xs text-gray-400">
-          Estimate only, not filed tax advice — consult your advisor before relying on this.
-        </p>
-      </div>
+      <p className={s.note}>Estimate only, not filed tax advice. Consult your advisor before relying on this.</p>
     </div>
   );
 }

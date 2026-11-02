@@ -11,6 +11,7 @@ import {
   type CalculatorResult,
 } from '@/lib/tools/tax-calculator';
 import ContactCaptureGate from '@/components/portal/ContactCaptureGate';
+import s from '../tools.module.css';
 
 export default function TaxCalculator() {
   const [countryResidence, setCountryResidence] = useState('US');
@@ -51,125 +52,115 @@ export default function TaxCalculator() {
     new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center">
-      <BannerHeader title="Tax Savings Calculator" />
+    <>
+      <BannerHeader title="Tax Savings Calculator" subtitle="Compare your current tax bill with a new jurisdiction." />
 
-      <main className="flex-1 w-full max-w-xl mx-auto p-4 mt-4 space-y-4">
-        <form onSubmit={handleCalculate} className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 space-y-4">
-          <div>
-            <label className="block text-xs font-semibold text-gray-700 mb-1.5">
-              Current Country of Operations / Tax Residence
-            </label>
-            <select
-              value={countryResidence}
-              onChange={(e) => {
-                setCountryResidence(e.target.value);
-                setResult(null);
-                setError('');
-              }}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
-            >
-              {CALCULATOR_COUNTRIES.map((c) => (
-                <option key={c.code} value={c.code}>{c.name}</option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-gray-700 mb-1.5">
-              Target Relocation / Formation Jurisdiction
-            </label>
-            <select
-              value={targetJurisdiction}
-              onChange={(e) => {
-                setTargetJurisdiction(e.target.value);
-                setResult(null);
-                setError('');
-              }}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
-            >
-              {CALCULATOR_TARGETS.map((j) => (
-                <option key={j.code} value={j.code}>{j.name}</option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-gray-700 mb-1.5">
-              Estimated Annual Net Business Profit ($ USD)
-            </label>
-            <input
-              type="number"
-              value={annualProfit}
-              onChange={(e) => {
-                setAnnualProfit(e.target.value === '' ? '' : Number(e.target.value));
-                setResult(null);
-                setError('');
-              }}
-              placeholder="250000"
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary font-mono"
-              required
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading || !annualProfit}
-            className="w-full bg-cta hover:bg-cta-600 disabled:opacity-60 text-cta-foreground font-semibold py-2.5 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 text-xs shadow-sm"
-          >
-            {loading ? <CircleNotch className="w-4 h-4 animate-spin" /> : <TrendDown className="w-4 h-4" />}
-            {loading ? 'Calculating Taxes...' : 'Calculate Potential Savings'}
-          </button>
-        </form>
-
-        {error && (
-          <div role="alert" className="bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl p-4">
-            {error}
-          </div>
-        )}
-
-        {result && (
-          <div className="space-y-4 animate-in fade-in duration-300">
-            <div className="bg-emerald-800 text-white rounded-xl p-5 shadow-sm text-center">
-              <span className="text-emerald-200 text-xs font-semibold uppercase tracking-wider block mb-1">
-                Estimated Annual Tax Savings
-              </span>
-              <div className="text-3xl font-black">{fmtUSD(result.savings)}</div>
-              <p className="text-emerald-100 text-xs mt-1">Per year retained in your business treasury</p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-                <span className="text-gray-400 block text-[11px] font-semibold">Current Home Country Tax</span>
-                <span className="text-lg font-bold text-gray-800">{fmtUSD(result.currentTax)}</span>
+      <main className={`wrap ${s.main}`}>
+        <div className={`${s.stack} ${s.narrow}`}>
+          <form onSubmit={handleCalculate} className="card admin-form-card">
+            <div className="admin-form-stack">
+              <div className="field">
+                <label htmlFor="countryResidence">Current country of operations / tax residence</label>
+                <select
+                  id="countryResidence"
+                  value={countryResidence}
+                  onChange={(e) => {
+                    setCountryResidence(e.target.value);
+                    setResult(null);
+                    setError('');
+                  }}
+                >
+                  {CALCULATOR_COUNTRIES.map((c) => (
+                    <option key={c.code} value={c.code}>{c.name}</option>
+                  ))}
+                </select>
               </div>
-              <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-                <span className="text-gray-400 block text-[11px] font-semibold">New Jurisdiction Tax</span>
-                <span className="text-lg font-bold text-emerald-600">{fmtUSD(result.targetTax)}</span>
+
+              <div className="field">
+                <label htmlFor="targetJurisdiction">Target relocation / formation jurisdiction</label>
+                <select
+                  id="targetJurisdiction"
+                  value={targetJurisdiction}
+                  onChange={(e) => {
+                    setTargetJurisdiction(e.target.value);
+                    setResult(null);
+                    setError('');
+                  }}
+                >
+                  {CALCULATOR_TARGETS.map((j) => (
+                    <option key={j.code} value={j.code}>{j.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="field">
+                <label htmlFor="annualProfit">Estimated annual net business profit (USD)</label>
+                <input
+                  id="annualProfit"
+                  type="number"
+                  inputMode="decimal"
+                  value={annualProfit}
+                  onChange={(e) => {
+                    setAnnualProfit(e.target.value === '' ? '' : Number(e.target.value));
+                    setResult(null);
+                    setError('');
+                  }}
+                  placeholder="250000"
+                  required
+                />
               </div>
             </div>
 
-            <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex items-center justify-between">
-              <div>
-                <h4 className="text-xs font-bold text-gray-900">Form a tax-optimized entity</h4>
-                <p className="text-[11px] text-gray-500">Fast-track incorporation in 3–5 working days</p>
-              </div>
-              <Link
-                href="/services"
-                className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:text-primary-700 whitespace-nowrap"
-              >
-                View Packages <ArrowRight className="w-3 h-3" />
-              </Link>
+            <div className="admin-form-actions">
+              <button type="submit" disabled={loading || !annualProfit} className="btn btn-primary">
+                {loading ? <CircleNotch className={s.spin} /> : <TrendDown />}
+                {loading ? 'Calculating taxes…' : 'Calculate potential savings'}
+              </button>
             </div>
+          </form>
 
-            <ContactCaptureGate
-              sourceTool="tax_calculator"
-              toolInput={{ countryResidence, targetJurisdiction, annualProfit: Number(annualProfit) }}
-              toolResult={result as unknown as Record<string, unknown>}
-            />
-          </div>
-        )}
+          {error && (
+            <div role="alert" className="admin-callout is-error">{error}</div>
+          )}
+
+          {result && (
+            <>
+              <div className="card">
+                <span className={s.metricLabel}>Estimated annual tax savings</span>
+                <div className={s.hero}>{fmtUSD(result.savings)}</div>
+                <p className={s.muted}>Per year retained in your business treasury</p>
+              </div>
+
+              <div className={`admin-metrics-grid ${s.metrics}`}>
+                <div className="card">
+                  <span className={s.metricLabel}>Current home country tax</span>
+                  <span className={s.metricValue}>{fmtUSD(result.currentTax)}</span>
+                </div>
+                <div className="card">
+                  <span className={s.metricLabel}>New jurisdiction tax</span>
+                  <span className={`${s.metricValue} ${s.good}`}>{fmtUSD(result.targetTax)}</span>
+                </div>
+              </div>
+
+              <div className={`card ${s.row}`}>
+                <div>
+                  <h2 className={s.h3}>Form a tax-optimized entity</h2>
+                  <p className={s.muted}>Fast-track incorporation in 3–5 working days</p>
+                </div>
+                <Link href="/services" className={s.link}>
+                  View packages <ArrowRight size={16} />
+                </Link>
+              </div>
+
+              <ContactCaptureGate
+                sourceTool="tax_calculator"
+                toolInput={{ countryResidence, targetJurisdiction, annualProfit: Number(annualProfit) }}
+                toolResult={result as unknown as Record<string, unknown>}
+              />
+            </>
+          )}
+        </div>
       </main>
-    </div>
+    </>
   );
 }

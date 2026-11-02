@@ -5,12 +5,12 @@ import BannerHeader from '@/components/portal/BannerHeader';
 import { Printer } from '@phosphor-icons/react';
 import { computeDeadlines, type DeadlineRow } from '@/lib/tools/compliance-calendar';
 import ContactCaptureGate from '@/components/portal/ContactCaptureGate';
+import s from '../tools.module.css';
 
-
-const STATUS_STYLES = {
-  Pending: 'bg-gray-100 text-gray-700',
-  Upcoming: 'bg-amber-100 text-amber-800',
-  'Action Required': 'bg-rose-100 text-rose-800',
+const STATUS_BADGES = {
+  Pending: 'badge-neutral',
+  Upcoming: 'badge-accent',
+  'Action Required': 'badge-danger',
 };
 
 export default function ComplianceCalendar() {
@@ -28,22 +28,20 @@ export default function ComplianceCalendar() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
-      <BannerHeader title="Compliance Calendar" />
+    <>
+      <BannerHeader
+        title="Compliance Calendar"
+        subtitle="Select your company incorporation or target license date to calculate all UAE statutory deadlines."
+      />
 
-      <div className="flex-1 px-4 py-6 max-w-4xl mx-auto w-full space-y-6">
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-          <h2 className="text-base font-bold text-gray-900 mb-2">Generate Your Statutory Deadlines</h2>
-          <p className="text-xs text-gray-500 mb-4">Select your company incorporation or target license date to calculate all UAE statutory deadlines.</p>
-          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4 items-end">
-            <div className="flex-1 w-full">
-              <label htmlFor="formationDate" className="block text-xs font-semibold text-gray-700 mb-1">
-                Company Formation Date
-              </label>
+      <main className={`wrap ${s.main}`}>
+        <form onSubmit={handleSubmit} className={`card admin-form-card ${s.narrow}`}>
+          <div className="admin-form-stack">
+            <div className="field">
+              <label htmlFor="formationDate">Company formation date</label>
               <input
                 type="date"
                 id="formationDate"
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
                 value={formationDate}
                 onChange={(e) => {
                   setFormationDate(e.target.value);
@@ -52,56 +50,48 @@ export default function ComplianceCalendar() {
                 required
               />
             </div>
-            <button
-              type="submit"
-              className="w-full sm:w-auto bg-cta hover:bg-cta-600 text-cta-foreground text-xs font-semibold py-2.5 px-6 rounded-lg transition-colors shadow-sm"
-            >
-              Generate Deadlines
-            </button>
-          </form>
-        </div>
+          </div>
+          <div className="admin-form-actions">
+            <button type="submit" className="btn btn-primary">Generate deadlines</button>
+          </div>
+        </form>
 
         {rows && (
-          <div className="space-y-4 animate-in fade-in duration-300">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="px-6 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
+          <div className={`${s.stack} ${s.medium}`}>
+            <div className="card admin-table-card">
+              <div className={s.row} style={{ marginBottom: 'var(--space-4)' }}>
                 <div>
-                  <h3 className="text-sm font-bold text-gray-900">Upcoming UAE Statutory Deadlines</h3>
-                  <p className="text-xs text-gray-500">Based on license date: {formationDate}</p>
+                  <h2 className={s.h2}>Upcoming UAE statutory deadlines</h2>
+                  <p className={s.muted}>Based on license date: {formationDate}</p>
                 </div>
-                <button
-                  onClick={handlePrint}
-                  className="flex items-center gap-1.5 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors shadow-xs"
-                >
-                  <Printer className="w-3.5 h-3.5" />
-                  Print / Save PDF
+                <button type="button" onClick={handlePrint} className={`btn btn-outline ${s.noPrint}`}>
+                  <Printer />
+                  Print / save PDF
                 </button>
               </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
+              <div className="admin-table-wrap">
+                <table className="admin-table">
                   <thead>
-                    <tr className="bg-gray-100/70 text-xs font-semibold text-gray-700">
-                      <th className="px-6 py-3 border-b border-gray-200">Compliance Requirement</th>
-                      <th className="px-6 py-3 border-b border-gray-200">Statutory Deadline</th>
-                      <th className="px-6 py-3 border-b border-gray-200">Status</th>
+                    <tr>
+                      <th>Compliance requirement</th>
+                      <th>Statutory deadline</th>
+                      <th>Status</th>
                     </tr>
                   </thead>
-                  <tbody className="text-xs">
+                  <tbody>
                     {rows.map((row) => (
-                      <tr key={row.requirement} className="border-b border-gray-100 hover:bg-gray-50 last:border-b-0">
-                        <td className="px-6 py-3.5 font-medium text-gray-900">{row.requirement}</td>
-                        <td className="px-6 py-3.5 text-gray-600 font-mono">{row.deadlineLabel}</td>
-                        <td className="px-6 py-3.5">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${STATUS_STYLES[row.status]}`}>
-                            {row.status}
-                          </span>
+                      <tr key={row.requirement}>
+                        <td data-label="Requirement">{row.requirement}</td>
+                        <td data-label="Deadline" className={s.mono}>{row.deadlineLabel}</td>
+                        <td data-label="Status">
+                          <span className={`badge ${STATUS_BADGES[row.status]}`}>{row.status}</span>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-              <p className="px-6 py-3 text-[11px] text-gray-400 border-t border-gray-100">
+              <p className={s.muted} style={{ marginTop: 'var(--space-3)' }}>
                 Note: Estimates based on UAE Federal Tax Authority (FTA) and Ministry of Economy timelines.
               </p>
             </div>
@@ -113,7 +103,7 @@ export default function ComplianceCalendar() {
             />
           </div>
         )}
-      </div>
-    </div>
+      </main>
+    </>
   );
 }

@@ -4,7 +4,7 @@
    global bundle (app/layout.tsx already loads this file). */
 @import './breakpoints.css';
 
-/* Component primitives — literal implementation of DESIGN.md §4. Every value
+/* Component primitives — literal implementation of docs/design/design.md §4. Every value
    here is a var() reference into tokens.css, no hardcoded colors. */
 
 /* ─── Footer ─── */
@@ -22,21 +22,34 @@
    fussy, and the theme's confidence comes from the type, not from micro-motion. */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
-  padding: 15px var(--space-8); border-radius: var(--radius-pill); font-weight: 700; font-size: 17px;
-  border: 2px solid transparent; cursor: pointer; line-height: 1.2; text-decoration: none;
+  min-height: 48px; padding: 0 var(--space-6); border-radius: var(--radius-sm); font-weight: 700; font-size: 16px;
+  border: 1.5px solid transparent; cursor: pointer; line-height: 1.2; text-decoration: none;
   transition: background-color .3s ease, color .3s ease, border-color .3s ease;
 }
 .btn-primary {
-  background: var(--accent); color: var(--white);
+  /* White label on --orange-btn (4.78:1, passes AA). On hover it flips to navy, the
+     same gesture the site always had, so the button visibly responds. */
+  background: var(--orange-btn); color: var(--white);
 }
 .btn-primary:hover { background: var(--navy); color: var(--white); }
-.btn-primary:active { background: var(--accent-hover); }
-.btn-primary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.btn-primary:active { transform: translateY(1px); }
+/* On a navy band the hover flip would disappear into the background, so invert it. */
+.cta-strip .btn-primary:hover, .footer-cta .btn-primary:hover, .section-dark .btn-primary:hover { background: var(--white); color: var(--navy); }
+.btn:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
 .btn-primary:disabled { background: var(--border); color: var(--text-tertiary); cursor: not-allowed; box-shadow: none; }
 
 .btn-outline { background: transparent; color: var(--navy); border-color: var(--navy); }
 .btn-outline:hover { background: var(--navy); color: var(--white); border-color: var(--navy); }
-.btn-outline:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+/* Quiet secondary — the pair-partner to .btn-primary in every CTA group. */
+.btn-dark { background: var(--navy); color: var(--white); }
+.btn-dark:hover { background: var(--orange-btn); color: var(--white); }
+.btn-ghost { background: transparent; color: var(--navy); border-color: var(--border-hover); }
+.btn-ghost:hover { background: var(--white); border-color: var(--navy); }
+.btn-wa { background: var(--white); color: var(--navy); border-color: var(--border-hover); }
+.btn-wa:hover { border-color: var(--whatsapp); background: #F0FDF4; }
+.btn-wa svg { color: #128C4A; }
+.btn svg { width: 18px; height: 18px; flex: none; }
 .btn-outline:disabled { color: var(--text-tertiary); border-color: var(--border); }
 
 .btn-danger { background: var(--danger); color: var(--white); box-shadow: 0 2px 6px rgba(220, 38, 38, 0.2); }
@@ -63,10 +76,11 @@
    visible border — the hairline border is kept only as a very low-contrast edge so
    cards still separate from the alabaster canvas on flat displays. */
 .card {
-  background: var(--surface); border: 1px solid rgba(var(--ink-rgb), 0.06); border-radius: var(--radius-lg);
-  padding: var(--space-8); transition: box-shadow .3s ease, transform .3s ease;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: var(--space-6); transition: box-shadow .2s ease, border-color .2s ease;
 }
-.card:hover { box-shadow: var(--shadow-elevated); transform: translateY(-3px); }
+@media (min-width: 768px) { .card { padding: var(--space-8); } }
+.card:hover { box-shadow: var(--shadow-elevated); border-color: var(--border-hover); }
 .card:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
 .card-featured { border-color: var(--accent); box-shadow: var(--shadow-accent); }
 
@@ -148,6 +162,40 @@
 }
 .tile:hover .tile-icon { background: var(--tile-accent); color: var(--white); transform: scale(1.06); }
 
+/* Quiz / lead-magnet option buttons — shared by the 15 gated calculators and
+   JurisdictionQuiz (QuizShell.tsx). This was previously only styled in
+   admin.css, which never loads on the public site, so every lead-magnet tool
+   rendered as an unstyled default button — the exact bug this fixes. */
+.quiz-option-btn {
+  display: block; width: 100%; text-align: left; cursor: pointer;
+  padding: var(--space-4) var(--space-5);
+  border: 1.5px solid var(--border); border-radius: var(--radius);
+  background: var(--surface);
+  font-size: 15px; font-weight: 600; color: var(--text);
+  transition: border-color .18s ease, background-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+.quiz-option-btn:hover {
+  border-color: var(--accent); background: var(--orange-lt);
+  box-shadow: var(--shadow-subtle); transform: translateY(-1px);
+}
+.quiz-option-btn:active { transform: translateY(0); }
+.quiz-option-btn.selected, .quiz-option-btn.active {
+  border-color: var(--accent); background: var(--orange-lt); color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent) inset;
+}
+.quiz-option-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.quiz-back-btn {
+  all: unset; display: inline-flex; align-items: center; min-height: 44px;
+  padding: 10px 16px; box-sizing: border-box; cursor: pointer;
+  margin-top: var(--space-4);
+  color: var(--text-tertiary); font-size: 14px; font-weight: 500;
+  border-radius: var(--radius);
+  transition: color .15s ease, background-color .15s ease;
+}
+.quiz-back-btn:hover { color: var(--text); background: var(--surface-alt); }
+.quiz-back-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
 /* Navigation */
 .nav { background: var(--surface); border-bottom: 1px solid var(--border); transition: border-color .2s ease, box-shadow .2s ease; }
 .nav.scrolled { border-bottom-color: var(--border-hover); box-shadow: var(--shadow-subtle); }
@@ -170,7 +218,9 @@
 
 /* Badges */
 .badge { display: inline-flex; align-items: center; padding: 5px 12px; border-radius: var(--radius-pill); font-size: 12px; font-weight: 700; letter-spacing: 0.03em; }
-.badge-accent { background: var(--orange-lt); color: var(--orange-dk); border: 1px solid rgba(242,101,34,0.2); }
+.badge-navy { background: var(--navy); color: var(--white); border: 1px solid var(--navy); }
+.badge-neutral { background: var(--surface-alt); color: var(--text-secondary); border: 1px solid var(--border); }
+.badge-accent { background: var(--orange-lt); color: var(--orange-text); border: 1px solid rgba(242,101,34,0.2); }
 .badge-info { background: var(--blue-lt); color: var(--blue-dk); border: 1px solid rgba(27,79,216,0.15); }
 .badge-success { background: var(--green-lt); color: var(--green-dk); border: 1px solid var(--green-border); }
 .badge-danger { background: var(--danger-lt); color: var(--danger); border: 1px solid var(--danger-border); }
@@ -181,10 +231,10 @@
 .field input, .field select, .field textarea, select {
 width: 100%; padding: 15px 18px; border: 1px solid var(--border);
   font-family: inherit; font-size: 16px; color: var(--text); background: var(--surface);
-  transition: border-color .15s ease, box-shadow .15s ease;
+  transition: border-color .15s ease, box-shadow .15s ease; min-height: 48px;
 }
-.field input, .field select, select { border-radius: var(--radius-pill); padding-left: var(--space-6); padding-right: var(--space-6); }
-.field textarea { border-radius: var(--radius); }
+.field input, .field select, select { border-radius: var(--radius-sm); padding-left: var(--space-4); padding-right: var(--space-4); }
+.field textarea { border-radius: var(--radius-sm); }
 .field select, select {
   appearance: none;
   -webkit-appearance: none;
@@ -196,8 +246,12 @@ width: 100%; padding: 15px 18px; border: 1px solid var(--border);
   padding-right: 40px;
 }
 .field input:hover, .field select:hover, select:hover, .field textarea:hover { border-color: var(--border-hover); }
+/* Phone field: country selector beside the number, and the line that shows the number that will be used. */
+.phone-field__row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: var(--space-2); }
+.phone-field__hint { margin: var(--space-2) 0 0; font-size: 13px; color: var(--text-tertiary); }
+.phone-field__hint--error { color: var(--danger, #b42318); }
 .field input:focus, .field select:focus, select:focus, .field textarea:focus {
-  outline: none; border-color: var(--orange); box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.15);
+  outline: none; border-color: var(--blue); box-shadow: 0 0 0 4px rgba(var(--blue-rgb), 0.15);
 }
 .field input:disabled, .field select:disabled, select:disabled, .field textarea:disabled { background: var(--surface-alt); color: var(--text-tertiary); }
 .field input.invalid, .field select.invalid, select.invalid, .field textarea.invalid { border-color: var(--error); }
@@ -444,15 +498,7 @@ width: 100%; padding: 15px 18px; border: 1px solid var(--border);
 }
 
 /* WhatsApp floating widget */
-.wa-bubble { position: fixed; bottom: var(--space-6); right: var(--space-6); z-index: var(--z-wa-widget); display: flex; flex-direction: column; align-items: flex-end; gap: var(--space-3); }
-/* Sits directly on top of .mobile-cta-bar, which is the only thing below it. */
-@media (max-width: 640px) { .wa-bubble { bottom: var(--cta-bar-stack-top); right: var(--space-4); } }
-.wa-bubble-btn { width: 58px; height: 58px; border-radius: 999px; border: none; cursor: pointer; background: var(--whatsapp); display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(37, 211, 102, .4); position: relative; transition: transform .15s ease; }
-.wa-bubble-btn:hover { transform: scale(1.06); }
-.wa-bubble-btn svg { width: 28px; height: 28px; fill: #fff; }
-.wa-bubble-pulse { position: absolute; inset: -4px; border-radius: 999px; border: 2px solid rgba(37, 211, 102, .45); animation: wa-pulse 2s ease-out infinite; }
 @keyframes wa-pulse { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
-@media (prefers-reduced-motion: reduce) { .wa-bubble-pulse { animation: none; } }
 .wa-tooltip { background: var(--text); color: #fff; font-size: 13px; font-weight: 600; padding: var(--space-2) var(--space-4); border-radius: 999px; white-space: nowrap; box-shadow: var(--shadow-elevated); cursor: pointer; }
 
 .wa-panel { position: fixed; bottom: 96px; right: var(--space-6); z-index: var(--z-wa-widget); width: 340px; max-width: calc(100vw - 32px); max-height: 85vh; overflow-y: auto; border-radius: 16px; box-shadow: var(--shadow-prominent); display: flex; flex-direction: column; background: var(--surface); font-family: inherit; }
@@ -596,6 +642,62 @@ width: 100%; padding: 15px 18px; border: 1px solid var(--border);
 .exit-modal-success { text-align: center; display: flex; flex-direction: column; align-items: center; gap: var(--space-3); color: var(--orange); }
 .exit-modal-success h3 { color: var(--text); }
 .exit-modal-success p { color: var(--text-secondary); font-size: 14px; }
+
+/* Booking widget — /book-consultation's Calendly/Cal.com-style scheduler:
+   fixed info panel + a real month calendar grid + a time list beside it,
+   rather than a horizontal scroll of date pills. */
+.booking-widget { display: grid; grid-template-columns: 260px 1fr; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; background: var(--surface); box-shadow: var(--shadow-elevated); }
+@media (max-width: 800px) { .booking-widget { grid-template-columns: 1fr; } }
+
+.booking-info-panel { padding: var(--space-8); background: var(--surface-alt); border-right: 1px solid var(--border); }
+@media (max-width: 800px) { .booking-info-panel { padding: var(--space-6); border-right: none; border-bottom: 1px solid var(--border); } }
+.booking-info-mark { width: 48px; height: 48px; border-radius: 50%; background: var(--orange-lt); display: flex; align-items: center; justify-content: center; color: var(--accent); }
+.booking-info-panel h2 { font-size: 20px; margin-top: var(--space-4); }
+.booking-meta-row { display: flex; align-items: center; gap: var(--space-2); color: var(--text-secondary); font-size: 14px; margin-top: var(--space-3); }
+.booking-info-desc { margin-top: var(--space-5); color: var(--text-secondary); font-size: 14px; line-height: 1.6; }
+.booking-tz { margin-top: var(--space-6); padding-top: var(--space-5); border-top: 1px solid var(--border); font-size: 13px; color: var(--text-tertiary); display: flex; align-items: center; gap: var(--space-2); }
+
+.booking-main { padding: var(--space-8); display: flex; gap: var(--space-8); min-height: 420px; }
+@media (max-width: 800px) { .booking-main { flex-direction: column; padding: var(--space-5); min-height: 0; gap: 0; } }
+
+.booking-calendar { flex: 1.15; min-width: 0; }
+@media (max-width: 800px) { .booking-calendar { width: 100%; } }
+.booking-month-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-5); }
+.booking-month-nav button { all: unset; cursor: pointer; width: 34px; height: 34px; border-radius: 999px; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); }
+.booking-month-nav button:hover:not(:disabled) { background: var(--surface-alt); color: var(--text); }
+.booking-month-nav button:disabled { opacity: .3; cursor: default; }
+.booking-month-label { font-weight: 700; font-size: 15px; }
+
+.booking-weekday-row { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: var(--space-2); }
+.booking-day-grid { display: grid; grid-template-columns: repeat(7, 1fr); grid-auto-rows: 1fr; gap: 3px; }
+/* aspect-ratio degrades gracefully (older WebKit ignores it) but grid-auto-rows: 1fr
+   is the real floor — it keeps every row roughly square-ish even without it, so a
+   day cell is never a flattened sliver on an older mobile browser. */
+.booking-day-cell { all: unset; box-sizing: border-box; width: 100%; aspect-ratio: 1; min-height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 999px; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--text); transition: background-color .15s ease, color .15s ease; }
+.booking-day-cell:hover:not(:disabled) { background: var(--orange-lt); color: var(--accent); }
+.booking-day-cell.is-today { box-shadow: inset 0 0 0 1.5px var(--accent); }
+.booking-day-cell.is-selected { background: var(--accent); color: #fff; }
+.booking-day-cell:disabled { color: var(--text-tertiary); opacity: .32; cursor: default; }
+.booking-day-cell.is-empty { visibility: hidden; cursor: default; }
+@media (max-width: 420px) { .booking-day-cell { font-size: 12px; min-height: 32px; } }
+
+.booking-times { flex: 1; min-width: 0; border-left: 1px solid var(--border); padding-left: var(--space-8); display: flex; flex-direction: column; }
+@media (max-width: 800px) {
+  .booking-times { width: 100%; border-left: none; padding-left: 0; border-top: 1px solid var(--border); padding-top: var(--space-5); margin-top: var(--space-6); }
+  .booking-times-list { max-height: 260px; }
+}
+.booking-times-label { font-weight: 700; font-size: 14px; margin-bottom: var(--space-4); }
+.booking-times-list { display: flex; flex-direction: column; gap: var(--space-2); max-height: 340px; overflow-y: auto; padding-right: var(--space-2); -webkit-overflow-scrolling: touch; }
+.booking-time-btn { all: unset; box-sizing: border-box; width: 100%; text-align: center; padding: var(--space-3) var(--space-4); border: 1.5px solid var(--border); border-radius: var(--radius); font-size: 14px; font-weight: 600; cursor: pointer; transition: border-color .15s ease, background-color .15s ease, color .15s ease; }
+.booking-time-btn:hover { border-color: var(--accent); background: var(--orange-lt); color: var(--accent); }
+.booking-time-btn.is-selected { border-color: var(--accent); background: var(--accent); color: #fff; }
+.booking-empty-hint { color: var(--text-tertiary); font-size: 14px; margin-top: auto; padding-top: var(--space-6); }
+
+.booking-back-btn { all: unset; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; color: var(--text-tertiary); font-size: 13px; font-weight: 600; margin-bottom: var(--space-5); min-height: 32px; }
+.booking-back-btn:hover { color: var(--text); }
+.booking-summary-card { background: var(--surface-alt); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-5); margin-bottom: var(--space-6); display: flex; align-items: center; gap: var(--space-3); }
+.booking-summary-card strong { display: block; font-size: 15px; }
+.booking-summary-card span { font-size: 13px; color: var(--text-tertiary); }
 .columns-item-image { position: relative; width: 100%; aspect-ratio: 4 / 3; border-radius: var(--radius-lg); overflow: hidden; margin-bottom: var(--space-4); }
 
 /* LogoCloud */
@@ -833,3 +935,4 @@ width: 100%; padding: 15px 18px; border: 1px solid var(--border);
 @media (prefers-reduced-motion: no-preference) {
   .mark { transition: background-size .3s ease; }
 }
+.booking-state-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); justify-content: center; margin-top: var(--space-4); }

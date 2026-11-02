@@ -29,11 +29,11 @@ export default function CopyButton({ text, className }: CopyButtonProps) {
       onClick={handleCopy}
       className={
         className ??
-        'flex items-center gap-1 text-xs font-semibold text-primary hover:text-primary-600 transition-colors px-2 py-1 rounded hover:bg-primary-50'
+        'btn'
       }
       aria-label={copied ? 'Copied referral link' : 'Copy referral link'}
     >
-      {copied ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}
+      {copied ? <Check size={16} /> : <Copy size={16} />}
       {copied ? 'Copied' : 'Copy'}
     </button>
   );

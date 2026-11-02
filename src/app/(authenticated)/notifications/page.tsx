@@ -17,9 +17,9 @@ export default async function NotificationsPage() {
     : [];
 
   return (
-    <div className="pb-24">
+    <div className="wrap admin-page pb-24">
       <BannerHeader title="Notifications" />
-      <div className="p-4 max-w-2xl mx-auto -mt-4 relative z-10">
+      <div style={{ maxWidth: 720 }}>
         <NotificationList
           initial={rows.map((n) => ({ ...n, created_at: n.created_at.toISOString() }))}
         />

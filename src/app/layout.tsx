@@ -1,29 +1,6 @@
 import type { Metadata, Viewport } from 'next';
-import localFont from 'next/font/local';
 import '@/styles/globals.css';
 import Providers from '@/components/layout/Providers';
-
-const satoshi = localFont({
-  variable: '--font-satoshi',
-  display: 'swap',
-  src: [
-    { path: '../../public/fonts/Satoshi-Regular.woff2', weight: '400', style: 'normal' },
-    { path: '../../public/fonts/Satoshi-Medium.woff2', weight: '500', style: 'normal' },
-    { path: '../../public/fonts/Satoshi-Bold.woff2', weight: '700', style: 'normal' },
-    { path: '../../public/fonts/Satoshi-Black.woff2', weight: '900', style: 'normal' },
-  ],
-});
-
-const clash = localFont({
-  variable: '--font-clash',
-  display: 'swap',
-  src: [
-    { path: '../../public/fonts/ClashDisplay-Regular.woff2', weight: '400', style: 'normal' },
-    { path: '../../public/fonts/ClashDisplay-Medium.woff2', weight: '500', style: 'normal' },
-    { path: '../../public/fonts/ClashDisplay-Semibold.woff2', weight: '600', style: 'normal' },
-    { path: '../../public/fonts/ClashDisplay-Bold.woff2', weight: '700', style: 'normal' },
-  ],
-});
 
 export const metadata: Metadata = {
   title: 'GCCStartup — Global Incorporation & Operations',
@@ -55,7 +32,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${satoshi.variable} ${clash.variable}`} suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />

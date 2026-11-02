@@ -10,6 +10,7 @@ import {
   UBO_JURISDICTION_OPTIONS,
 } from '@/lib/tools/ubo-privacy';
 import ContactCaptureGate from '@/components/portal/ContactCaptureGate';
+import s from '../tools.module.css';
 
 export default function UBOPrivacyChecker() {
   const [jurisdiction, setJurisdiction] = useState("uae");
@@ -23,106 +24,84 @@ export default function UBOPrivacyChecker() {
   const isLow = result?.exposureLevel === 'low';
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans text-gray-900 flex flex-col">
-      <BannerHeader title="UBO Privacy & Registry Checker" />
+    <>
+      <BannerHeader
+        title="UBO Privacy & Registry Checker"
+        subtitle="Check whether your identity, address, and shareholding will be visible on public government registries."
+      />
 
-      <main className="flex-1 max-w-2xl w-full mx-auto p-4 space-y-4 pt-6">
-        <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200 space-y-4">
-          <div>
-            <h2 className="text-sm font-bold text-gray-900 mb-1">Evaluate Ultimate Beneficial Owner (UBO) Exposure</h2>
-            <p className="text-xs text-gray-500">Check whether your identity, address, and shareholding will be visible on public government registries.</p>
-          </div>
-
-          <form onSubmit={checkPrivacy} className="space-y-3">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-              <label htmlFor="jurisdiction" className="w-40 text-xs font-semibold text-gray-700">
-                Target Formation
-              </label>
-              <select
-                id="jurisdiction"
-                value={jurisdiction}
-                onChange={(e) => {
-                  setJurisdiction(e.target.value);
-                  setResult(null);
-                }}
-                className="flex-1 border-gray-300 rounded-lg shadow-sm focus:border-primary focus:ring-1 focus:ring-primary p-2 text-sm border outline-none bg-white text-gray-900"
-              >
-                {UBO_JURISDICTION_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
+      <main className={`wrap ${s.main}`}>
+        <div className={`${s.stack} ${s.narrow}`}>
+          <form onSubmit={checkPrivacy} className="card admin-form-card">
+            <div className="admin-form-stack">
+              <div className="field">
+                <label htmlFor="jurisdiction">Target formation</label>
+                <select
+                  id="jurisdiction"
+                  value={jurisdiction}
+                  onChange={(e) => {
+                    setJurisdiction(e.target.value);
+                    setResult(null);
+                  }}
+                >
+                  {UBO_JURISDICTION_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
-
-            <button
-              type="submit"
-              className="w-full mt-2 bg-cta hover:bg-cta-600 text-cta-foreground text-xs font-semibold py-2.5 px-4 rounded-lg transition-colors shadow-sm"
-            >
-              Analyze Public Exposure Risk
-            </button>
+            <div className="admin-form-actions">
+              <button type="submit" className="btn btn-primary">Analyze public exposure risk</button>
+            </div>
           </form>
+
+          {result && (
+            <>
+              <div className="card">
+                <div className={s.row}>
+                  <div className={s.rowStart}>
+                    {isLow ? <ShieldCheck size={24} className={s.good} /> : <ShieldWarning size={24} className={s.warn} />}
+                    <h2 className={s.h3}>{result.jurisdiction}</h2>
+                  </div>
+                  <span className={`badge ${isLow ? 'badge-success' : 'badge-danger'}`}>{result.exposureLabel}</span>
+                </div>
+
+                <div className={s.cells} style={{ margin: 'var(--space-4) 0' }}>
+                  <div className={s.cell}>
+                    <span className={s.metricLabel}>Public online registry</span>
+                    <strong>
+                      {result.publicRegistryLabel ?? (result.publicRegistry ? "Yes (publicly searchable)" : "No (confidential)")}
+                    </strong>
+                  </div>
+                  <div className={s.cell}>
+                    <span className={s.metricLabel}>UBO protection</span>
+                    <strong>
+                      {result.uboProtectionLabel ?? (result.uboConfidential ? "Protected" : "Disclosed online")}
+                    </strong>
+                  </div>
+                </div>
+
+                <p className={s.body}>{result.recommendation}</p>
+
+                <div className={s.cta}>
+                  <span className={s.muted}>Need nominee director or holding privacy?</span>
+                  <Link href="/services" className={s.link}>
+                    Explore nominee &amp; holding tier <ArrowRight size={16} />
+                  </Link>
+                </div>
+              </div>
+
+              <ContactCaptureGate
+                sourceTool="ubo_privacy"
+                toolInput={{ jurisdiction }}
+                toolResult={result as unknown as Record<string, unknown>}
+              />
+            </>
+          )}
         </div>
-
-        {result && (
-          <div className="space-y-4 animate-in fade-in duration-300">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  {isLow ? (
-                    <ShieldCheck className="w-6 h-6 text-emerald-600" />
-                  ) : (
-                    <ShieldWarning className="w-6 h-6 text-rose-600" />
-                  )}
-                  <h3 className="text-sm font-bold text-gray-900">{result.jurisdiction}</h3>
-                </div>
-                <span
-                  className={`text-xs font-bold px-2.5 py-1 rounded-full ${
-                    isLow ? "bg-emerald-100 text-emerald-800" : "bg-rose-100 text-rose-800"
-                  }`}
-                >
-                  {result.exposureLabel}
-                </span>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 text-xs">
-                <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
-                  <span className="text-gray-400 block text-[10px]">Public Online Registry</span>
-                  <span className="font-bold text-gray-900">
-                    {result.publicRegistryLabel ?? (result.publicRegistry ? "YES (Publicly Searchable)" : "NO (Confidential)")}
-                  </span>
-                </div>
-                <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
-                  <span className="text-gray-400 block text-[10px]">UBO Protection</span>
-                  <span className="font-bold text-gray-900">
-                    {result.uboProtectionLabel ?? (result.uboConfidential ? "Protected" : "Disclosed Online")}
-                  </span>
-                </div>
-              </div>
-
-              <p className="text-xs text-gray-600 leading-relaxed bg-gray-50/60 p-3 rounded-lg border border-gray-100">
-                {result.recommendation}
-              </p>
-
-              <div className="pt-2 border-t border-gray-100 flex items-center justify-between">
-                <span className="text-xs text-gray-500">Need nominee director or holding privacy?</span>
-                <Link
-                  href="/services"
-                  className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:text-primary-700"
-                >
-                  Explore Nominee & Holding Tier <ArrowRight className="w-3 h-3" />
-                </Link>
-              </div>
-            </div>
-
-            <ContactCaptureGate
-              sourceTool="ubo_privacy"
-              toolInput={{ jurisdiction }}
-              toolResult={result as unknown as Record<string, unknown>}
-            />
-          </div>
-        )}
       </main>
-    </div>
+    </>
   );
 }

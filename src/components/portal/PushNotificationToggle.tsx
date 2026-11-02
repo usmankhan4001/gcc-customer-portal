@@ -72,17 +72,26 @@ export default function PushNotificationToggle() {
       type="button"
       onClick={handleToggle}
       disabled={loading}
-      className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors disabled:opacity-60 ${
-        subscribed ? 'bg-primary' : 'bg-gray-300'
-      }`}
       aria-pressed={subscribed}
       aria-label="Toggle push notifications"
+      style={{
+        position: 'relative', flexShrink: 0, width: 48, height: 44, padding: 0,
+        background: 'transparent', border: 0, cursor: 'pointer', opacity: loading ? 0.6 : 1,
+      }}
     >
-      <div
-        className={`absolute top-0.5 bg-white w-4 h-4 rounded-full transition-transform ${
-          subscribed ? 'right-1' : 'left-1'
-        }`}
-      />
+      <span
+        style={{
+          position: 'absolute', top: '50%', left: 0, width: 48, height: 26, marginTop: -13, borderRadius: 13,
+          background: subscribed ? 'var(--orange-btn)' : 'var(--border-hover)', transition: 'background-color .2s ease',
+        }}
+      >
+        <span
+          style={{
+            position: 'absolute', top: 3, left: subscribed ? 25 : 3, width: 20, height: 20, borderRadius: '50%',
+            background: 'var(--white)', transition: 'left .2s ease',
+          }}
+        />
+      </span>
     </button>
   );
 }

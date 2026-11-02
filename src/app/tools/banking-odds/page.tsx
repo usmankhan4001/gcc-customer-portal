@@ -9,13 +9,15 @@ import {
   type BankOddsResult,
 } from "@/lib/tools/banking-odds";
 import ContactCaptureGate from "@/components/portal/ContactCaptureGate";
+import s from "../tools.module.css";
 
 export default function BankingOddsMatcher() {
   const [industry, setIndustry] = useState("");
   const [turnover, setTurnover] = useState<number | "">("");
   const [results, setResults] = useState<BankOddsResult[] | null>(null);
 
-  const handleCalculate = () => {
+  const handleCalculate = (e: React.FormEvent) => {
+    e.preventDefault();
     if (!industry || turnover === "") return;
     setResults(calculateBankingOddsForIndustry(industry, Number(turnover)));
   };
@@ -31,23 +33,16 @@ export default function BankingOddsMatcher() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
-      <BannerHeader title="Banking Odds" />
+    <>
+      <BannerHeader title="Banking Odds" subtitle="Estimate your corporate bank account approval odds." />
 
-      <main className="flex-1 max-w-2xl w-full mx-auto p-4 space-y-4 mt-4">
-        <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200 space-y-4">
-          <div className="space-y-3">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-              <label htmlFor="industry" className="w-40 text-xs font-semibold text-gray-700">
-                Industry
-              </label>
-              <select
-                id="industry"
-                value={industry}
-                onChange={handleIndustryChange}
-                className="flex-1 border-gray-300 rounded-lg shadow-sm focus:border-primary focus:ring-1 focus:ring-primary p-2 text-sm border outline-none transition-colors bg-white text-gray-900"
-              >
-                <option value="">Select Industry</option>
+      <main className={`wrap ${s.main}`}>
+        <form onSubmit={handleCalculate} className={`card admin-form-card ${s.narrow}`}>
+          <div className="admin-form-stack">
+            <div className="field">
+              <label htmlFor="industry">Industry</label>
+              <select id="industry" value={industry} onChange={handleIndustryChange}>
+                <option value="">Select industry</option>
                 {BANKING_INDUSTRY_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
                     {opt.label}
@@ -56,62 +51,53 @@ export default function BankingOddsMatcher() {
               </select>
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-              <label htmlFor="turnover" className="w-40 text-xs font-semibold text-gray-700">
-                Annual Turnover ($)
-              </label>
+            <div className="field">
+              <label htmlFor="turnover">Annual turnover ($)</label>
               <input
                 id="turnover"
                 type="number"
+                inputMode="decimal"
                 value={turnover}
                 onChange={handleTurnoverChange}
                 placeholder="150000"
-                className="flex-1 border-gray-300 rounded-lg shadow-sm focus:border-primary focus:ring-1 focus:ring-primary p-2 text-sm border outline-none transition-colors bg-white text-gray-900"
               />
             </div>
           </div>
 
-          <button
-            onClick={handleCalculate}
-            disabled={!industry || turnover === ""}
-            className="w-full bg-cta hover:bg-cta-600 text-cta-foreground text-sm font-semibold py-2.5 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm cursor-pointer"
-          >
-            Calculate Approval Odds
-          </button>
-        </div>
+          <div className="admin-form-actions">
+            <button type="submit" disabled={!industry || turnover === ""} className="btn btn-primary">
+              Calculate approval odds
+            </button>
+          </div>
+        </form>
 
         {results && (
-          <div className="space-y-4 animate-in fade-in duration-300">
-            <h2 className="text-base font-bold text-gray-900">Your Bank Approval Estimates</h2>
+          <div className={`${s.stack} ${s.medium}`}>
+            <h2 className={s.h2}>Your bank approval estimates</h2>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className={s.grid}>
               {results.map((result, idx) => (
-                <div key={idx} className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex items-center justify-between">
+                <div key={idx} className={`card ${s.row}`}>
                   <div>
-                    <h3 className="font-bold text-sm text-gray-900">{result.bank}</h3>
-                    <p className="text-xs text-gray-500">Corporate Account</p>
+                    <h3 className={s.h3}>{result.bank}</h3>
+                    <p className={s.muted}>Corporate account</p>
                   </div>
-                  <div className="text-right">
-                    <div className="text-xl font-black text-gray-900">
-                      {result.odds}<span className="text-xs font-semibold text-gray-400">%</span>
-                    </div>
-                    <p className={`text-[11px] font-bold ${result.odds > 80 ? 'text-emerald-600' : result.odds > 50 ? 'text-amber-600' : 'text-rose-600'}`}>
+                  <div style={{ textAlign: 'right' }}>
+                    <span className={s.metricValue}>{result.odds}%</span>
+                    <span className={`badge ${result.odds > 80 ? 'badge-success' : result.odds > 50 ? 'badge-accent' : 'badge-danger'}`}>
                       {result.label}
-                    </p>
+                    </span>
                   </div>
                 </div>
               ))}
             </div>
 
-            <div className="bg-primary/5 border border-primary/20 rounded-xl p-5 text-center space-y-3 mt-4">
-              <h3 className="text-sm font-bold text-primary">Need Guaranteed Banking Support?</h3>
-              <p className="text-gray-600 text-xs max-w-md mx-auto">
+            <div className="card">
+              <h3 className={s.h3}>Need guaranteed banking support?</h3>
+              <p className={s.muted} style={{ margin: 'var(--space-2) 0 var(--space-3)' }}>
                 Our banking compliance officers manage relationship officer submissions, compliance files, and fast-track opening.
               </p>
-              <Link
-                href="/services"
-                className="inline-block bg-cta hover:bg-cta-600 text-cta-foreground text-xs font-semibold py-2.5 px-6 rounded-lg transition-colors shadow-sm"
-              >
+              <Link href="/services" className="btn btn-primary">
                 Explore Banking Concierge
               </Link>
             </div>
@@ -124,6 +110,6 @@ export default function BankingOddsMatcher() {
           </div>
         )}
       </main>
-    </div>
+    </>
   );
 }

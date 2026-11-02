@@ -13,6 +13,21 @@ function initials(name: string | null, fallback: string): string {
   return (parts[0]?.[0] ?? '') + (parts[1]?.[0] ?? '');
 }
 
+const rowStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 'var(--space-4)',
+  width: '100%',
+  minHeight: 64,
+  padding: 'var(--space-4)',
+  textAlign: 'left' as const,
+  font: 'inherit',
+  color: 'var(--text-primary)',
+  cursor: 'pointer',
+};
+
+const iconStyle = { color: 'var(--text-tertiary)', flexShrink: 0 };
+
 export default async function Profile() {
   const session = await getServerSession();
   const [user] = session
@@ -23,58 +38,54 @@ export default async function Profile() {
   const displayPhone = user?.whatsapp_number || '';
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24">
+    <div className="wrap admin-page pb-24">
       <BannerHeader title="Profile" subtitle="Manage your account settings" />
 
-      <div className="max-w-4xl mx-auto px-4 md:px-6 -mt-8 relative z-10">
-        {/* User Card */}
-        <div className="bg-white p-5 rounded-md shadow-sm border border-gray-200 flex items-center gap-4 mb-6">
-          <div className="w-14 h-14 bg-gradient-to-br from-primary-500 to-primary-700 rounded-full flex items-center justify-center shadow-inner shrink-0">
-            <span className="text-white text-xl font-bold">{initials(user?.full_name ?? null, displayPhone || 'GC')}</span>
+      <div style={{ display: 'grid', gap: 'var(--space-3)', maxWidth: 720 }}>
+        <div className="card" style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
+          <div
+            aria-hidden="true"
+            style={{
+              width: 56, height: 56, borderRadius: '50%', flexShrink: 0,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'var(--navy)', color: 'var(--white)', fontSize: 20, fontWeight: 700,
+            }}
+          >
+            {initials(user?.full_name ?? null, displayPhone || 'GC')}
           </div>
           <div>
-            <h2 className="text-lg font-bold text-gray-900">{displayName}</h2>
-            <p className="text-sm text-gray-500 font-medium">{displayPhone}</p>
+            <h2 style={{ margin: 0, fontSize: 18 }}>{displayName}</h2>
+            <p style={{ margin: 0, fontSize: 14 }}>{displayPhone}</p>
           </div>
         </div>
 
-        {/* Settings Menu */}
-        <section className="bg-white rounded-md shadow-sm border border-gray-200 overflow-hidden mb-6">
-          <button className="w-full p-4 flex items-center gap-4 hover:bg-gray-50 transition-colors border-b border-gray-100">
-            <div className="bg-gray-100 p-2 rounded-md text-gray-600">
-              <User size={16} weight="duotone" />
-            </div>
-            <div className="text-left">
-              <h4 className="font-bold text-gray-900 text-sm">Personal Information</h4>
-              <p className="text-xs text-gray-500 mt-0.5">Update your email, phone, and address</p>
-            </div>
-          </button>
+        <button type="button" className="card" style={rowStyle}>
+          <User size={20} weight="duotone" style={iconStyle} />
+          <span>
+            <strong style={{ display: 'block' }}>Personal information</strong>
+            <span className="admin-form-note" style={{ margin: 0 }}>Update your email, phone, and address</span>
+          </span>
+        </button>
 
-          <div className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors border-b border-gray-100">
-            <div className="flex items-center gap-4">
-              <div className="bg-gray-100 p-2 rounded-md text-gray-600">
-                <Bell size={16} weight="duotone" />
-              </div>
-              <div className="text-left">
-                <h4 className="font-bold text-gray-900 text-sm">Push Notifications</h4>
-                <p className="text-xs text-gray-500 mt-0.5">Browser/PWA alerts, alongside WhatsApp and email</p>
-              </div>
-            </div>
-            <PushNotificationToggle />
-          </div>
+        <div className="card" style={{ ...rowStyle, justifyContent: 'space-between', cursor: 'default' }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
+            <Bell size={20} weight="duotone" style={iconStyle} />
+            <span>
+              <strong style={{ display: 'block' }}>Push notifications</strong>
+              <span className="admin-form-note" style={{ margin: 0 }}>Browser/PWA alerts, alongside WhatsApp and email</span>
+            </span>
+          </span>
+          <PushNotificationToggle />
+        </div>
 
-          <button className="w-full p-4 flex items-center gap-4 hover:bg-gray-50 transition-colors">
-            <div className="bg-gray-100 p-2 rounded-md text-gray-600">
-              <ShieldCheck size={16} weight="duotone" />
-            </div>
-            <div className="text-left">
-              <h4 className="font-bold text-gray-900 text-sm">Security</h4>
-              <p className="text-xs text-gray-500 mt-0.5">Passkeys, 2FA, and sessions</p>
-            </div>
-          </button>
-        </section>
+        <button type="button" className="card" style={rowStyle}>
+          <ShieldCheck size={20} weight="duotone" style={iconStyle} />
+          <span>
+            <strong style={{ display: 'block' }}>Security</strong>
+            <span className="admin-form-note" style={{ margin: 0 }}>Passkeys, 2FA, and sessions</span>
+          </span>
+        </button>
 
-        {/* Log out */}
         <LogoutButton />
       </div>
     </div>

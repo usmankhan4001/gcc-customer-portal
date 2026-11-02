@@ -135,179 +135,126 @@ export default function CheckoutWizard({ params }: { params: Promise<{ id: strin
     }
   };
 
+  const tierPrice = formData.tier === 'basic' ? '1,500' : '3,500';
+
+  const tierOptions = [
+    { value: 'basic', name: 'Self UBO (Basic)', price: '$1,500', badge: null, note: 'You are the registered director & shareholder. Includes full incorporation filing and registry fees.' },
+    { value: 'standard', name: 'Nominee UBO (Privacy tier)', price: '$3,500', badge: 'Recommended', note: 'Maximum privacy. GCCStartup acts as the registered nominee. Includes 1 bank account introduction.' },
+  ];
+
+  const nameFields = [
+    { key: 'nameOption1', label: 'Option 1 (preferred name)', placeholder: 'ACME GLOBAL FZ-LLC' },
+    { key: 'nameOption2', label: 'Option 2 (alternative)', placeholder: 'ACME VENTURES FZ-LLC' },
+    { key: 'nameOption3', label: 'Option 3 (alternative)', placeholder: 'ACME ENTERPRISES FZ-LLC' },
+  ] as const;
+
+  const iconBtn = { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 44, height: 44, marginLeft: -10, color: 'var(--text-primary)', background: 'transparent', border: 0, borderRadius: 'var(--radius-sm)', cursor: 'pointer' } as const;
+  const stepHead = { display: 'flex', alignItems: 'center', gap: 'var(--space-2)', margin: '0 0 var(--space-4)' } as const;
+
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
-      {/* Top Header */}
-      <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between sticky top-0 z-10">
-        <div className="flex items-center">
+    <div style={{ minHeight: '100vh', background: 'var(--surface-alt)' }}>
+      <header
+        style={{
+          position: 'sticky', top: 0, zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          gap: 'var(--space-3)', padding: 'var(--space-2) var(--space-4)', background: 'var(--surface)', borderBottom: '1px solid var(--border)',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', minWidth: 0 }}>
           {step === 1 ? (
-            <Link href={`/services/${resolvedParams.id}`} className="p-1 -ml-1 rounded-md hover:bg-gray-100 transition-colors">
-              <ArrowLeft size={20} className="text-gray-900" />
+            <Link href={`/services/${resolvedParams.id}`} style={iconBtn} aria-label="Back to jurisdiction details">
+              <ArrowLeft size={20} />
             </Link>
           ) : (
-            <button onClick={handleBack} className="p-1 -ml-1 rounded-md hover:bg-gray-100 transition-colors">
-              <ArrowLeft size={20} className="text-gray-900" />
+            <button type="button" onClick={handleBack} style={iconBtn} aria-label="Previous step">
+              <ArrowLeft size={20} />
             </button>
           )}
-          <h1 className="ml-2 text-base font-black text-gray-900 uppercase tracking-tight">Company Registration</h1>
+          <h1 style={{ margin: 0, fontSize: 18 }}>Company registration</h1>
         </div>
-        <div className="text-xs font-black text-primary bg-primary-50 px-2 py-1 rounded-sm border border-primary-100 uppercase tracking-wider">
-          Step {step} of {totalSteps}
-        </div>
+        <span className="badge badge-accent" style={{ flexShrink: 0 }}>Step {step} of {totalSteps}</span>
       </header>
 
-      {/* Progress Bar */}
-      <div className="w-full bg-gray-200 h-1">
-        <div
-          className="bg-primary h-1 transition-all duration-300"
-          style={{ width: `${(step / totalSteps) * 100}%` }}
-        />
+      <div style={{ height: 4, background: 'var(--border)' }}>
+        <div style={{ height: 4, width: `${(step / totalSteps) * 100}%`, background: 'var(--orange)', transition: 'width .3s ease' }} />
       </div>
 
-      {/* Main Content Area */}
-      <main className="flex-grow p-4 md:p-6 max-w-2xl mx-auto w-full pb-32">
-        {/* Step 1: Company Name */}
+      <main className="wrap" style={{ maxWidth: 672, padding: 'var(--space-6) var(--space-4) 128px' }}>
         {step === 1 && (
-          <div className="animate-in fade-in slide-in-from-right-4 duration-300">
-            <div className="flex items-center gap-2 mb-4 border-b border-gray-200 pb-3">
-              <Buildings size={20} weight="duotone" className="text-primary" />
-              <h2 className="text-lg font-black text-gray-900 uppercase tracking-tight">Desired Company Name</h2>
-            </div>
-            <p className="text-gray-600 text-sm font-medium mb-6">
-              Provide up to 3 name choices. The government registry will reserve the first available option.
-            </p>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-black text-gray-900 uppercase tracking-wider mb-1.5">
-                  Option 1 (Preferred Name)
-                </label>
-                <input
-                  type="text"
-                  value={formData.nameOption1}
-                  onChange={(e) => setFormData({ ...formData, nameOption1: e.target.value })}
-                  className="w-full px-3 py-2.5 rounded-md border-2 border-gray-300 focus:border-primary focus:ring-0 outline-none transition-all font-bold text-sm text-gray-900 placeholder:font-medium placeholder:text-gray-400"
-                  placeholder="ACME GLOBAL FZ-LLC"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-black text-gray-900 uppercase tracking-wider mb-1.5">
-                  Option 2 (Alternative)
-                </label>
-                <input
-                  type="text"
-                  value={formData.nameOption2}
-                  onChange={(e) => setFormData({ ...formData, nameOption2: e.target.value })}
-                  className="w-full px-3 py-2.5 rounded-md border-2 border-gray-300 focus:border-primary focus:ring-0 outline-none transition-all font-bold text-sm text-gray-900 placeholder:font-medium placeholder:text-gray-400"
-                  placeholder="ACME VENTURES FZ-LLC"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-black text-gray-900 uppercase tracking-wider mb-1.5">
-                  Option 3 (Alternative)
-                </label>
-                <input
-                  type="text"
-                  value={formData.nameOption3}
-                  onChange={(e) => setFormData({ ...formData, nameOption3: e.target.value })}
-                  className="w-full px-3 py-2.5 rounded-md border-2 border-gray-300 focus:border-primary focus:ring-0 outline-none transition-all font-bold text-sm text-gray-900 placeholder:font-medium placeholder:text-gray-400"
-                  placeholder="ACME ENTERPRISES FZ-LLC"
-                />
-              </div>
+          <div>
+            <h2 style={stepHead}><Buildings size={20} weight="duotone" style={{ color: 'var(--orange)' }} /> Desired company name</h2>
+            <p>Provide up to 3 name choices. The government registry will reserve the first available option.</p>
+            <div className="card">
+              {nameFields.map(({ key, label, placeholder }) => (
+                <div className="field" key={key}>
+                  <label htmlFor={`checkout-${key}`}>{label}</label>
+                  <input
+                    id={`checkout-${key}`}
+                    type="text"
+                    value={formData[key]}
+                    onChange={(e) => setFormData({ ...formData, [key]: e.target.value })}
+                    placeholder={placeholder}
+                  />
+                </div>
+              ))}
             </div>
           </div>
         )}
 
-        {/* Step 2: Package Tier */}
         {step === 2 && (
-          <div className="animate-in fade-in slide-in-from-right-4 duration-300">
-            <h2 className="text-lg font-black text-gray-900 uppercase tracking-tight border-b border-gray-200 pb-3 mb-5">
-              Select Package Tier
-            </h2>
-
-            <div className="space-y-4">
-              <label
-                className={`block relative p-4 rounded-md border-2 cursor-pointer transition-all ${
-                  formData.tier === 'basic' ? 'border-primary bg-primary-50' : 'border-gray-300 bg-white hover:border-gray-400'
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="tier"
-                  value="basic"
-                  checked={formData.tier === 'basic'}
-                  onChange={() => setFormData({ ...formData, tier: 'basic' })}
-                  className="sr-only"
-                />
-                <div className="flex justify-between items-start mb-1.5">
-                  <span className="font-black text-gray-900 uppercase tracking-wide">Self UBO (Basic)</span>
-                  <span className="font-black text-gray-900">$1,500</span>
-                </div>
-                <p className="text-sm text-gray-700 font-medium leading-snug">
-                  You are the registered director & shareholder. Includes full incorporation filing and registry fees.
-                </p>
-                {formData.tier === 'basic' && <div className="absolute top-4 right-4 w-3.5 h-3.5 rounded-full bg-primary" />}
-              </label>
-
-              <label
-                className={`block relative p-4 rounded-md border-2 cursor-pointer transition-all ${
-                  formData.tier === 'standard' ? 'border-primary bg-primary-50' : 'border-gray-300 bg-white hover:border-gray-400'
-                }`}
-              >
-                <div className="absolute -top-2.5 left-3 bg-gray-900 text-white text-[10px] font-black px-2 py-0.5 rounded-sm uppercase tracking-widest">
-                  RECOMMENDED
-                </div>
-                <input
-                  type="radio"
-                  name="tier"
-                  value="standard"
-                  checked={formData.tier === 'standard'}
-                  onChange={() => setFormData({ ...formData, tier: 'standard' })}
-                  className="sr-only"
-                />
-                <div className="flex justify-between items-start mb-1.5">
-                  <span className="font-black text-gray-900 uppercase tracking-wide">Nominee UBO (Privacy Tier)</span>
-                  <span className="font-black text-gray-900">$3,500</span>
-                </div>
-                <p className="text-sm text-gray-700 font-medium leading-snug">
-                  Maximum privacy. GCCStartup acts as the registered nominee. Includes 1 bank account introduction.
-                </p>
-                {formData.tier === 'standard' && <div className="absolute top-4 right-4 w-3.5 h-3.5 rounded-full bg-primary" />}
-              </label>
+          <div>
+            <h2 style={stepHead}>Select package tier</h2>
+            <div style={{ display: 'grid', gap: 'var(--space-3)' }}>
+              {tierOptions.map((opt) => {
+                const selected = formData.tier === opt.value;
+                return (
+                  <label
+                    key={opt.value}
+                    className="card"
+                    style={{
+                      display: 'block', cursor: 'pointer', padding: 'var(--space-4)',
+                      ...(selected ? { borderColor: 'var(--orange)', background: 'var(--orange-lt)' } : {}),
+                    }}
+                  >
+                    <input
+                      type="radio"
+                      name="tier"
+                      value={opt.value}
+                      checked={selected}
+                      onChange={() => setFormData({ ...formData, tier: opt.value })}
+                      style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }}
+                    />
+                    <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
+                      <strong>{opt.name}</strong>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                        {opt.badge && <span className="badge badge-navy">{opt.badge}</span>}
+                        <strong>{opt.price}</strong>
+                      </span>
+                    </span>
+                    <p style={{ margin: 'var(--space-2) 0 0', fontSize: 14 }}>{opt.note}</p>
+                  </label>
+                );
+              })}
             </div>
           </div>
         )}
 
-        {/* Step 3: WhatsApp OTP Verification */}
         {step === 3 && (
-          <div className="animate-in fade-in slide-in-from-right-4 duration-300">
-            <div className="flex items-center gap-2 mb-4 border-b border-gray-200 pb-3">
-              <WhatsappLogo size={22} weight="duotone" className="text-emerald-600" />
-              <h2 className="text-lg font-black text-gray-900 uppercase tracking-tight">WhatsApp Order Verification</h2>
-            </div>
-            <p className="text-gray-600 text-sm font-medium mb-6">
-              To safeguard corporate filings and dispatch real-time trade license & KYC approval updates, verify your official WhatsApp number.
-            </p>
+          <div>
+            <h2 style={stepHead}><WhatsappLogo size={22} weight="duotone" style={{ color: 'var(--green-dk)' }} /> WhatsApp order verification</h2>
+            <p>To safeguard corporate filings and dispatch real-time trade license & KYC approval updates, verify your official WhatsApp number.</p>
 
             {otpError && (
-              <div className="mb-4 p-3 bg-destructive/10 text-destructive border border-destructive/20 rounded-lg text-xs font-medium">
-                ⚠️ {otpError}
-              </div>
+              <div className="admin-callout is-error" role="alert" style={{ marginBottom: 'var(--space-4)' }}>{otpError}</div>
             )}
-
             {otpInfo && (
-              <div className="mb-4 p-3 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg text-xs font-medium">
-                ℹ️ {otpInfo}
-              </div>
+              <div className="admin-callout" role="status" style={{ marginBottom: 'var(--space-4)' }}>{otpInfo}</div>
             )}
 
-            <div className="bg-white border-2 border-gray-200 rounded-xl p-5 space-y-4">
-              <div>
-                <label className="block text-xs font-black text-gray-900 uppercase tracking-wider mb-1.5">
-                  WhatsApp Contact Number
-                </label>
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <div className="flex-1">
+            <div className="card">
+              <div className="field">
+                <label htmlFor="checkout-phone">WhatsApp contact number</label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
+                  <div style={{ flex: '1 1 200px' }}>
                     <PhoneInputWithCountry
                       id="checkout-phone"
                       value={phone}
@@ -320,134 +267,103 @@ export default function CheckoutWizard({ params }: { params: Promise<{ id: strin
                     />
                   </div>
                   {!otpVerified && (
-                    <button
-                      type="button"
-                      onClick={handleSendOtp}
-                      disabled={sendingOtp || !phone.trim()}
-                      className="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-60 text-white text-xs font-bold rounded-lg transition-colors flex items-center justify-center gap-1.5 whitespace-nowrap shadow-xs h-[38px]"
-                    >
-                      {sendingOtp ? (
-                        <CircleNotch className="w-3.5 h-3.5 animate-spin" />
-                      ) : otpSent ? (
-                        'Resend OTP'
-                      ) : (
-                        'Send WhatsApp OTP'
-                      )}
+                    <button type="button" onClick={handleSendOtp} disabled={sendingOtp || !phone.trim()} className="btn btn-primary">
+                      {sendingOtp ? <CircleNotch size={16} className="animate-spin" /> : otpSent ? 'Resend OTP' : 'Send WhatsApp OTP'}
                     </button>
                   )}
                 </div>
               </div>
 
               {otpSent && !otpVerified && (
-                <div className="pt-3 border-t border-gray-100 space-y-3">
-                  <label className="block text-xs font-black text-gray-900 uppercase tracking-wider">
-                    Enter 6-Digit WhatsApp Code
-                  </label>
-                  <div className="flex gap-2">
+                <div className="field">
+                  <label htmlFor="checkout-otp">Enter 6-digit WhatsApp code</label>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
                     <input
+                      id="checkout-otp"
                       type="text"
+                      inputMode="numeric"
                       maxLength={6}
                       value={otp}
                       onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
                       placeholder="123456"
-                      className="flex-1 px-3 py-2 text-center tracking-widest text-lg font-bold border-2 border-gray-300 rounded-lg focus:border-primary outline-none"
+                      style={{ flex: '1 1 140px', textAlign: 'center', letterSpacing: '0.2em' }}
                     />
-                    <button
-                      type="button"
-                      onClick={handleVerifyOtp}
-                      disabled={verifyingOtp || otp.length !== 6}
-                      className="px-5 py-2 bg-cta hover:bg-cta-600 disabled:opacity-60 text-cta-foreground text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5"
-                    >
-                      {verifyingOtp ? <CircleNotch className="w-3.5 h-3.5 animate-spin" /> : 'Verify Code'}
+                    <button type="button" onClick={handleVerifyOtp} disabled={verifyingOtp || otp.length !== 6} className="btn btn-primary">
+                      {verifyingOtp ? <CircleNotch size={16} className="animate-spin" /> : 'Verify code'}
                     </button>
                   </div>
                 </div>
               )}
 
               {otpVerified && (
-                <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-lg flex items-center gap-2.5 text-emerald-800 text-xs font-bold">
-                  <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0" />
-                  <span>WhatsApp Number Verified ({phone})</span>
+                <div className="admin-callout" role="status">
+                  <ShieldCheck size={20} style={{ color: 'var(--green-dk)', flexShrink: 0 }} />
+                  <span>WhatsApp number verified ({phone})</span>
                 </div>
               )}
             </div>
           </div>
         )}
 
-        {/* Step 4: Summary & Payment */}
         {step === 4 && (
-          <div className="animate-in fade-in slide-in-from-right-4 duration-300">
-            <div className="flex items-center gap-2 mb-4 border-b border-gray-200 pb-3">
-              <CreditCard size={20} weight="duotone" className="text-primary" />
-              <h2 className="text-lg font-black text-gray-900 uppercase tracking-tight">Order Summary & Payment</h2>
-            </div>
+          <div>
+            <h2 style={stepHead}><CreditCard size={20} weight="duotone" style={{ color: 'var(--orange)' }} /> Order summary & payment</h2>
 
-            <div className="bg-white rounded-md shadow-sm border-2 border-gray-200 overflow-hidden mb-5">
-              <div className="p-4 border-b-2 border-gray-100">
-                <div className="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-1">Company Name</div>
-                <div className="font-bold text-gray-900 uppercase text-sm">{formData.nameOption1 || 'NOT PROVIDED'}</div>
+            <div className="card" style={{ display: 'grid', gap: 'var(--space-4)', marginBottom: 'var(--space-4)' }}>
+              <div>
+                <p className="admin-form-note" style={{ margin: 0 }}>Company name</p>
+                <strong>{formData.nameOption1 || 'Not provided'}</strong>
               </div>
-              <div className="p-4 border-b-2 border-gray-100">
-                <div className="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-1">Verified WhatsApp Dispatch</div>
-                <div className="font-mono font-bold text-emerald-700 text-xs">{phone || 'Verified on Account'}</div>
+              <div>
+                <p className="admin-form-note" style={{ margin: 0 }}>Verified WhatsApp number</p>
+                <strong>{phone || 'Verified on account'}</strong>
               </div>
-              <div className="p-4 border-b-2 border-gray-100 flex justify-between items-center">
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 'var(--space-3)' }}>
                 <div>
-                  <div className="font-bold text-gray-900 uppercase text-sm">
-                    {formData.tier === 'basic' ? 'Basic Package' : 'Nominee UBO Package'}
-                  </div>
-                  <div className="text-[10px] text-gray-500 font-black uppercase tracking-widest mt-1">
-                    Formation + Government Registry Fees
-                  </div>
+                  <strong>{formData.tier === 'basic' ? 'Basic package' : 'Nominee UBO package'}</strong>
+                  <p className="admin-form-note" style={{ margin: 0 }}>Formation + government registry fees</p>
                 </div>
-                <div className="font-black text-gray-900">$ {formData.tier === 'basic' ? '1,500' : '3,500'}</div>
+                <strong>$ {tierPrice}</strong>
               </div>
-              <div className="p-4 bg-gray-50 flex justify-between items-center border-t border-gray-200">
-                <div className="font-black text-gray-900 uppercase tracking-wider text-sm">Total Due</div>
-                <div className="font-black text-primary text-xl">$ {formData.tier === 'basic' ? '1,500' : '3,500'}</div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 'var(--space-3)', borderTop: '1px solid var(--border)' }}>
+                <strong>Total due</strong>
+                <strong style={{ fontSize: 22, color: 'var(--orange-dk)' }}>$ {tierPrice}</strong>
               </div>
             </div>
 
-            <div className="bg-primary-50 border border-primary-200 p-4 rounded-md flex items-start gap-3">
-              <CheckCircle size={20} weight="duotone" className="text-primary shrink-0 mt-0.5" />
-              <p className="text-xs text-primary-900 font-bold leading-relaxed">
-                NO IMMEDIATE KYC REQUIRED. YOU CAN UPLOAD YOUR PASSPORT SECURELY FROM YOUR DASHBOARD AFTER PAYMENT IS CONFIRMED.
-              </p>
+            <div className="admin-callout">
+              <CheckCircle size={20} weight="duotone" style={{ color: 'var(--orange)', flexShrink: 0 }} />
+              <span>No immediate KYC required. You can upload your passport securely from your dashboard after payment is confirmed.</span>
             </div>
           </div>
         )}
       </main>
 
-      {/* Sticky Bottom Actions */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.05)] z-20 p-4">
-        <div className="max-w-2xl mx-auto w-full flex justify-between items-center">
+      <div
+        style={{
+          position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 20,
+          padding: 'var(--space-3) var(--space-4)', background: 'var(--surface)', borderTop: '1px solid var(--border)',
+        }}
+      >
+        <div style={{ maxWidth: 672, margin: '0 auto' }}>
           {step < totalSteps ? (
             <button
+              type="button"
               onClick={handleNext}
-              disabled={
-                (step === 1 && !formData.nameOption1) ||
-                (step === 3 && !otpVerified)
-              }
-              className="w-full flex items-center justify-center gap-2 bg-[#F26522] disabled:opacity-50 hover:bg-[#0A142F] text-white font-bold py-3.5 px-6 rounded-full shadow-[0_4px_14px_rgba(242,101,34,0.25)] transition duration-200 text-sm tracking-wider cursor-pointer"
+              disabled={(step === 1 && !formData.nameOption1) || (step === 3 && !otpVerified)}
+              className="btn btn-primary"
+              style={{ width: '100%' }}
             >
               Continue <CaretRight size={16} weight="bold" />
             </button>
           ) : (
-            <button
-              onClick={handleCheckout}
-              disabled={loading}
-              className="w-full flex items-center justify-center gap-2 bg-[#F26522] hover:bg-[#0A142F] text-white font-bold py-3.5 px-6 rounded-full shadow-[0_4px_14px_rgba(242,101,34,0.25)] transition duration-200 text-sm tracking-wider cursor-pointer relative overflow-hidden"
-            >
+            <button type="button" onClick={handleCheckout} disabled={loading} className="btn btn-primary" style={{ width: '100%' }}>
               {loading ? (
-                <span className="flex items-center gap-2">
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  PROCESSING...
-                </span>
+                <>
+                  <CircleNotch size={16} className="animate-spin" /> Processing...
+                </>
               ) : (
-                'PAY WITH STRIPE'
+                'Pay with Stripe'
               )}
             </button>
           )}

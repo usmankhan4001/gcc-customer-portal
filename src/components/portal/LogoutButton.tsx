@@ -23,10 +23,8 @@ export default function LogoutButton({ className }: { className?: string }) {
       type="button"
       onClick={handleLogout}
       disabled={isLoggingOut}
-      className={
-        className ??
-        'flex items-center justify-center gap-2 w-full p-4 text-destructive bg-white border border-destructive/20 hover:bg-destructive/5 rounded-md font-bold transition-colors shadow-sm disabled:opacity-60'
-      }
+      className={className ?? 'btn btn-outline'}
+      style={className ? undefined : { width: '100%', color: 'var(--danger)', borderColor: 'var(--danger-border)' }}
     >
       <SignOut className="w-4 h-4" />
       {isLoggingOut ? 'Logging out...' : 'Log Out'}

@@ -29,17 +29,19 @@ export default function ShareButton({ documentId }: { documentId: string }) {
 
   return (
     <button
+      type="button"
       onClick={handleShare}
       disabled={loading}
-      className="p-1.5 text-gray-400 hover:text-primary hover:bg-primary-50 rounded-md transition-colors"
+      className="cl-icon-btn"
+      aria-label={copied ? 'Link copied' : 'Copy shareable link (expires in 7 days)'}
       title="Create shareable link (copies to clipboard, expires in 7 days)"
     >
       {loading ? (
-        <CircleNotch className="w-4 h-4 animate-spin" />
+        <CircleNotch size={18} className="animate-spin" aria-hidden="true" />
       ) : copied ? (
-        <Check className="w-4 h-4 text-success" />
+        <Check size={18} style={{ color: 'var(--green-dk)' }} aria-hidden="true" />
       ) : (
-        <LinkIcon className="w-4 h-4" />
+        <LinkIcon size={18} aria-hidden="true" />
       )}
     </button>
   );

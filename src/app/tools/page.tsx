@@ -1,5 +1,5 @@
+import Link from 'next/link';
 import BannerHeader from '@/components/portal/BannerHeader';
-import ServiceTile from '@/components/portal/ServiceTile';
 import {
   Calculator,
   Bank,
@@ -12,42 +12,47 @@ import {
   SealCheck,
   Compass,
   Receipt,
+  ArrowRight,
 } from '@phosphor-icons/react/dist/ssr';
+import s from './tools.module.css';
 
 const TOOLS = [
-  { title: 'Tax Calculator', href: '/tools/tax-calculator', icon: Calculator },
-  { title: 'Jurisdiction Quiz', href: '/tools/jurisdiction-quiz', icon: Compass },
-  { title: 'Banking Odds', href: '/tools/banking-odds', icon: Bank },
-  { title: 'Generate NDA', href: '/tools/generate-nda', icon: Signature },
-  { title: 'Invoice Generator', href: '/tools/invoice-generator', icon: Receipt },
-  { title: 'UBO Privacy', href: '/tools/ubo-privacy', icon: ShieldCheck },
-  { title: 'VAT Scorer', href: '/tools/vat-scorer', icon: Percent },
-  { title: 'Compliance Calendar', href: '/tools/compliance-calendar', icon: CalendarCheck },
-  { title: 'Visa Estimator', href: '/tools/visa-estimator', icon: Users },
-  { title: 'Name Checker', href: '/tools/name-checker', icon: MagnifyingGlass },
-  { title: 'QFZP Eligibility', href: '/tools/qfzp-eligibility', icon: SealCheck },
+  { title: 'Tax Calculator', blurb: 'Estimate yearly tax savings from relocating.', href: '/tools/tax-calculator', icon: Calculator },
+  { title: 'Jurisdiction Quiz', blurb: 'Find the best-fit place to incorporate.', href: '/tools/jurisdiction-quiz', icon: Compass },
+  { title: 'Banking Odds', blurb: 'See your corporate bank approval odds.', href: '/tools/banking-odds', icon: Bank },
+  { title: 'Generate NDA', blurb: 'Draft a mutual non-disclosure agreement.', href: '/tools/generate-nda', icon: Signature },
+  { title: 'Invoice Generator', blurb: 'Create and download a branded invoice.', href: '/tools/invoice-generator', icon: Receipt },
+  { title: 'UBO Privacy', blurb: 'Check what a public registry would show.', href: '/tools/ubo-privacy', icon: ShieldCheck },
+  { title: 'VAT Scorer', blurb: 'Do you need to register for UAE VAT?', href: '/tools/vat-scorer', icon: Percent },
+  { title: 'Compliance Calendar', blurb: 'List your UAE statutory deadlines.', href: '/tools/compliance-calendar', icon: CalendarCheck },
+  { title: 'Visa Estimator', blurb: 'Estimate UAE residence visa costs.', href: '/tools/visa-estimator', icon: Users },
+  { title: 'Name Checker', blurb: 'Test a company name against registry rules.', href: '/tools/name-checker', icon: MagnifyingGlass },
+  { title: 'QFZP Eligibility', blurb: 'Check eligibility for 0% corporate tax.', href: '/tools/qfzp-eligibility', icon: SealCheck },
 ];
 
 export default function ToolsIndexPage() {
   return (
-    <div className="flex flex-col min-h-screen bg-[#FFFFFF] pb-16 font-sans">
+    <>
       <BannerHeader
         title="Tools & Calculators"
         subtitle="Proprietary advisory calculators and document generators for global entity structuring."
       />
-
-      <div className="px-4 -mt-6 relative z-10 max-w-5xl mx-auto w-full">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
+      <main className={`wrap ${s.main}`}>
+        <div className={s.grid}>
           {TOOLS.map((tool) => (
-            <ServiceTile
-              key={tool.href}
-              title={tool.title}
-              href={tool.href}
-              icon={<tool.icon className="w-6 h-6 text-[#F26522]" weight="duotone" />}
-            />
+            <Link key={tool.href} href={tool.href} className={`card ${s.tile}`}>
+              <span className={s.tileIcon}>
+                <tool.icon size={24} weight="duotone" />
+              </span>
+              <h2 className={s.h3}>{tool.title}</h2>
+              <p className={s.muted}>{tool.blurb}</p>
+              <span className={s.tileGo}>
+                Open <ArrowRight size={16} />
+              </span>
+            </Link>
           ))}
         </div>
-      </div>
-    </div>
+      </main>
+    </>
   );
 }

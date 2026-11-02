@@ -15,11 +15,11 @@ interface NotificationItem {
   created_at: string;
 }
 
-const TYPE_DOT: Record<NotificationItem['type'], string> = {
-  action_required: 'bg-destructive',
-  success: 'bg-success',
-  warning: 'bg-warning',
-  info: 'bg-info',
+const TYPE_BADGE: Record<NotificationItem['type'], { cls: string; label: string }> = {
+  action_required: { cls: 'badge-danger', label: 'Action needed' },
+  success: { cls: 'badge-success', label: 'Success' },
+  warning: { cls: 'badge-accent', label: 'Warning' },
+  info: { cls: 'badge-info', label: 'Info' },
 };
 
 export default function NotificationList({ initial }: { initial: NotificationItem[] }) {
@@ -40,42 +40,46 @@ export default function NotificationList({ initial }: { initial: NotificationIte
   return (
     <div>
       {unreadCount > 0 && (
-        <div className="flex justify-end mb-3">
-          <button
-            onClick={markAllRead}
-            className="flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-primary/80"
-          >
-            <Checks className="w-3.5 h-3.5" /> Mark all as read
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 'var(--space-3)' }}>
+          <button type="button" onClick={markAllRead} className="btn btn-ghost" style={{ minHeight: 44, fontSize: 14 }}>
+            <Checks size={16} /> Mark all as read
           </button>
         </div>
       )}
 
       {items.length === 0 ? (
-        <div className="bg-white rounded-md border border-gray-200 p-8 text-center text-sm text-gray-400">
-          No notifications yet.
+        <div className="cl-empty">
+          <p>No notifications yet.</p>
         </div>
       ) : (
-        <div className="space-y-2">
+        <div style={{ display: 'grid', gap: 'var(--space-2)' }}>
           {items.map((n) => {
+            const badge = TYPE_BADGE[n.type];
             const content = (
               <div
-                className={`bg-white rounded-md border p-3 flex items-start gap-3 transition-colors ${
-                  n.is_read ? 'border-gray-200' : 'border-primary/30 bg-primary/5'
-                }`}
+                className="card"
+                style={{
+                  display: 'flex', alignItems: 'flex-start', gap: 'var(--space-3)', padding: 'var(--space-4)',
+                  ...(n.is_read ? {} : { borderColor: 'var(--orange)', background: 'var(--orange-lt)' }),
+                }}
               >
-                <span className={`mt-1 w-2 h-2 rounded-full shrink-0 ${TYPE_DOT[n.type]}`} />
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-gray-900">{n.title}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">{n.message}</p>
-                  <p className="text-[10px] text-gray-400 mt-1">{new Date(n.created_at).toLocaleString()}</p>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 'var(--space-2)' }}>
+                    <span className={`badge ${badge.cls}`}>{badge.label}</span>
+                    <strong>{n.title}</strong>
+                  </div>
+                  <p style={{ margin: 'var(--space-2) 0 0', fontSize: 14 }}>{n.message}</p>
+                  <p className="admin-form-note">{new Date(n.created_at).toLocaleString()}</p>
                 </div>
                 {!n.is_read && (
                   <button
+                    type="button"
                     onClick={(e) => {
                       e.preventDefault();
                       markRead(n.id);
                     }}
-                    className="text-[10px] font-semibold text-primary shrink-0"
+                    className="btn btn-ghost"
+                    style={{ minHeight: 44, fontSize: 14, flexShrink: 0 }}
                   >
                     Mark read
                   </button>
@@ -84,7 +88,7 @@ export default function NotificationList({ initial }: { initial: NotificationIte
             );
 
             return n.link_url ? (
-              <Link key={n.id} href={n.link_url} onClick={() => !n.is_read && markRead(n.id)}>
+              <Link key={n.id} href={n.link_url} onClick={() => !n.is_read && markRead(n.id)} style={{ textDecoration: 'none', color: 'inherit' }}>
                 {content}
               </Link>
             ) : (

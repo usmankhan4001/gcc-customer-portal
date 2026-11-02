@@ -1,12 +1,12 @@
 import React from 'react';
 import Link from 'next/link';
-import { desc, eq, ne, and, or, isNull, gte, lte, count } from 'drizzle-orm';
-import BannerHeader from '@/components/portal/BannerHeader';
+import { desc, eq, ne, and, or, isNull, gte, lte } from 'drizzle-orm';
+import { PageHeader } from '@/components/admin/PageHeader';
+import s from '@/components/portal/dash.module.css';
 import PipelineStepTracker from '@/components/portal/PipelineStepTracker';
 import ComplianceSnapshot from '@/components/portal/ComplianceSnapshot';
 import PromoBanner from '@/components/portal/PromoBanner';
 import EmptyState from '@/components/portal/EmptyState';
-import ServiceTile from '@/components/portal/ServiceTile';
 import CopyButton from '@/components/portal/CopyButton';
 import { getServerSession } from '@/lib/session';
 import { db } from '@/lib/db';
@@ -22,19 +22,27 @@ import {
   Users as UsersIcon,
   SquaresFour,
   Bell,
-  Tray,
   FileText,
   CurrencyDollar,
-  ArrowRight,
-  CheckCircle,
   WarningCircle,
-  Clock,
   ShareNetwork,
   SealCheck,
   Receipt,
   Upload,
   CaretRight,
 } from '@phosphor-icons/react/dist/ssr';
+
+const QUICK_SERVICES = [
+  { title: 'Tax calculator', href: '/tools/tax-calculator', Icon: Calculator },
+  { title: 'Name checker', href: '/tools/name-checker', Icon: MagnifyingGlass },
+  { title: 'Start a company', href: '/services', Icon: Buildings },
+  { title: 'Vault', href: '/vault', Icon: FolderOpen },
+  { title: 'Banking odds', href: '/tools/banking-odds', Icon: Bank },
+  { title: 'Compliance', href: '/tools/compliance-calendar', Icon: CalendarCheck },
+  { title: 'Visa costs', href: '/tools/visa-estimator', Icon: UsersIcon },
+  { title: 'Invoice generator', href: '/tools/invoice-generator', Icon: FileText },
+  { title: 'More tools', href: '/tools', Icon: SquaresFour },
+];
 
 const STAGE_LABELS = ['Onboarding', 'Official KYC', 'Government Filing', 'Bank Setup', 'Active'];
 
@@ -49,34 +57,43 @@ const STATUS_TO_STEP: Record<string, number> = {
   archived: 4,
 };
 
-function healthStatus(company: typeof companies.$inferSelect | undefined): {
-  label: string;
-  color: string;
-  bg: string;
-  icon: React.ReactNode;
-} {
-  if (!company) return { label: 'No Company', color: 'text-gray-500', bg: 'bg-gray-100', icon: <Clock size={16} /> };
-  const now = new Date();
+function healthStatus(company: typeof companies.$inferSelect | undefined): { label: string; badge: string } {
+  if (!company) return { label: 'No company', badge: 'badge-neutral' };
   const expiry = company.license_expiry_date;
   if (expiry) {
-    const daysLeft = Math.ceil((expiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-    if (daysLeft < 0) return { label: 'Renewal Overdue', color: 'text-destructive', bg: 'bg-destructive/10', icon: <WarningCircle size={16} /> };
-    if (daysLeft < 30) return { label: 'Renewal Due Soon', color: 'text-warning', bg: 'bg-warning/10', icon: <WarningCircle size={16} /> };
+    const daysLeft = Math.ceil((expiry.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+    if (daysLeft < 0) return { label: 'Renewal overdue', badge: 'badge-danger' };
+    if (daysLeft < 30) return { label: 'Renewal due soon', badge: 'badge-accent' };
   }
-  if (company.status === 'active') return { label: 'Active', color: 'text-success', bg: 'bg-success-light', icon: <SealCheck size={16} /> };
-  if (company.status === 'renewal_due') return { label: 'Renewal Due', color: 'text-warning', bg: 'bg-warning/10', icon: <WarningCircle size={16} /> };
-  if (company.status === 'suspended') return { label: 'Suspended', color: 'text-destructive', bg: 'bg-destructive/10', icon: <WarningCircle size={16} /> };
-  return { label: 'In Progress', color: 'text-info', bg: 'bg-info-light', icon: <Clock size={16} /> };
+  if (company.status === 'active') return { label: 'Active', badge: 'badge-success' };
+  if (company.status === 'renewal_due') return { label: 'Renewal due', badge: 'badge-accent' };
+  if (company.status === 'suspended') return { label: 'Suspended', badge: 'badge-danger' };
+  return { label: 'In progress', badge: 'badge-info' };
 }
 
-function daysUntil(date: Date): { days: number; label: string; color: string } {
-  const now = new Date();
-  const diff = Math.ceil((date.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-  if (diff < 0) return { days: diff, label: `${Math.abs(diff)} days overdue`, color: 'text-destructive bg-destructive/10 border-destructive/20' };
-  if (diff <= 7) return { days: diff, label: `${diff} day${diff === 1 ? '' : 's'} left`, color: 'text-destructive bg-destructive/10 border-destructive/20' };
-  if (diff <= 30) return { days: diff, label: `${diff} days left`, color: 'text-warning bg-warning/10 border-warning/20' };
-  return { days: diff, label: `${diff} days left`, color: 'text-success bg-success-light border-success/20' };
+function daysUntil(date: Date): { label: string; badge: string } {
+  const diff = Math.ceil((date.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+  if (diff < 0) return { label: `${Math.abs(diff)} days overdue`, badge: 'badge-danger' };
+  if (diff <= 7) return { label: `${diff} day${diff === 1 ? '' : 's'} left`, badge: 'badge-danger' };
+  if (diff <= 30) return { label: `${diff} days left`, badge: 'badge-accent' };
+  return { label: `${diff} days left`, badge: 'badge-success' };
 }
+
+function paymentBadge(status: string): { label: string; badge: string } {
+  switch (status) {
+    case 'paid': return { label: 'Paid', badge: 'badge-success' };
+    case 'processing': return { label: 'Processing', badge: 'badge-accent' };
+    case 'failed': return { label: 'Failed', badge: 'badge-danger' };
+    case 'refunded': return { label: 'Refunded', badge: 'badge-neutral' };
+    default: return { label: 'Unpaid', badge: 'badge-neutral' };
+  }
+}
+
+const NOTIFICATION_DOT: Record<string, string> = {
+  action_required: s.dotDanger,
+  success: s.dotSuccess,
+  warning: s.dotWarn,
+};
 
 export default async function DashboardPage() {
   const session = await getServerSession();
@@ -173,16 +190,15 @@ export default async function DashboardPage() {
 
   const firstName = user?.full_name?.split(' ')[0] || 'there';
   const status = healthStatus(activeCompany);
-  const documentCount = allDocuments.length;
   const hasExpiringDocs = allDocuments.some((d) => d.expiry_date && d.expiry_date < new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) && d.expiry_date > new Date());
   const referralLink = session ? `${process.env.NEXT_PUBLIC_APP_URL || 'https://portal.gccstartup.com'}/?ref=${session.userId.slice(0, 8)}` : '';
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#FFFFFF] pb-24 font-sans lg:pb-8">
-      <BannerHeader title="DASHBOARD" subtitle={`Welcome back, ${firstName}`} />
+    <div className="wrap admin-page">
+      <PageHeader title="Dashboard" subtitle={`Welcome back, ${firstName}`} />
 
       {activeBanners.length > 0 && (
-        <div className="px-4 -mt-4 relative z-10 max-w-5xl mx-auto w-full space-y-2">
+        <div className={s.banners}>
           {activeBanners.map((banner) => (
             <PromoBanner
               key={banner.id}
@@ -192,260 +208,232 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      <div className="px-4 mt-4 max-w-5xl mx-auto w-full space-y-6">
-
-        {/* SECTION 1: Company Health Status */}
-        <div className="bg-[#FFFFFF] rounded-2xl sm:rounded-3xl border border-[#E2E8F0] p-6 sm:p-7 shadow-[0_10px_25px_-5px_rgba(10,20,47,0.06)]">
-          <div className="flex items-center justify-between flex-wrap gap-3">
-            <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-full ${status.bg} flex items-center justify-center ${status.color}`}>
-                {status.icon}
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 font-medium">Company Status</p>
-                <h2 className="text-lg font-bold text-gray-900">
-                  {activeCompany ? activeCompany.company_name : 'No Active Company'}
-                </h2>
-              </div>
-            </div>
-            <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold ${status.color} ${status.bg}`}>
-              {status.icon}
-              {status.label}
-            </span>
+      <div className={s.stack}>
+        {/* Company status */}
+        <section className="card">
+          <div className={s.head}>
+            <h2>
+              <Buildings size={20} />
+              {activeCompany ? activeCompany.company_name : 'No active company'}
+            </h2>
+            <span className={`badge ${status.badge}`}>{status.label}</span>
           </div>
 
           {activeCompany && (
-            <div className="mt-4 pt-4 border-t border-gray-100 grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
-              <div>
-                <p className="text-gray-500 text-xs font-medium">Jurisdiction</p>
-                <p className="font-bold text-gray-900 capitalize">{activeCompany.jurisdiction.replace('-', ' ')}</p>
+            <>
+              <dl className={s.facts}>
+                <div>
+                  <dt>Jurisdiction</dt>
+                  <dd>{activeCompany.jurisdiction.replace('-', ' ')}</dd>
+                </div>
+                <div>
+                  <dt>Package</dt>
+                  <dd>{activeCompany.tier.replace(/_/g, ' ')}</dd>
+                </div>
+                <div>
+                  <dt>Incorporation</dt>
+                  <dd>{activeCompany.incorporation_date ? activeCompany.incorporation_date.toLocaleDateString() : 'In progress'}</dd>
+                </div>
+                <div>
+                  <dt>License expiry</dt>
+                  <dd>{activeCompany.license_expiry_date ? activeCompany.license_expiry_date.toLocaleDateString() : '—'}</dd>
+                </div>
+              </dl>
+              <div className={s.actions}>
+                <Link href={`/api/companies/good-standing?companyId=${activeCompany.id}`} className="btn">
+                  <SealCheck size={18} />
+                  Download good standing letter
+                </Link>
               </div>
-              <div>
-                <p className="text-gray-500 text-xs font-medium">Package</p>
-                <p className="font-bold text-gray-900 capitalize">{activeCompany.tier.replace(/_/g, ' ')}</p>
-              </div>
-              <div>
-                <p className="text-gray-500 text-xs font-medium">Incorporation</p>
-                <p className="font-bold text-gray-900">{activeCompany.incorporation_date ? activeCompany.incorporation_date.toLocaleDateString() : 'In progress'}</p>
-              </div>
-              <div>
-                <p className="text-gray-500 text-xs font-medium">License Expiry</p>
-                <p className="font-bold text-gray-900">{activeCompany.license_expiry_date ? activeCompany.license_expiry_date.toLocaleDateString() : '—'}</p>
-              </div>
-            </div>
+            </>
           )}
+        </section>
 
-          {activeCompany && (
-            <div className="mt-4 flex flex-wrap gap-2">
-              <Link href={`/api/companies/good-standing?companyId=${activeCompany.id}`} className="inline-flex items-center gap-1.5 bg-primary/5 text-primary text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-primary/10 transition-colors">
-                <SealCheck size={14} />
-                Download Good Standing Letter
-              </Link>
-            </div>
-          )}
-        </div>
-
-        {/* SECTION 2: Pipeline Progress */}
+        {/* Pipeline progress */}
         {activeCompany && (
-          <div className="bg-[#FFFFFF] rounded-2xl sm:rounded-3xl border border-[#E2E8F0] p-6 sm:p-7 shadow-[0_10px_25px_-5px_rgba(10,20,47,0.06)]">
-            <h3 className="text-sm font-bold text-gray-900 mb-1">Application Progress</h3>
+          <section className="card">
+            <div className={s.head}>
+              <h2>Application progress</h2>
+            </div>
             <PipelineStepTracker steps={STAGE_LABELS} currentStep={STATUS_TO_STEP[activeCompany.status] ?? 0} />
-          </div>
+          </section>
         )}
 
-        {/* SECTION 3: Deadline Tracker */}
+        {/* Deadlines */}
         {allRenewals.length > 0 && (
-          <div className="bg-[#FFFFFF] rounded-2xl sm:rounded-3xl border border-[#E2E8F0] p-6 sm:p-7 shadow-[0_10px_25px_-5px_rgba(10,20,47,0.06)]">
-            <h3 className="text-sm font-bold text-gray-900 mb-3">
-              <CalendarCheck size={16} className="inline mr-1.5 text-primary" />
-              Upcoming Deadlines
-            </h3>
-            <div className="space-y-2">
+          <section className="card">
+            <div className={s.head}>
+              <h2>
+                <CalendarCheck size={20} />
+                Upcoming deadlines
+              </h2>
+            </div>
+            <ul className={s.list}>
               {allRenewals.slice(0, 5).map((r) => {
                 const d = daysUntil(r.due_date);
+                const pill =
+                  r.status === 'renewed' ? { label: 'Completed', badge: 'badge-success' }
+                  : r.status === 'paid' ? { label: 'Paid', badge: 'badge-success' }
+                  : d;
                 return (
-                  <div key={r.id} className={`flex items-center justify-between p-3 rounded-lg border ${d.color}`}>
-                    <div>
-                      <p className="text-sm font-bold text-gray-900">
-                        {r.status === 'renewed' ? 'Renewed' : `Year ${r.renewal_year} Renewal`}
-                      </p>
-                      <p className="text-xs text-gray-500">{r.due_date.toLocaleDateString()}</p>
+                  <li key={r.id} className={s.row}>
+                    <div className={s.rowText}>
+                      <p className={s.rowTitle}>{r.status === 'renewed' ? 'Renewed' : `Year ${r.renewal_year} renewal`}</p>
+                      <p className={s.rowMeta}>{r.due_date.toLocaleDateString()}</p>
                     </div>
-                    <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${d.color}`}>
-                      {r.status === 'renewed' ? 'Completed' : r.status === 'paid' ? 'Paid' : d.label}
-                    </span>
-                  </div>
+                    <span className={`badge ${pill.badge}`}>{pill.label}</span>
+                  </li>
                 );
               })}
-            </div>
-          </div>
+            </ul>
+          </section>
         )}
 
-        {/* SECTION 4: Documents */}
-        <div className="bg-[#FFFFFF] rounded-2xl sm:rounded-3xl border border-[#E2E8F0] p-6 sm:p-7 shadow-[0_10px_25px_-5px_rgba(10,20,47,0.06)]">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-bold text-gray-900">
-              <FolderOpen size={16} className="inline mr-1.5 text-primary" />
-              My Documents
-            </h3>
-            <Link href="/vault" className="text-xs font-semibold text-primary hover:text-primary-600 transition-colors flex items-center gap-1">
-              View All <CaretRight size={12} />
+        {/* Documents */}
+        <section className="card">
+          <div className={s.head}>
+            <h2>
+              <FolderOpen size={20} />
+              My documents
+            </h2>
+            <Link href="/vault" className={s.link}>
+              View all <CaretRight size={14} />
             </Link>
           </div>
 
           {hasExpiringDocs && (
-            <div className="mb-3 p-3 rounded-lg border border-warning/20 bg-warning/5 flex items-start gap-2">
-              <WarningCircle size={16} className="text-warning shrink-0 mt-0.5" />
-              <p className="text-xs text-warning font-medium">Some documents are expiring soon. Please re-upload updated copies.</p>
+            <div className="admin-callout is-warn" style={{ marginBottom: 'var(--space-4)' }}>
+              <WarningCircle size={18} />
+              <span>Some documents are expiring soon. Please re-upload updated copies.</span>
             </div>
           )}
 
           {allDocuments.length === 0 ? (
             <EmptyState
-              icon={<FolderOpen size={22} weight="duotone" />}
+              icon={<FolderOpen size={24} weight="duotone" />}
               title="No documents uploaded"
               description="Upload your KYC documents to proceed with your application."
               action={
-                <Link
-                  href="/vault"
-                  className="inline-flex items-center gap-1.5 bg-[#F26522] hover:bg-[#0A142F] text-white text-xs font-bold px-4 py-2 rounded-full transition-colors"
-                >
-                  <Upload size={14} />
-                  Upload Documents
+                <Link href="/vault" className="btn btn-primary">
+                  <Upload size={18} />
+                  Upload documents
                 </Link>
               }
             />
           ) : (
-            <div className="space-y-2">
-              {allDocuments.map((doc) => (
-                <div key={doc.id} className="flex items-center justify-between p-2.5 rounded-lg hover:bg-gray-50 transition-colors">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-8 h-8 rounded-full bg-primary-50 flex items-center justify-center shrink-0">
-                      <FileText size={16} className="text-primary" />
+            <>
+              <ul className={s.list}>
+                {allDocuments.map((doc) => (
+                  <li key={doc.id} className={s.row}>
+                    <div className={s.rowMain}>
+                      <FileText size={20} />
+                      <div className={s.rowText}>
+                        <p className={s.rowTitle}>{doc.file_name}</p>
+                        <p className={s.rowMeta}>
+                          {new Date(doc.created_at).toLocaleDateString()}
+                          {doc.expiry_date && ` · Expires ${new Date(doc.expiry_date).toLocaleDateString()}`}
+                        </p>
+                      </div>
                     </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-bold text-gray-900 truncate">{doc.file_name}</p>
-                      <p className="text-xs text-gray-500">
-                        {new Date(doc.created_at).toLocaleDateString()}
-                        {doc.expiry_date && ` · Expires ${new Date(doc.expiry_date).toLocaleDateString()}`}
-                      </p>
-                    </div>
-                  </div>
-                  <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                    doc.status === 'active' ? 'bg-success-light text-success' : 'bg-gray-100 text-gray-500'
-                  }`}>
-                    {doc.status === 'active' ? 'Active' : 'Archived'}
-                  </span>
-                </div>
-              ))}
-              <Link
-                href="/vault"
-                className="flex items-center justify-center gap-2 w-full py-2 rounded-lg border border-dashed border-gray-300 text-xs font-semibold text-gray-500 hover:text-primary hover:border-primary transition-colors"
-              >
-                <Upload size={14} />
-                Upload Next Required Document
-              </Link>
-            </div>
+                    <span className={`badge ${doc.status === 'active' ? 'badge-success' : 'badge-neutral'}`}>
+                      {doc.status === 'active' ? 'Active' : 'Archived'}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <div className={s.actions}>
+                <Link href="/vault" className="btn">
+                  <Upload size={18} />
+                  Upload next required document
+                </Link>
+              </div>
+            </>
           )}
-        </div>
+        </section>
 
-        {/* SECTION 5: Payments */}
-        <div className="bg-[#FFFFFF] rounded-2xl sm:rounded-3xl border border-[#E2E8F0] p-6 sm:p-7 shadow-[0_10px_25px_-5px_rgba(10,20,47,0.06)]">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-bold text-gray-900">
-              <CurrencyDollar size={16} className="inline mr-1.5 text-primary" />
-              Payments & Invoices
-            </h3>
+        {/* Payments */}
+        <section className="card">
+          <div className={s.head}>
+            <h2>
+              <CurrencyDollar size={20} />
+              Payments &amp; invoices
+            </h2>
           </div>
 
           {allOrders.length === 0 ? (
             <EmptyState
-              icon={<CurrencyDollar size={22} weight="duotone" />}
+              icon={<CurrencyDollar size={24} weight="duotone" />}
               title="No payments yet"
               description="Payments will appear here once you select a service."
             />
           ) : (
-            <div className="space-y-2">
-              {allOrders.map((o) => (
-                <div key={o.id} className="flex items-center justify-between p-2.5 rounded-lg hover:bg-gray-50 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-primary-50 flex items-center justify-center shrink-0">
-                      <Receipt size={16} className="text-primary" />
+            <ul className={s.list}>
+              {allOrders.map((o) => {
+                const pay = paymentBadge(o.payment_status);
+                return (
+                  <li key={o.id} className={s.row}>
+                    <div className={s.rowMain}>
+                      <Receipt size={20} />
+                      <div className={s.rowText}>
+                        <p className={s.rowTitle}>
+                          {o.order_type.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
+                        </p>
+                        <p className={s.rowMeta}>
+                          ${(o.amount_total / 100).toLocaleString()} · {new Date(o.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-bold text-gray-900">
-                        {o.order_type.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        ${(o.amount_total / 100).toLocaleString()} · {new Date(o.created_at).toLocaleDateString()}
-                      </p>
+                    <div className={s.rowEnd}>
+                      <span className={`badge ${pay.badge}`}>{pay.label}</span>
+                      {o.payment_status === 'unpaid' && (
+                        <Link
+                          href={buildPayNowUrl(o, allUserCompanies.length > 0 ? allUserCompanies : activeCompany)}
+                          className="btn btn-primary"
+                        >
+                          Pay now
+                        </Link>
+                      )}
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                      o.payment_status === 'paid' ? 'bg-success-light text-success' :
-                      o.payment_status === 'processing' ? 'bg-warning/10 text-warning' :
-                      o.payment_status === 'failed' ? 'bg-destructive/10 text-destructive' :
-                      'bg-gray-100 text-gray-500'
-                    }`}>
-                      {o.payment_status === 'paid' ? 'Paid' :
-                       o.payment_status === 'processing' ? 'Processing' :
-                       o.payment_status === 'failed' ? 'Failed' :
-                       o.payment_status === 'refunded' ? 'Refunded' : 'Unpaid'}
-                    </span>
-                    {o.payment_status === 'unpaid' && (
-                      <Link
-                        href={buildPayNowUrl(o, allUserCompanies.length > 0 ? allUserCompanies : activeCompany)}
-                        className="text-xs font-bold bg-[#F26522] hover:bg-[#0A142F] text-white px-3 py-1.5 rounded-full transition-colors"
-                      >
-                        Pay Now
-                      </Link>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
+                  </li>
+                );
+              })}
+            </ul>
           )}
-        </div>
+        </section>
 
-        {/* SECTION 6: Affiliate / Referral Tracker */}
-        <div className="bg-[#FFFFFF] rounded-2xl sm:rounded-3xl border border-[#E2E8F0] p-6 sm:p-7 shadow-[0_10px_25px_-5px_rgba(10,20,47,0.06)]">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-bold text-gray-900">
-              <ShareNetwork size={16} className="inline mr-1.5 text-primary" />
-              Referral Program
-            </h3>
+        {/* Referrals */}
+        <section className="card">
+          <div className={s.head}>
+            <h2>
+              <ShareNetwork size={20} />
+              Referral program
+            </h2>
           </div>
 
-          <div className="grid grid-cols-3 gap-3 mb-3">
-            <div className="text-center p-3 rounded-lg bg-primary-50">
-              <p className="text-2xl font-bold text-primary">{referralCount}</p>
-              <p className="text-xs text-gray-600 font-medium">Referred</p>
+          <div className={s.metrics}>
+            <div className={s.stat}>
+              <strong>{referralCount}</strong>
+              <span>Referred</span>
             </div>
-            <div className="text-center p-3 rounded-lg bg-success-light">
-              <p className="text-2xl font-bold text-success">{paidReferralCount}</p>
-              <p className="text-xs text-gray-600 font-medium">Converted</p>
+            <div className={s.stat}>
+              <strong>{paidReferralCount}</strong>
+              <span>Converted</span>
             </div>
-            <div className="text-center p-3 rounded-lg bg-cta-50">
-              <p className="text-2xl font-bold text-cta-600">$0</p>
-              <p className="text-xs text-gray-600 font-medium">Earned</p>
+            <div className={s.stat}>
+              <strong>$0</strong>
+              <span>Earned</span>
             </div>
           </div>
 
           {referralLink && (
-            <div className="flex items-center gap-2 p-2.5 rounded-lg bg-gray-50 border border-gray-200">
-              <input
-                type="text"
-                readOnly
-                value={referralLink}
-                className="flex-1 text-xs bg-transparent border-none outline-none text-gray-700 font-mono"
-              />
+            <div className={s.copyRow}>
+              <input type="text" readOnly value={referralLink} aria-label="Your referral link" />
               <CopyButton text={referralLink} />
             </div>
           )}
-        </div>
+        </section>
 
-        {/* SECTION 7: Compliance Snapshot */}
+        {/* Compliance */}
         {activeCompany && (
           <ComplianceSnapshot
             jurisdiction={activeCompany.jurisdiction}
@@ -454,62 +442,59 @@ export default async function DashboardPage() {
           />
         )}
 
-        {/* SECTION 8: Recent Notifications / Jurisdiction Updates */}
-        <div className="bg-[#FFFFFF] rounded-2xl sm:rounded-3xl border border-[#E2E8F0] p-6 sm:p-7 shadow-[0_10px_25px_-5px_rgba(10,20,47,0.06)]">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-bold text-gray-900">
-              <Bell size={16} className="inline mr-1.5 text-primary" />
-              Updates & Alerts
-            </h3>
+        {/* Notifications */}
+        <section className="card">
+          <div className={s.head}>
+            <h2>
+              <Bell size={20} />
+              Updates &amp; alerts
+            </h2>
             {allNotifications.length > 0 && (
-              <Link href="/notifications" className="text-xs font-semibold text-primary hover:text-primary-600 transition-colors flex items-center gap-1">
-                View All <CaretRight size={12} />
+              <Link href="/notifications" className={s.link}>
+                View all <CaretRight size={14} />
               </Link>
             )}
           </div>
 
           {allNotifications.length === 0 ? (
-            <EmptyState icon={<Bell size={22} weight="duotone" />} title="No updates yet" description="Jurisdiction alerts and compliance updates will appear here." />
+            <EmptyState
+              icon={<Bell size={24} weight="duotone" />}
+              title="No updates yet"
+              description="Jurisdiction alerts and compliance updates will appear here."
+            />
           ) : (
-            <div className="space-y-2">
+            <ul className={s.list}>
               {allNotifications.map((n) => (
-                <div key={n.id} className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-gray-50 transition-colors">
-                  <span className={`mt-0.5 w-2 h-2 rounded-full shrink-0 ${
-                    n.type === 'action_required' ? 'bg-destructive' :
-                    n.type === 'success' ? 'bg-success' :
-                    n.type === 'warning' ? 'bg-warning' : 'bg-info'
-                  }`} />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold text-gray-900">{n.title}</p>
-                    <p className="text-xs text-gray-500 line-clamp-1">{n.message}</p>
-                    <p className="text-[10px] text-gray-400 mt-0.5">{new Date(n.created_at).toLocaleDateString()}</p>
+                <li key={n.id} className={s.row}>
+                  <div className={s.rowMain}>
+                    <span className={`${s.dot} ${NOTIFICATION_DOT[n.type] ?? ''}`} aria-hidden="true" />
+                    <div className={s.rowText}>
+                      <p className={s.rowTitle}>{n.title}</p>
+                      <p className={s.rowMeta}>{n.message}</p>
+                      <p className={s.rowMeta}>{new Date(n.created_at).toLocaleDateString()}</p>
+                    </div>
                   </div>
-                  {!n.is_read && <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />}
-                </div>
+                  {!n.is_read && <span className="badge badge-accent">New</span>}
+                </li>
               ))}
-            </div>
+            </ul>
           )}
-        </div>
+        </section>
 
-        {/* SECTION 9: Quick Services */}
-        <div>
-          <h2 className="text-sm font-bold text-gray-900 mb-3">
-            <SquaresFour size={16} className="inline mr-1.5 text-primary" />
-            Quick Services
-          </h2>
-          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3">
-            <ServiceTile icon={<Calculator size={20} weight="duotone" />} title="Tax Calculator" href="/tools/tax-calculator" />
-            <ServiceTile icon={<MagnifyingGlass size={20} weight="duotone" />} title="Name Checker" href="/tools/name-checker" />
-            <ServiceTile icon={<Buildings size={20} weight="duotone" />} title="Start a Company" href="/services" />
-            <ServiceTile icon={<FolderOpen size={20} weight="duotone" />} title="Vault" href="/vault" />
-            <ServiceTile icon={<Bank size={20} weight="duotone" />} title="Banking Odds" href="/tools/banking-odds" />
-            <ServiceTile icon={<CalendarCheck size={20} weight="duotone" />} title="Compliance" href="/tools/compliance-calendar" />
-            <ServiceTile icon={<UsersIcon size={20} weight="duotone" />} title="Visa Costs" href="/tools/visa-estimator" />
-            <ServiceTile icon={<FileText size={20} weight="duotone" />} title="Invoice Gen" href="/tools/invoice-generator" />
-            <ServiceTile icon={<SquaresFour size={20} weight="duotone" />} title="More Tools" href="/tools" />
+        {/* Quick services */}
+        <section>
+          <div className="admin-section-head">
+            <h2>Quick services</h2>
           </div>
-        </div>
-
+          <div className={s.tiles}>
+            {QUICK_SERVICES.map(({ title, href, Icon }) => (
+              <Link key={href} href={href} className={s.tile}>
+                <Icon size={20} weight="duotone" />
+                {title}
+              </Link>
+            ))}
+          </div>
+        </section>
       </div>
     </div>
   );

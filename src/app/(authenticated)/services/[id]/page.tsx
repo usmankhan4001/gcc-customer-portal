@@ -14,66 +14,61 @@ export default function JurisdictionDetails({ params }: { params: Promise<{ id: 
   if (!data) notFound();
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 pb-20">
-      <BannerHeader title="JURISDICTION DETAILS" />
+    <div className="wrap admin-page pb-24">
+      <BannerHeader title="Jurisdiction details" />
 
-      {/* Hero Section */}
-      <div className="bg-white px-4 py-4 border-b border-gray-200">
-        <div className="flex items-center gap-4">
-          <div className="rounded-sm border border-gray-200 shadow-sm overflow-hidden">
-            <CountryFlag country={data.flagCode} size="xl" />
-          </div>
-          <div>
-            <h2 className="text-2xl font-black text-gray-900 tracking-tight">{data.name}</h2>
-            <div className="flex items-center gap-2 mt-1">
-              <span className="bg-primary-50 text-primary-600 font-bold px-2 py-0.5 rounded-sm text-xs border border-primary-100 uppercase tracking-wide">
-                {data.tax}
-              </span>
-            </div>
+      <div className="card" style={{ display: 'grid', gap: 'var(--space-4)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
+          <CountryFlag country={data.flagCode} size="xl" />
+          <div style={{ display: 'grid', gap: 'var(--space-2)', justifyItems: 'start' }}>
+            <h2 style={{ margin: 0, fontSize: 22 }}>{data.name}</h2>
+            <span className="badge badge-accent">{data.tax}</span>
           </div>
         </div>
-        <p className="mt-4 text-sm text-gray-700 font-medium leading-snug">
-          {data.description}
-        </p>
+        <p style={{ margin: 0 }}>{data.description}</p>
       </div>
 
-      {/* Fast Facts Grid */}
-      <div className="px-4 py-4 border-b border-gray-200 bg-gray-50">
-        <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Fast Facts</h3>
-        <div className="grid grid-cols-2 gap-3">
-          <div className="bg-white p-3 rounded-sm shadow-sm border border-gray-200 flex flex-col gap-1">
-            <Wallet size={20} weight="duotone" className="text-gray-500" />
-            <span className="text-[10px] text-gray-400 font-bold uppercase">Starting Price</span>
-            <span className="font-bold text-gray-900 text-base">{data.price}</span>
-          </div>
-          <div className="bg-white p-3 rounded-sm shadow-sm border border-gray-200 flex flex-col gap-1">
-            <Clock size={20} weight="duotone" className="text-gray-500" />
-            <span className="text-[10px] text-gray-400 font-bold uppercase">Timeline</span>
-            <span className="font-bold text-gray-900 text-base">{data.timeline}</span>
-          </div>
+      <div className="admin-section-head" style={{ marginTop: 'var(--space-6)' }}>
+        <h2>Fast facts</h2>
+      </div>
+      <div className="admin-metrics-grid">
+        <div className="card">
+          <Wallet size={20} weight="duotone" style={{ color: 'var(--text-tertiary)' }} />
+          <p className="admin-form-note">Starting price</p>
+          <strong style={{ fontSize: 18 }}>{data.price}</strong>
+        </div>
+        <div className="card">
+          <Clock size={20} weight="duotone" style={{ color: 'var(--text-tertiary)' }} />
+          <p className="admin-form-note">Timeline</p>
+          <strong style={{ fontSize: 18 }}>{data.timeline}</strong>
         </div>
       </div>
 
-      {/* Benefits List */}
-      <div className="px-4 py-4">
-        <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">What's Included</h3>
-        <div className="bg-white rounded-sm shadow-sm border border-gray-200 overflow-hidden">
-          {data.features.map((feature: string, idx: number) => (
-            <div key={idx} className={`p-3 flex items-start gap-2 ${idx !== data.features.length - 1 ? 'border-b border-gray-100' : ''}`}>
-              <CheckCircle size={16} weight="duotone" className="text-success shrink-0 mt-0.5" />
-              <span className="text-sm font-medium text-gray-800">{feature}</span>
-            </div>
-          ))}
-        </div>
+      <div className="admin-section-head" style={{ marginTop: 'var(--space-6)' }}>
+        <h2>What&apos;s included</h2>
+      </div>
+      <div style={{ display: 'grid', gap: 'var(--space-2)' }}>
+        {data.features.map((feature: string, idx: number) => (
+          <div
+            key={idx}
+            className="card"
+            style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--space-3)', padding: 'var(--space-4)' }}
+          >
+            <CheckCircle size={18} weight="duotone" style={{ color: 'var(--green-dk)', flexShrink: 0, marginTop: 2 }} />
+            <span>{feature}</span>
+          </div>
+        ))}
       </div>
 
-      {/* Sticky Bottom CTA */}
-      <div className="fixed bottom-0 left-0 right-0 p-3 bg-white border-t border-gray-200 shadow-sm z-10">
-        <Link 
-          href={`/checkout/${resolvedParams.id}`}
-          className="block w-full text-center bg-primary hover:bg-primary/90 text-white font-bold py-3 px-4 rounded-sm shadow-sm transition duration-200 text-sm uppercase tracking-wide"
-        >
-          Start Incorporation
+      <div
+        style={{
+          position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 10,
+          padding: 'var(--space-3) var(--space-4)',
+          background: 'var(--surface)', borderTop: '1px solid var(--border)',
+        }}
+      >
+        <Link href={`/checkout/${resolvedParams.id}`} className="btn btn-primary" style={{ width: '100%' }}>
+          Start incorporation
         </Link>
       </div>
     </div>

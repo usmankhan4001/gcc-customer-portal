@@ -1,21 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import {
-  FileText,
-  FolderOpen,
-  Warning,
-  CheckCircle,
-  Clock,
-  WarningCircle,
-  MagnifyingGlass,
-  ShieldCheck,
-  Buildings,
-  Receipt,
-  IdentificationCard,
-  Scales,
-} from '@phosphor-icons/react';
-import DownloadButton from '@/components/portal/DownloadButton';
+import { DownloadSimple, CircleNotch, MagnifyingGlass } from '@phosphor-icons/react';
 import ShareButton from '@/components/portal/ShareButton';
 import {
   categorizeDocuments,
@@ -37,6 +23,51 @@ interface DocumentLockerProps {
 
 type TabType = 'all' | CorporateFolderCategory;
 
+const BADGES: Record<string, { cls: string; label: string }> = {
+  verified: { cls: 'badge-success', label: 'Verified' },
+  pending_review: { cls: 'badge-accent', label: 'Pending review' },
+  expired: { cls: 'badge-danger', label: 'Expired' },
+  missing_essential: { cls: 'badge-danger', label: 'Missing essential' },
+};
+
+function statusBadge(status: DocumentBadgeStatus) {
+  const b = BADGES[status] ?? { cls: 'badge-neutral', label: 'Active' };
+  return <span className={`badge ${b.cls}`}>{b.label}</span>;
+}
+
+// Same request as DownloadButton, restyled as a 44px icon button.
+function DownloadAction({ documentId, name }: { documentId: string; name: string }) {
+  const [loading, setLoading] = useState(false);
+
+  const handleDownload = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/vault/${documentId}/download`);
+      const data = await res.json();
+      if (data.url) window.open(data.url, '_blank');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleDownload}
+      disabled={loading}
+      className="cl-icon-btn"
+      aria-label={`Download ${name}`}
+      title="Download"
+    >
+      {loading ? (
+        <CircleNotch size={18} className="animate-spin" aria-hidden="true" />
+      ) : (
+        <DownloadSimple size={18} aria-hidden="true" />
+      )}
+    </button>
+  );
+}
+
 export default function DocumentLocker({
   documents = [],
   jurisdiction,
@@ -45,23 +76,15 @@ export default function DocumentLocker({
   const [activeTab, setActiveTab] = useState<TabType>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // 1. Check essential document completeness
   const essentialsCheck = useMemo(
     () => checkEssentialDocuments(jurisdiction, documents),
     [jurisdiction, documents]
   );
 
-  // 2. Categorize documents
   const categorized = useMemo(() => categorizeDocuments(documents), [documents]);
 
-  // 3. Filter documents by active tab and search query
   const filteredDocuments = useMemo(() => {
-    let list: DocumentItem[] = [];
-    if (activeTab === 'all') {
-      list = documents;
-    } else {
-      list = categorized[activeTab] || [];
-    }
+    let list: DocumentItem[] = activeTab === 'all' ? documents : categorized[activeTab] || [];
 
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
@@ -76,289 +99,145 @@ export default function DocumentLocker({
     return sortDocumentsByDate(list, 'desc');
   }, [documents, categorized, activeTab, searchQuery]);
 
-  // Folder icon mapping
-  const getFolderIcon = (category: CorporateFolderCategory) => {
-    switch (category) {
-      case 'incorporation_kit':
-        return <Buildings size={18} weight="duotone" className="text-primary" />;
-      case 'tax_records':
-        return <Receipt size={18} weight="duotone" className="text-primary" />;
-      case 'kyc_identification':
-        return <IdentificationCard size={18} weight="duotone" className="text-primary" />;
-      case 'compliance_filings':
-        return <Scales size={18} weight="duotone" className="text-primary" />;
-    }
-  };
-
-  // Status badge styling
-  const renderBadge = (status: DocumentBadgeStatus) => {
-    switch (status) {
-      case 'verified':
-        return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-            <CheckCircle size={13} weight="fill" className="text-emerald-600" />
-            Verified
-          </span>
-        );
-      case 'pending_review':
-        return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-            <Clock size={13} weight="fill" className="text-amber-600" />
-            Pending Review
-          </span>
-        );
-      case 'expired':
-        return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">
-            <WarningCircle size={13} weight="fill" className="text-rose-600" />
-            Expired
-          </span>
-        );
-      case 'missing_essential':
-        return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-50 text-red-800 border border-red-200">
-            <Warning size={13} weight="fill" className="text-red-600" />
-            Missing Essential
-          </span>
-        );
-      default:
-        return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gray-50 text-gray-700 border border-gray-200">
-            Active
-          </span>
-        );
-    }
-  };
+  const tabs: Array<{ id: TabType; name: string; count: number }> = [
+    { id: 'all', name: 'All documents', count: documents.length },
+    ...CORPORATE_FOLDERS.map((f) => ({
+      id: f.id as TabType,
+      name: f.name,
+      count: (categorized[f.id] || []).length,
+    })),
+  ];
 
   return (
-    <div className="space-y-6">
-      {/* Missing Essential Incorporation Documents Warning Banner */}
+    <div style={{ display: 'grid', gap: 'var(--space-4)' }}>
       {!essentialsCheck.isComplete && (
-        <div className="bg-amber-50/90 border border-amber-300 rounded-xl p-4 md:p-5 shadow-sm text-gray-900 transition-all">
-          <div className="flex items-start gap-3.5">
-            <div className="w-9 h-9 rounded-lg bg-amber-100 flex items-center justify-center shrink-0 text-amber-700">
-              <Warning size={22} weight="bold" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="font-bold text-gray-900 text-sm md:text-base">
-                  Essential Corporate Kit Documents Missing
-                </h3>
-                <span className="text-xs font-semibold bg-amber-200/80 text-amber-900 px-2 py-0.5 rounded-md">
-                  Action Required
-                </span>
-              </div>
-              <p className="text-xs md:text-sm text-gray-700 mt-1">
-                Your {companyName ? `company (${companyName})` : 'corporate file'} is currently missing essential official documents for{' '}
-                <span className="font-semibold">{essentialsCheck.jurisdiction.toUpperCase()}</span> registration.
-                These are required for commercial contracts, tax registrations, and corporate bank compliance.
-              </p>
-
-              {/* List of missing essential documents */}
-              <div className="mt-3 flex flex-wrap gap-2">
-                {essentialsCheck.missingDocuments.map((req) => (
-                  <div
-                    key={req.id}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-white/90 border border-amber-300 text-amber-900 shadow-2xs"
-                  >
-                    <WarningCircle size={14} weight="duotone" className="text-amber-600" />
-                    <span>{req.name}</span>
-                    <span className="text-[10px] text-amber-700 font-bold uppercase">(Missing)</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+        <section className="card" aria-labelledby="missing-heading" role="status">
+          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
+            <h2 id="missing-heading" style={{ margin: 0, fontSize: 18 }}>
+              Essential corporate kit documents missing
+            </h2>
+            <span className="badge badge-accent">Action required</span>
           </div>
-        </div>
+          <p style={{ margin: 'var(--space-2) 0 0', fontSize: 14, color: 'var(--text-secondary)' }}>
+            Your {companyName ? `company (${companyName})` : 'corporate file'} is missing official documents for{' '}
+            <strong>{essentialsCheck.jurisdiction.toUpperCase()}</strong> registration. They are required for
+            commercial contracts, tax registrations, and corporate bank compliance.
+          </p>
+          <ul
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: 'var(--space-2)',
+              margin: 'var(--space-3) 0 0',
+              padding: 0,
+              listStyle: 'none',
+            }}
+          >
+            {essentialsCheck.missingDocuments.map((req) => (
+              <li key={req.id} className="badge badge-neutral">
+                {req.name}
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
 
-      {/* Main Locker Container */}
-      <div className="bg-[#FFFFFF] rounded-2xl sm:rounded-3xl border border-[#E2E8F0] shadow-[0_10px_25px_-5px_rgba(10,20,47,0.06)] overflow-hidden">
-        {/* Header Bar */}
-        <div className="p-4 md:p-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-gray-50/50 to-white">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-              <ShieldCheck size={24} weight="duotone" />
-            </div>
-            <div>
-              <h2 className="text-base md:text-lg font-bold text-primary tracking-tight">
-                Official Corporate Kit Locker
-              </h2>
-              <p className="text-xs text-gray-500">
-                Encrypted bank-grade document storage with 1-click presigned downloads and sharing.
-              </p>
-            </div>
-          </div>
+      <section className="admin-table-card card" aria-labelledby="locker-heading">
+        <div style={{ padding: 'var(--space-4) var(--space-4) 0' }}>
+          <h2 id="locker-heading" style={{ margin: 0, fontSize: 18 }}>
+            Corporate kit locker
+          </h2>
+          <p style={{ margin: 'var(--space-1) 0 0', fontSize: 14, color: 'var(--text-secondary)' }}>
+            Encrypted document storage with one-tap downloads and expiring share links.
+          </p>
+        </div>
 
-          {/* Search Box */}
-          <div className="relative w-full md:w-64">
-            <MagnifyingGlass
-              size={16}
-              weight="bold"
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-            />
+        <div className="cl-toolbar">
+          <label className="cl-search">
+            <MagnifyingGlass size={16} aria-hidden="true" />
             <input
-              type="text"
+              type="search"
+              aria-label="Search documents"
               placeholder="Search documents..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 text-xs md:text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F26522]/20 focus:border-[#F26522] transition-all bg-white"
             />
+          </label>
+          <div className="cl-chips" role="group" aria-label="Document categories">
+            {tabs.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                className={`cl-chip${activeTab === t.id ? ' is-on' : ''}`}
+                aria-pressed={activeTab === t.id}
+                onClick={() => setActiveTab(t.id)}
+              >
+                {t.name} <span className="cl-chip-count">{t.count}</span>
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="border-b border-gray-200 bg-gray-50/60 px-4 pt-2 overflow-x-auto">
-          <nav className="flex space-x-2 md:space-x-4 min-w-max" aria-label="Locker Categories">
-            <button
-              onClick={() => setActiveTab('all')}
-              className={`pb-3 px-3 text-xs md:text-sm font-semibold border-b-2 flex items-center gap-2 transition-all ${
-                activeTab === 'all'
-                  ? 'border-[#F26522] text-[#F26522] font-bold'
-                  : 'border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300'
-              }`}
-            >
-              <FolderOpen size={16} weight={activeTab === 'all' ? 'fill' : 'regular'} />
-              <span>All Documents</span>
-              <span
-                className={`text-[11px] px-1.5 py-0.2 rounded-full font-bold ${
-                  activeTab === 'all' ? 'bg-[#F26522] text-white' : 'bg-gray-200 text-gray-700'
-                }`}
-              >
-                {documents.length}
-              </span>
-            </button>
-
-            {CORPORATE_FOLDERS.map((folder) => {
-              const count = (categorized[folder.id] || []).length;
-              const isActive = activeTab === folder.id;
-              return (
-                <button
-                  key={folder.id}
-                  onClick={() => setActiveTab(folder.id)}
-                  className={`pb-3 px-3 text-xs md:text-sm font-semibold border-b-2 flex items-center gap-2 transition-all ${
-                    isActive
-                      ? 'border-[#F26522] text-[#F26522] font-bold'
-                      : 'border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300'
-                  }`}
-                >
-                  {getFolderIcon(folder.id)}
-                  <span>{folder.name}</span>
-                  <span
-                    className={`text-[11px] px-1.5 py-0.2 rounded-full font-bold ${
-                      isActive ? 'bg-[#F26522] text-white' : 'bg-gray-200 text-gray-700'
-                    }`}
-                  >
-                    {count}
-                  </span>
-                </button>
-              );
-            })}
-          </nav>
-        </div>
-
-        {/* Document List */}
-        <div>
-          {filteredDocuments.length === 0 ? (
-            <div className="p-8 text-center">
-              <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto text-gray-400 mb-3">
-                <FolderOpen size={24} weight="duotone" />
-              </div>
-              <h3 className="text-sm font-bold text-gray-800">No documents found</h3>
-              <p className="text-xs text-gray-500 max-w-sm mx-auto mt-1">
-                {searchQuery
-                  ? `No files matched "${searchQuery}". Try a different keyword.`
-                  : activeTab === 'all'
-                  ? 'Your document locker is currently empty. Upload company records or KYC documents above.'
-                  : `No files in ${CORPORATE_FOLDERS.find((f) => f.id === activeTab)?.name || activeTab}.`}
-              </p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-gray-50/80 border-b border-gray-200 text-[11px] text-gray-500 uppercase tracking-wider">
-                    <th className="px-4 py-3 font-bold">Document Name</th>
-                    <th className="px-4 py-3 font-bold hidden md:table-cell">Category</th>
-                    <th className="px-4 py-3 font-bold">Status</th>
-                    <th className="px-4 py-3 font-bold hidden sm:table-cell">File Size</th>
-                    <th className="px-4 py-3 font-bold hidden sm:table-cell">Date</th>
-                    <th className="px-4 py-3 font-bold text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {filteredDocuments.map((doc) => {
-                    const badge = doc.badge_status || 'verified';
-                    const categoryLabel = getDocumentCategoryLabel(
-                      doc.category || doc.document_type
-                    );
-
-                    return (
-                      <tr
-                        key={doc.id}
-                        className="hover:bg-slate-50/80 transition-colors group text-sm"
-                      >
-                        {/* Name and Icon */}
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-md bg-primary-50 text-primary flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                              <FileText size={18} weight="duotone" />
-                            </div>
-                            <div className="min-w-0">
-                              <div className="font-semibold text-gray-900 truncate max-w-xs md:max-w-md">
-                                {doc.file_name}
-                              </div>
-                              <div className="md:hidden text-[11px] text-gray-500 flex items-center gap-2 mt-0.5">
-                                <span>{categoryLabel}</span>
-                                <span>•</span>
-                                <span>{formatFileSize(doc.file_size_bytes)}</span>
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-
-                        {/* Category */}
-                        <td className="px-4 py-3 hidden md:table-cell">
-                          <span className="text-xs font-medium text-gray-600 bg-gray-100 px-2 py-0.5 rounded">
-                            {categoryLabel}
-                          </span>
-                        </td>
-
-                        {/* Status Badge */}
-                        <td className="px-4 py-3 whitespace-nowrap">{renderBadge(badge)}</td>
-
-                        {/* Size */}
-                        <td className="px-4 py-3 text-xs text-gray-600 font-medium hidden sm:table-cell whitespace-nowrap">
-                          {formatFileSize(doc.file_size_bytes)}
-                        </td>
-
-                        {/* Date */}
-                        <td className="px-4 py-3 text-xs text-gray-600 font-medium hidden sm:table-cell whitespace-nowrap">
-                          {doc.created_at
-                            ? new Date(doc.created_at).toLocaleDateString(undefined, {
-                                year: 'numeric',
-                                month: 'short',
-                                day: 'numeric',
-                              })
-                            : '—'}
-                        </td>
-
-                        {/* Actions */}
-                        <td className="px-4 py-3 text-right whitespace-nowrap">
-                          <div className="flex justify-end items-center gap-1">
-                            <ShareButton documentId={doc.id} />
-                            <DownloadButton documentId={doc.id} />
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      </div>
+        {filteredDocuments.length === 0 ? (
+          <div className="cl-empty">
+            <p>
+              {searchQuery
+                ? `No files matched "${searchQuery}". Try a different keyword.`
+                : activeTab === 'all'
+                ? 'Your document locker is empty. Upload company records or KYC documents above.'
+                : `No files in ${CORPORATE_FOLDERS.find((f) => f.id === activeTab)?.name || activeTab}.`}
+            </p>
+          </div>
+        ) : (
+          <div className="admin-table-wrap">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Document</th>
+                  <th className="hide-phone">Category</th>
+                  <th>Status</th>
+                  <th className="hide-phone">Size</th>
+                  <th className="hide-phone">Date</th>
+                  <th className="is-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredDocuments.map((doc) => {
+                  const categoryLabel = getDocumentCategoryLabel(doc.category || doc.document_type);
+                  return (
+                    <tr key={doc.id}>
+                      <td>
+                        <strong style={{ overflowWrap: 'anywhere' }}>{doc.file_name}</strong>
+                        <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
+                          {categoryLabel} · {formatFileSize(doc.file_size_bytes)}
+                        </div>
+                      </td>
+                      <td className="hide-phone">{categoryLabel}</td>
+                      <td>{statusBadge(doc.badge_status || 'verified')}</td>
+                      <td className="hide-phone">{formatFileSize(doc.file_size_bytes)}</td>
+                      <td className="hide-phone">
+                        {doc.created_at
+                          ? new Date(doc.created_at).toLocaleDateString(undefined, {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric',
+                            })
+                          : '—'}
+                      </td>
+                      <td className="is-right">
+                        <div style={{ display: 'inline-flex', gap: 'var(--space-1)' }}>
+                          <ShareButton documentId={doc.id} />
+                          <DownloadAction documentId={doc.id} name={doc.file_name} />
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
     </div>
   );
 }

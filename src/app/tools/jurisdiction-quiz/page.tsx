@@ -11,6 +11,7 @@ import {
   type QuizRecommendation as Recommendation,
 } from '@/lib/tools/jurisdiction-quiz';
 import ContactCaptureGate from '@/components/portal/ContactCaptureGate';
+import s from '../tools.module.css';
 
 const BUDGETS = [
   { value: 'under_50k', label: 'Under $50,000 / year' },
@@ -18,7 +19,6 @@ const BUDGETS = [
   { value: '150k_500k', label: '$150,000 – $500,000 / year' },
   { value: 'over_500k', label: 'Over $500,000 / year' },
 ];
-
 
 export default function JurisdictionQuiz() {
   const [goal, setGoal] = useState<string>(GOALS[0].value);
@@ -28,6 +28,11 @@ export default function JurisdictionQuiz() {
   const [recommendations, setRecommendations] = useState<Recommendation[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const reset = () => {
+    setRecommendations(null);
+    setError('');
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,148 +56,99 @@ export default function JurisdictionQuiz() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center">
+    <>
       <BannerHeader title="Jurisdiction Fit Quiz" subtitle="Answer 4 quick questions to reveal your optimal global incorporation structure." />
 
-      <main className="flex-1 w-full max-w-xl mx-auto p-4 mt-4 space-y-4">
-        <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 space-y-4">
-          <div>
-            <label className="block text-xs font-semibold text-gray-700 mb-1.5">What matters most right now?</label>
-            <select
-              value={goal}
-              onChange={(e) => {
-                setGoal(e.target.value);
-                setRecommendations(null);
-                setError('');
-              }}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
-            >
-              {GOALS.map((g) => (
-                <option key={g.value} value={g.value}>{g.label}</option>
-              ))}
-            </select>
-          </div>
+      <main className={`wrap ${s.main}`}>
+        <div className={`${s.stack} ${s.narrow}`}>
+          <form onSubmit={handleSubmit} className="card admin-form-card">
+            <div className="admin-form-stack">
+              <div className="field">
+                <label htmlFor="goal">What matters most right now?</label>
+                <select id="goal" value={goal} onChange={(e) => { setGoal(e.target.value); reset(); }}>
+                  {GOALS.map((g) => (
+                    <option key={g.value} value={g.value}>{g.label}</option>
+                  ))}
+                </select>
+              </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-gray-700 mb-1.5">Estimated annual business revenue / profit?</label>
-            <select
-              value={budgetBand}
-              onChange={(e) => {
-                setBudgetBand(e.target.value);
-                setRecommendations(null);
-                setError('');
-              }}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
-            >
-              {BUDGETS.map((b) => (
-                <option key={b.value} value={b.value}>{b.label}</option>
-              ))}
-            </select>
-          </div>
+              <div className="field">
+                <label htmlFor="budget">Estimated annual business revenue / profit?</label>
+                <select id="budget" value={budgetBand} onChange={(e) => { setBudgetBand(e.target.value); reset(); }}>
+                  {BUDGETS.map((b) => (
+                    <option key={b.value} value={b.value}>{b.label}</option>
+                  ))}
+                </select>
+              </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-gray-700 mb-1.5">How soon do you need your entity active?</label>
-            <select
-              value={timeline}
-              onChange={(e) => {
-                setTimeline(e.target.value);
-                setRecommendations(null);
-                setError('');
-              }}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
-            >
-              {TIMELINES.map((t) => (
-                <option key={t.value} value={t.value}>{t.label}</option>
-              ))}
-            </select>
-          </div>
+              <div className="field">
+                <label htmlFor="timeline">How soon do you need your entity active?</label>
+                <select id="timeline" value={timeline} onChange={(e) => { setTimeline(e.target.value); reset(); }}>
+                  {TIMELINES.map((t) => (
+                    <option key={t.value} value={t.value}>{t.label}</option>
+                  ))}
+                </select>
+              </div>
 
-          <div className="pt-1">
-            <label className="flex items-center gap-2 cursor-pointer bg-gray-50 border border-gray-200 p-2.5 rounded-lg">
-              <input
-                type="checkbox"
-                checked={wantsRelocation}
-                onChange={(e) => {
-                  setWantsRelocation(e.target.checked);
-                  setRecommendations(null);
-                  setError('');
-                }}
-                className="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4"
-              />
-              <span className="text-xs text-gray-700 font-medium">I want a residence visa (Golden / Investor Visa) with this formation</span>
-            </label>
-          </div>
+              <label className={s.check}>
+                <input
+                  type="checkbox"
+                  checked={wantsRelocation}
+                  onChange={(e) => { setWantsRelocation(e.target.checked); reset(); }}
+                />
+                <span>I want a residence visa (Golden / Investor Visa) with this formation</span>
+              </label>
+            </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-cta hover:bg-cta-600 disabled:opacity-60 text-cta-foreground font-semibold py-2.5 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 text-xs shadow-sm"
-          >
-            {loading ? <CircleNotch className="w-4 h-4 animate-spin" /> : <Sparkle className="w-4 h-4" />}
-            {loading ? 'Analyzing Jurisdictions...' : 'Find My Optimal Jurisdiction'}
-          </button>
-        </form>
+            <div className="admin-form-actions">
+              <button type="submit" disabled={loading} className="btn btn-primary">
+                {loading ? <CircleNotch className={s.spin} /> : <Sparkle />}
+                {loading ? 'Analyzing jurisdictions…' : 'Find my optimal jurisdiction'}
+              </button>
+            </div>
+          </form>
 
-        {error && (
-          <div role="alert" className="bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl p-4">
-            {error}
-          </div>
-        )}
+          {error && <div role="alert" className="admin-callout is-error">{error}</div>}
+        </div>
 
         {recommendations && (
-          <div className="space-y-4 animate-in fade-in duration-300">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-bold text-gray-900">Your Recommended Jurisdictions</h2>
-              <span className="text-xs text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-md flex items-center gap-1">
-                <CheckCircle className="w-3.5 h-3.5" /> Matched
-              </span>
+          <div className={`${s.stack} ${s.medium}`}>
+            <div className={s.row}>
+              <h2 className={s.h2}>Your recommended jurisdictions</h2>
+              <span className="badge badge-success"><CheckCircle size={14} /> Matched</span>
             </div>
 
-            <div className="space-y-3">
-              {recommendations.map((rec, idx) => (
-                <div
-                  key={rec.jurisdiction}
-                  className={`bg-white rounded-xl shadow-sm border p-4 transition-all ${
-                    idx === 0 ? 'border-primary ring-1 ring-primary/20' : 'border-gray-200'
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <div>
-                      {idx === 0 && (
-                        <span className="inline-block bg-primary text-white text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md mb-1">
-                          Best Fit #{idx + 1}
-                        </span>
-                      )}
-                      <h3 className="text-sm font-bold text-gray-900">{rec.name}</h3>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-base font-black text-primary">{rec.matchScore}%</span>
-                      <p className="text-[10px] text-gray-400 font-medium">Fit Score</p>
-                    </div>
+            {recommendations.map((rec, idx) => (
+              <div key={rec.jurisdiction} className={`card ${idx === 0 ? s.cardWarn : ''}`}>
+                <div className={s.row}>
+                  <div>
+                    {idx === 0 && <span className="badge badge-accent">Best fit</span>}
+                    <h3 className={s.h3}>{rec.name}</h3>
                   </div>
-
-                  <p className="text-xs text-gray-600 mb-3">{rec.whyFit}</p>
-
-                  <div className="grid grid-cols-2 gap-2 text-xs bg-gray-50 p-2.5 rounded-lg border border-gray-100 mb-3">
-                    <div>
-                      <span className="text-gray-400 block text-[10px]">Corporate Tax</span>
-                      <span className="font-bold text-gray-900">{rec.corporateTaxRate}</span>
-                    </div>
-                    <div>
-                      <span className="text-gray-400 block text-[10px]">Formation Speed</span>
-                      <span className="font-bold text-gray-900">{rec.timelineDays}</span>
-                    </div>
+                  <div>
+                    <span className={s.metricValue}>{rec.matchScore}%</span>
+                    <span className={s.metricLabel}>Fit score</span>
                   </div>
-
-                  <Link
-                    href={rec.serviceHref || '/services'}
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:text-primary-700"
-                  >
-                    View Packages & Formation Fees <ArrowRight className="w-3 h-3" />
-                  </Link>
                 </div>
-              ))}
-            </div>
+
+                <p className={s.body} style={{ margin: 'var(--space-3) 0' }}>{rec.whyFit}</p>
+
+                <div className={s.cells}>
+                  <div className={s.cell}>
+                    <span className={s.metricLabel}>Corporate tax</span>
+                    <strong>{rec.corporateTaxRate}</strong>
+                  </div>
+                  <div className={s.cell}>
+                    <span className={s.metricLabel}>Formation speed</span>
+                    <strong>{rec.timelineDays}</strong>
+                  </div>
+                </div>
+
+                <Link href={rec.serviceHref || '/services'} className={s.link}>
+                  View packages &amp; formation fees <ArrowRight size={16} />
+                </Link>
+              </div>
+            ))}
 
             <ContactCaptureGate
               sourceTool="jurisdiction_quiz"
@@ -202,6 +158,6 @@ export default function JurisdictionQuiz() {
           </div>
         )}
       </main>
-    </div>
+    </>
   );
 }
