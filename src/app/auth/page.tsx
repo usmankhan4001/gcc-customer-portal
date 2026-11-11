@@ -256,59 +256,6 @@ function AuthPageInner() {
           </button>
         </div>
 
-        {/* Sandbox Demo Quick Fill & Auto-Seed */}
-        <div className="mb-5 p-3.5 bg-[#FEF1E9] border border-[#F26522]/20 rounded-2xl text-xs">
-          <div className="flex items-center justify-between font-bold text-[#0A142F] mb-2">
-            <span className="text-[#F26522] uppercase tracking-wider text-[11px] flex items-center gap-1.5 font-bold">
-              <ShieldCheck className="w-4 h-4 text-[#F26522]" /> Sandbox Demo Access
-            </span>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                setAuthMethod("password");
-                setIdentifier("admin@gccstartup.com");
-                setPassword("AdminPassword123!");
-                setError("");
-              }}
-              className="p-2.5 text-left bg-white border border-[#E2E8F0] hover:border-[#F26522] rounded-xl transition-all group cursor-pointer shadow-xs"
-            >
-              <div className="font-bold text-[#0A142F] text-xs group-hover:text-[#F26522] flex items-center justify-between">
-                <span>Admin User</span>
-                <span className="text-[10px] text-[#F26522] font-bold">&rarr;</span>
-              </div>
-              <div className="text-[10px] text-[#64748B] font-mono mt-0.5 truncate">admin@gccstartup.com</div>
-              <div className="text-[10px] text-[#94A3B8] font-mono">AdminPassword123!</div>
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setAuthMethod("password");
-                setIdentifier("client@gccstartup.com");
-                setPassword("ClientPassword123!");
-                setError("");
-              }}
-              className="p-2.5 text-left bg-white border border-[#E2E8F0] hover:border-[#F26522] rounded-xl transition-all group cursor-pointer shadow-xs"
-            >
-              <div className="font-bold text-[#0A142F] text-xs group-hover:text-[#F26522] flex items-center justify-between">
-                <span>Client User</span>
-                <span className="text-[10px] text-[#F26522] font-bold">&rarr;</span>
-              </div>
-              <div className="text-[10px] text-[#64748B] font-mono mt-0.5 truncate">client@gccstartup.com</div>
-              <div className="text-[10px] text-[#94A3B8] font-mono">ClientPassword123!</div>
-            </button>
-          </div>
-          <div className="mt-2.5 pt-2 border-t border-[#F26522]/15 flex items-center justify-between text-[11px]">
-            <span className="text-[#64748B]">Bypass typing &amp; 1-click log in:</span>
-            <div className="flex gap-2 font-bold">
-              <a href="/api/dev/seed-test-users?login=admin" className="text-[#F26522] hover:underline">1-Click Admin</a>
-              <span className="text-[#CBD5E1]">|</span>
-              <a href="/api/dev/seed-test-users?login=client" className="text-[#F26522] hover:underline">1-Click Client</a>
-            </div>
-          </div>
-        </div>
-
         {error && (
           <div className="mb-5 p-3.5 bg-[#FEE2E2] text-[#DC2626] border border-[#FECACA] rounded-xl text-xs font-semibold flex items-center gap-2">
             <span>⚠️</span>

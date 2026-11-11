@@ -3,12 +3,14 @@ import { cookies } from 'next/headers';
 import { eq, or } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { users } from '@/lib/db/schema';
-import { generateToken, verifyPassword, hashPassword } from '@/lib/auth';
+import { generateToken, verifyPassword } from '@/lib/auth';
 import { clientIp, rateLimit } from '@/lib/rate-limit';
+import { isStaff } from '@/lib/staff/roles';
+import { decryptSecret, verifyTotp } from '@/lib/staff/totp';
 
 export async function POST(request: Request) {
   try {
-    const { identifier, password } = await request.json();
+    const { identifier, password, code } = await request.json();
 
     if (!identifier || !password) {
       return NextResponse.json(
@@ -26,7 +28,7 @@ export async function POST(request: Request) {
     }
 
     // Search user by email or WhatsApp number
-    let [user] = await db
+    const [user] = await db
       .select()
       .from(users)
       .where(
@@ -38,37 +40,8 @@ export async function POST(request: Request) {
       )
       .limit(1);
 
-    // Auto-seed test users if logging in on dev/sandbox and not found yet
-    if (!user) {
-      if (cleanIdentifier.toLowerCase() === 'admin@gccstartup.com' && password === 'AdminPassword123!') {
-        const [newAdmin] = await db
-          .insert(users)
-          .values({
-            email: 'admin@gccstartup.com',
-            whatsapp_number: '+971500000001',
-            full_name: 'System Administrator',
-            password_hash: hashPassword('AdminPassword123!'),
-            role: 'super_admin',
-            country_of_residence: 'UAE',
-          })
-          .returning();
-        user = newAdmin;
-      } else if (cleanIdentifier.toLowerCase() === 'client@gccstartup.com' && password === 'ClientPassword123!') {
-        const [newClient] = await db
-          .insert(users)
-          .values({
-            email: 'client@gccstartup.com',
-            whatsapp_number: '+971501234567',
-            full_name: 'Tariq Al-Mansoor',
-            password_hash: hashPassword('ClientPassword123!'),
-            role: 'client',
-            country_of_residence: 'UAE',
-          })
-          .returning();
-        user = newClient;
-      }
-    }
-
+    // No auto-creation of accounts here. This route used to create a super_admin with a published password
+    // whenever admin@gccstartup.com did not exist; local test accounts come from scripts/seed-test-users.ts.
     if (!user || !user.password_hash) {
       return NextResponse.json(
         {
@@ -86,6 +59,29 @@ export async function POST(request: Request) {
         { status: 401 }
       );
     }
+
+    // Disabled accounts (offboarded staff) can never sign in. Checked after the password so the answer for a
+    // wrong password is the same whether or not the account exists.
+    if (user.account_status === 'disabled') {
+      return NextResponse.json({ error: 'This account is disabled. Contact your administrator.' }, { status: 403 });
+    }
+
+    // Staff with an authenticator enrolled must give the 6-digit code too. The attempt limit above covers
+    // guessing it. Enrolment is done from the admin security page once signed in.
+    if (isStaff(user.role) && user.totp_enabled && user.totp_secret) {
+      const given = typeof code === 'string' ? code.trim() : '';
+      if (!given) {
+        return NextResponse.json(
+          { error: 'Enter the 6-digit code from your authenticator app.', needsCode: true },
+          { status: 401 }
+        );
+      }
+      if (!verifyTotp(decryptSecret(user.totp_secret), given)) {
+        return NextResponse.json({ error: 'That code is not right or has expired.', needsCode: true }, { status: 401 });
+      }
+    }
+
+    await db.update(users).set({ last_login_at: new Date() }).where(eq(users.id, user.id));
 
     const token = await generateToken({
       userId: user.id,

@@ -135,6 +135,12 @@ async function performSeed() {
 }
 
 export async function GET(request: NextRequest) {
+  // This endpoint resets the admin password to a published one and signs the caller in as admin with no
+  // authentication, so it only exists when someone sets ENABLE_DEV_SEED=1 (a developer's own machine).
+  // It must never be set on a deployed environment, staging included.
+  if (process.env.ENABLE_DEV_SEED !== '1') {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
   try {
     const { adminToken, clientToken } = await performSeed();
     const loginTarget = request.nextUrl.searchParams.get('login');

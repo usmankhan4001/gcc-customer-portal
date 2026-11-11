@@ -43,6 +43,13 @@
       "when": 1793384137428,
       "tag": "0005_unusual_luke_cage",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794416079040,
+      "tag": "0006_phase1_admin_core",
+      "breakpoints": true
     }
   ]
 }

@@ -3,14 +3,15 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { ArrowLeft, ChevronDown, LogOut, MoreHorizontal, X } from 'lucide-react';
+import { ArrowLeft, ChevronDown, LogOut, MoreHorizontal, ShieldCheck, X } from 'lucide-react';
 import {
-  DAY_ITEMS,
-  TAB_ITEMS,
-  TECHNICAL_ITEMS,
   activeNavItem,
   backTarget,
+  dayItems,
   isTechnicalPath,
+  itemsFor,
+  tabItems,
+  technicalItems,
   titleForPath,
   type NavItem,
 } from './admin-nav';
@@ -18,7 +19,18 @@ import {
 // Port of the gccstartup-cms admin shell (src/app/admin/AdminLayoutShell.tsx): desktop sidebar
 // with grouped menu, phone header with back/title, bottom tab bar plus a "More" sheet.
 // Left out on purpose: the CMS's command search, install prompts and toast provider.
-export function AdminLayoutShell({ children }: { children: React.ReactNode }) {
+export function AdminLayoutShell({
+  children,
+  dbRole,
+  person,
+}: {
+  children: React.ReactNode;
+  /** The signed-in person's role; the menu is built from what that role may use. */
+  dbRole: string;
+  person: { name: string; roleLabel: string };
+}) {
+  const items = itemsFor(dbRole);
+  const technical = technicalItems(items);
   const pathname = usePathname();
   const router = useRouter();
   const [moreOpen, setMoreOpen] = useState(false);
@@ -92,26 +104,38 @@ export function AdminLayoutShell({ children }: { children: React.ReactNode }) {
 
         <nav className="admin-nav" aria-label="All sections">
           <span className="admin-nav-group-label">Day to day</span>
-          {DAY_ITEMS.map(renderItem)}
+          {dayItems(items).map(renderItem)}
 
-          <button
-            type="button"
-            className="admin-nav-group-toggle"
-            aria-expanded={technicalOpen}
-            aria-controls="admin-technical-nav"
-            onClick={() => setTechnicalOpen((open) => !open)}
-          >
-            <span>Technical</span>
-            <ChevronDown size={16} className={technicalOpen ? 'is-open' : ''} />
-          </button>
-          {technicalOpen && (
-            <div id="admin-technical-nav" className="admin-nav-technical">
-              {TECHNICAL_ITEMS.map(renderItem)}
-            </div>
+          {technical.length > 0 && (
+            <>
+              <button
+                type="button"
+                className="admin-nav-group-toggle"
+                aria-expanded={technicalOpen}
+                aria-controls="admin-technical-nav"
+                onClick={() => setTechnicalOpen((open) => !open)}
+              >
+                <span>Technical</span>
+                <ChevronDown size={16} className={technicalOpen ? 'is-open' : ''} />
+              </button>
+              {technicalOpen && (
+                <div id="admin-technical-nav" className="admin-nav-technical">
+                  {technical.map(renderItem)}
+                </div>
+              )}
+            </>
           )}
         </nav>
 
         <div className="admin-sidebar-footer">
+          <div className="admin-nav-overflow-note" style={{ padding: '4px 12px' }}>
+            <strong>{person.name}</strong>
+            <div>{person.roleLabel}</div>
+          </div>
+          <Link href="/admin/security" className="admin-nav-item">
+            <ShieldCheck size={18} />
+            Your security
+          </Link>
           <Link href="/dashboard" className="admin-nav-item">
             Client portal
           </Link>
@@ -128,7 +152,7 @@ export function AdminLayoutShell({ children }: { children: React.ReactNode }) {
 
       {/* Phone bottom bar: the daily destinations plus More, from the same list as the sidebar. */}
       <nav className="admin-bottom-nav" aria-label="Primary">
-        {TAB_ITEMS.map((item) => {
+        {tabItems(items).map((item) => {
           const isActive = current?.href === item.href;
           return (
             <Link

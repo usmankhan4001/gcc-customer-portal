@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
 import { getJwtSecret } from '@/lib/jwt-secret';
+import { toStaffRole } from '@/lib/staff/roles';
 
 const PUBLIC_PATHS = [
   '/api/',
@@ -88,7 +89,8 @@ export async function middleware(request: NextRequest) {
     }
 
     const role = payload.role as string;
-    if (role !== 'admin' && role !== 'super_admin') {
+    // Any staff role may enter /admin; what each may see and do is decided per page and per API route.
+    if (!toStaffRole(role)) {
       return NextResponse.redirect(new URL('/', request.url));
     }
 

@@ -25,6 +25,11 @@ export const roleEnum = pgEnum('user_role', [
   'operations',
   'admin',
   'super_admin',
+  // Phase 1 staff roles (see src/lib/staff/roles.ts). Legacy `admin` is treated as super_admin
+  // and `staff` as incorporation_va there, so existing accounts keep working.
+  'client_relations',
+  'incorporation_va',
+  'marketing_va',
 ]);
 
 // ---------------------------------------------------------------------------
@@ -42,6 +47,13 @@ export const users = pgTable('users', {
   avatar_url: text('avatar_url'),
   whatsapp_alerts_enabled: boolean('whatsapp_alerts_enabled').default(true).notNull(),
   email_alerts_enabled: boolean('email_alerts_enabled').default(true).notNull(),
+  // Staff accounts are disabled, never deleted (history and audit rows keep pointing at them).
+  account_status: text('account_status', { enum: ['active', 'disabled'] }).default('active').notNull(),
+  disabled_at: timestamp('disabled_at'),
+  // TOTP second factor, required for every staff role.
+  totp_secret: text('totp_secret'),
+  totp_enabled: boolean('totp_enabled').default(false).notNull(),
+  last_login_at: timestamp('last_login_at'),
   created_at: timestamp('created_at').defaultNow().notNull(),
   updated_at: timestamp('updated_at').defaultNow().notNull(),
 });
@@ -84,6 +96,36 @@ export const companies = pgTable('companies', {
   assigned_to: uuid('assigned_to').references((): any => users.id),
   annual_revenue_estimate: integer('annual_revenue_estimate'),
   fiscal_year_end: text('fiscal_year_end'), // "MM-DD"
+  // Registration pipeline (src/lib/staff/stages.ts). `status` above is the older lifecycle field.
+  stage: text('stage', {
+    enum: [
+      'order_confirmed',
+      'documents_under_review',
+      'kyc_pending',
+      'name_approved',
+      'signatures_pending',
+      'filed_with_registry',
+      'incorporated',
+      'documents_delivered',
+      'cancelled',
+      'refunded',
+    ],
+  })
+    .default('order_confirmed')
+    .notNull(),
+  stage_changed_at: timestamp('stage_changed_at').defaultNow().notNull(),
+  bank_stage: text('bank_stage', {
+    enum: ['prepared', 'submitted_to_provider', 'provider_kyc_required', 'approved', 'access_handed_over', 'rejected'],
+  }),
+  bank_rejection_reason: text('bank_rejection_reason'),
+  // On hold records who we are waiting on and why.
+  on_hold: boolean('on_hold').default(false).notNull(),
+  waiting_on: text('waiting_on', { enum: ['client', 'us', 'provider', 'registry'] }),
+  hold_reason: text('hold_reason'),
+  registration_number: text('registration_number'),
+  filing_reference: text('filing_reference'),
+  next_action: text('next_action'),
+  next_due_at: timestamp('next_due_at'),
   created_at: timestamp('created_at').defaultNow().notNull(),
   updated_at: timestamp('updated_at').defaultNow().notNull(),
 });
@@ -106,11 +148,22 @@ export const documents = pgTable('documents', {
       'tax_certificate',
       'nominee_poa',
       'bank_document',
+      'passport',
+      'proof_of_address',
+      'certificate_of_incorporation',
       'other',
     ],
   })
     .default('other')
     .notNull(),
+  // client_upload = what the client sent in; deliverable = finished document staff put in the vault.
+  kind: text('kind', { enum: ['client_upload', 'deliverable'] }).default('client_upload').notNull(),
+  review_status: text('review_status', { enum: ['uploaded', 'under_review', 'accepted', 'rejected'] })
+    .default('uploaded')
+    .notNull(),
+  reviewed_by: uuid('reviewed_by').references(() => users.id),
+  reviewed_at: timestamp('reviewed_at'),
+  rejection_reason: text('rejection_reason'),
   mime_type: text('mime_type'),
   file_size_bytes: integer('file_size_bytes'),
   status: text('status', { enum: ['active', 'archived', 'superseded'] })
@@ -149,6 +202,32 @@ export const documentAccessLog = pgTable('document_access_log', {
   action: text('action', { enum: ['viewed', 'downloaded'] }).notNull(),
   accessed_at: timestamp('accessed_at').defaultNow().notNull(),
 });
+
+// ---------------------------------------------------------------------------
+// audit_events: append-only. A DB trigger (see the Phase 1 migration) rejects UPDATE and DELETE.
+// No foreign keys on purpose: the log must outlive any user, company or document it mentions,
+// so the actor's name and role are copied in at write time.
+// ---------------------------------------------------------------------------
+
+export const auditEvents = pgTable(
+  'audit_events',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    actor_id: uuid('actor_id'),
+    actor_name: text('actor_name'),
+    actor_role: text('actor_role'),
+    action: text('action').notNull(), // e.g. stage.changed, document.accepted, document.viewed
+    entity_type: text('entity_type').notNull(), // company | document | user
+    entity_id: text('entity_id').notNull(),
+    company_id: uuid('company_id'),
+    details: jsonb('details'),
+    created_at: timestamp('created_at').defaultNow().notNull(),
+  },
+  (t) => [
+    index('audit_events_company_idx').on(t.company_id, t.created_at),
+    index('audit_events_entity_idx').on(t.entity_type, t.entity_id),
+  ],
+);
 
 // ---------------------------------------------------------------------------
 // milestones (drives PipelineStepTracker)

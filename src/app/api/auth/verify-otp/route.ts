@@ -4,6 +4,7 @@ import { and, desc, eq, gt, sql } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { otpCodes, users } from '@/lib/db/schema';
 import { generateToken, hashToken } from '@/lib/auth';
+import { isStaff } from '@/lib/staff/roles';
 import { devOtpAllowed } from '@/lib/auth-policy';
 
 const MAX_OTP_ATTEMPTS = 5;
@@ -102,6 +103,15 @@ export async function POST(request: Request) {
         role: 'client',
         full_name: null,
       };
+    }
+
+    // A WhatsApp code is one factor. Staff must sign in with email, password and their authenticator code
+    // (/api/auth/login), and a disabled account can never sign in by any route.
+    if (user.account_status === 'disabled' || isStaff(user.role)) {
+      return NextResponse.json(
+        { success: false, error: 'Staff accounts sign in with email and password.' },
+        { status: 403 }
+      );
     }
 
     const token = await generateToken({
