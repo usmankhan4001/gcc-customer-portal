@@ -2,9 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { and, eq, ne } from 'drizzle-orm';
 import { db } from '@/lib/db';
-import { companies, notifications, orders, users } from '@/lib/db/schema';
-import { sendWhatsAppMessage } from '@/lib/whatsapp';
+import { companies, orders } from '@/lib/db/schema';
 import { sendPushToUser } from '@/lib/push';
+import { recordAudit, SYSTEM_ACTOR } from '@/lib/staff/audit';
+import { pickAssignee } from '@/lib/orders/assign';
+import { stageMessage } from '@/lib/notify/events';
+import { deliverClientMessage, queueClientMessage } from '@/lib/notify/send';
 import { captureServerEvent } from '@/lib/posthog-server';
 import { claimWebhookEvent, releaseWebhookEvent } from '@/lib/webhook-dedupe';
 
@@ -49,42 +52,50 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session): Promis
     return;
   }
 
-  // Never move a case backwards: only a company still at 'lead' becomes 'onboarding'.
-  await db
+  // Payment makes the application: only a company still at 'lead' (unpaid) moves on, so this can never move a case
+  // backwards. It starts at Order confirmed and goes to the Incorporation VA with the least open work.
+  const now = new Date();
+  const assignee = await pickAssignee();
+  const [company] = await db
     .update(companies)
-    .set({ status: 'onboarding', updated_at: new Date() })
-    .where(and(eq(companies.id, companyId), eq(companies.status, 'lead')));
-
-  const [company] = await db.select().from(companies).where(eq(companies.id, companyId)).limit(1);
+    .set({
+      status: 'onboarding',
+      stage: 'order_confirmed',
+      stage_changed_at: now,
+      updated_at: now,
+      ...(assignee ? { assigned_to: assignee } : {}),
+    })
+    .where(and(eq(companies.id, companyId), eq(companies.status, 'lead')))
+    .returning();
   if (!company) {
-    console.error(`[webhooks/stripe] company ${companyId} not found for order ${orderId}`);
+    console.log(`[webhooks/stripe] Company ${companyId} already past lead - nothing to start`);
     return;
   }
 
-  const [user] = await db.select().from(users).where(eq(users.id, company.user_id)).limit(1);
-  if (!user) return;
-
-  await sendWhatsAppMessage(user.whatsapp_number, 'order_confirmed', 'en', [
-    { type: 'text', text: user.full_name || 'there' },
-    { type: 'text', text: company.company_name },
-  ]);
-
-  const notifTitle = 'Payment Confirmed';
-  const notifMessage = `Your payment for ${company.company_name} is confirmed. We're now processing your incorporation.`;
-
-  await db.insert(notifications).values({
-    user_id: user.id,
-    title: notifTitle,
-    message: notifMessage,
-    type: 'success',
-    category: 'payment',
-    link_url: '/dashboard',
-    whatsapp_status: 'sent',
+  await recordAudit(db, SYSTEM_ACTOR, {
+    action: 'order.paid',
+    entityType: 'order',
+    entityId: orderId,
+    companyId,
+    details: { amount: order.amount_total, currency: order.currency, assignedTo: assignee },
+  });
+  await recordAudit(db, SYSTEM_ACTOR, {
+    action: 'stage.changed',
+    entityType: 'company',
+    entityId: companyId,
+    companyId,
+    details: { to: 'order_confirmed', via: 'payment' },
   });
 
-  await sendPushToUser(user.id, { title: notifTitle, body: notifMessage, url: '/dashboard' });
+  // The client is told once: the key is the same if Stripe retries, so a repeat inserts nothing.
+  const message = stageMessage('order_confirmed', { id: company.id, name: company.company_name }, now);
+  const delivery = message ? await queueClientMessage(db, company.user_id, message) : null;
+  if (delivery) {
+    await deliverClientMessage(delivery);
+    await sendPushToUser(company.user_id, { title: delivery.message.title, body: delivery.message.message, url: '/dashboard' }).catch(() => undefined);
+  }
 
-  captureServerEvent(user.id, 'checkout_completed', {
+  captureServerEvent(company.user_id, 'checkout_completed', {
     company_id: company.id,
     jurisdiction: company.jurisdiction,
     amount_usd: order.amount_total / 100,

@@ -2,13 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { and, eq, ne, desc } from 'drizzle-orm';
+import { and, eq, ne, desc, isNull, or } from 'drizzle-orm';
 import { verifyToken } from '@/lib/auth';
 import { db } from '@/lib/db';
-import { companies, documents, documentVersions } from '@/lib/db/schema';
+import { catalogDocumentRequirements, companies, documents, documentVersions } from '@/lib/db/schema';
+import { UPLOAD_MIME_TYPES } from '@/lib/catalog/checklist';
 
 interface PresignRequest {
-  category: string;
+  category?: string;
+  company_id?: string;
+  requirement_key?: string;
   file_name: string;
   file_size: number;
   mime_type: string;
@@ -38,7 +41,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     const body = (await request.json()) as PresignRequest;
-    const { category, file_name, file_size, mime_type, expiry_date } = body;
+    const { file_name, file_size, mime_type, expiry_date, company_id, requirement_key } = body;
+    const category = body.category ?? (requirement_key ? 'other' : '');
 
     if (!category || !file_name || !file_size || !mime_type) {
       return NextResponse.json(
@@ -54,12 +58,41 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const [company] = await db
-      .select()
-      .from(companies)
-      .where(and(eq(companies.user_id, session.userId), ne(companies.status, 'lead')))
-      .orderBy(desc(companies.created_at))
-      .limit(1);
+    // Checklist upload: the file answers one catalog requirement of one of the client's own paid companies.
+    let requirement: typeof catalogDocumentRequirements.$inferSelect | undefined;
+    let company: typeof companies.$inferSelect | undefined;
+    if (requirement_key) {
+      if (!company_id || !(UPLOAD_MIME_TYPES as readonly string[]).includes(mime_type)) {
+        return NextResponse.json({ error: 'Upload a PDF, JPG, PNG, WebP or HEIC file for this company.' }, { status: 400 });
+      }
+      [company] = await db
+        .select()
+        .from(companies)
+        .where(and(eq(companies.id, company_id), eq(companies.user_id, session.userId), ne(companies.status, 'lead')))
+        .limit(1);
+      if (!company) return NextResponse.json({ error: 'Company not found' }, { status: 404 });
+      [requirement] = await db
+        .select()
+        .from(catalogDocumentRequirements)
+        .where(
+          and(
+            eq(catalogDocumentRequirements.jurisdiction, company.jurisdiction),
+            eq(catalogDocumentRequirements.key, requirement_key),
+            eq(catalogDocumentRequirements.active, true),
+            or(isNull(catalogDocumentRequirements.package_key), eq(catalogDocumentRequirements.package_key, company.package_key ?? '')),
+          ),
+        )
+        .limit(1);
+      if (!requirement) return NextResponse.json({ error: 'Unknown document requirement' }, { status: 400 });
+    } else {
+      [company] = await db
+        .select()
+        .from(companies)
+        .where(and(eq(companies.user_id, session.userId), ne(companies.status, 'lead')))
+        .orderBy(desc(companies.created_at))
+        .limit(1);
+    }
+    const fileCategory = (requirement?.category ?? category) as any;
 
     const now = new Date();
     const year = now.getFullYear();
@@ -76,7 +109,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           .where(
             and(
               eq(documents.company_id, company.id),
-              eq(documents.category, category as any),
+              requirement
+                ? eq(documents.requirement_key, requirement.key)
+                : eq(documents.category, fileCategory),
               eq(documents.status, 'active')
             )
           )
@@ -109,7 +144,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         company_id: company?.id,
         file_name,
         r2_key: r2Key,
-        category: category as any,
+        category: fileCategory,
+        requirement_key: requirement?.key,
         mime_type,
         file_size_bytes: file_size,
         status: 'active',

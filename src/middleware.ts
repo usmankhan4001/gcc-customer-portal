@@ -53,17 +53,21 @@ export async function middleware(request: NextRequest) {
 
   const sessionToken = request.cookies.get('gcc_session')?.value;
 
-  if (PROTECTED_PREFIXES.some((p) => pathname.startsWith(p))) {
+  // /start/<jurisdiction> is public (quote first, no account); only its /order step needs a signed-in client.
+  const needsLogin = PROTECTED_PREFIXES.some((p) => pathname.startsWith(p)) || /^\/start\/[^/]+\/order/.test(pathname);
+  if (needsLogin) {
+    // Keep the query string so a quote id survives the trip through sign-in.
+    const back = pathname + request.nextUrl.search;
     if (!sessionToken) {
       const loginUrl = new URL('/auth', request.url);
-      loginUrl.searchParams.set('redirect', pathname);
+      loginUrl.searchParams.set('redirect', back);
       return NextResponse.redirect(loginUrl);
     }
 
     const payload = await verifyJwt(sessionToken);
     if (!payload) {
       const loginUrl = new URL('/auth', request.url);
-      loginUrl.searchParams.set('redirect', pathname);
+      loginUrl.searchParams.set('redirect', back);
       const response = NextResponse.redirect(loginUrl);
       response.cookies.delete('gcc_session');
       return response;

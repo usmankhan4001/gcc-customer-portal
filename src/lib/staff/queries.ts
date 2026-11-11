@@ -1,4 +1,4 @@
-import { and, count, desc, eq, gte, inArray, isNotNull, lt, lte, min, notInArray, or, sql, type SQL } from 'drizzle-orm';
+import { and, count, desc, eq, gte, inArray, isNotNull, lt, lte, min, ne, notInArray, or, sql, type SQL } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import { db } from '@/lib/db';
 import { auditEvents, companies, documents, leads, orders, renewals, users } from '@/lib/db/schema';
@@ -10,11 +10,14 @@ export const CLOSED_STAGES = ['documents_delivered', 'cancelled', 'refunded'] as
 const DAY = 24 * 60 * 60 * 1000;
 const ago = (days: number) => new Date(Date.now() - days * DAY);
 
-/** Rows this person may see: everything for roles with `all` scope, only their own clients for a VA. */
+/** An order that has not been paid yet is a draft (status `lead`), not an application, so staff never see it. */
+const paidOnly = ne(companies.status, 'lead');
+
+/** Rows this person may see: everything paid for roles with `all` scope, only their own clients for a VA. */
 export function companyScope(staff: StaffSession): SQL | undefined {
   const scope = accessFor(staff.dbRole, 'clients.view');
-  if (scope === 'all') return undefined;
-  if (scope === 'assigned') return eq(companies.assigned_to, staff.userId);
+  if (scope === 'all') return paidOnly;
+  if (scope === 'assigned') return and(paidOnly, eq(companies.assigned_to, staff.userId));
   return sql`false`;
 }
 
@@ -116,8 +119,8 @@ export async function businessOverview() {
   monthStart.setUTCDate(1);
   monthStart.setUTCHours(0, 0, 0, 0);
 
-  const byStage = await db.select({ stage: companies.stage, n: count() }).from(companies).groupBy(companies.stage);
-  const [overdue] = await db.select({ n: count() }).from(companies).where(and(openOnly, lt(companies.stage_changed_at, ago(7))));
+  const byStage = await db.select({ stage: companies.stage, n: count() }).from(companies).where(paidOnly).groupBy(companies.stage);
+  const [overdue] = await db.select({ n: count() }).from(companies).where(and(paidOnly, openOnly, lt(companies.stage_changed_at, ago(7))));
   const [newLeads] = await db.select({ n: count() }).from(leads).where(gte(leads.created_at, ago(7)));
   const [revenue] = await db
     .select({ cents: sql<number>`coalesce(sum(${orders.amount_total}), 0)::int` })

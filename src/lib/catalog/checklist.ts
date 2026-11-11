@@ -70,6 +70,9 @@ export function readyForFiling(items: ChecklistItem[]): boolean {
   return required.length > 0 && required.every((i) => i.status === 'accepted');
 }
 
+/** File types a client may upload as proof documents. */
+export const UPLOAD_MIME_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp', 'image/heic'] as const;
+
 /** The first thing the client must do: fix a rejected item, then upload a missing required one. */
 export function nextClientAction(items: ChecklistItem[]): ChecklistItem | null {
   return (

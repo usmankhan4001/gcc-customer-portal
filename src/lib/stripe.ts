@@ -20,22 +20,29 @@ export async function createCheckoutSession(params: {
   companyName: string;
   successUrl: string;
   cancelUrl: string;
+  /** Itemised order shown on the Stripe page. The amounts must add up to `amount`; when absent one line is used. */
+  lines?: { name: string; unitAmount: number; quantity: number }[];
 }): Promise<Stripe.Checkout.Session> {
   try {
     const session = await getStripe().checkout.sessions.create({
       payment_method_types: ['card'],
-      line_items: [
-        {
-          price_data: {
-            currency: params.currency,
-            product_data: {
-              name: `GCC Startup — ${params.companyName}`,
+      line_items: params.lines?.length
+        ? params.lines.map((l) => ({
+            price_data: { currency: params.currency, product_data: { name: l.name }, unit_amount: l.unitAmount },
+            quantity: l.quantity,
+          }))
+        : [
+            {
+              price_data: {
+                currency: params.currency,
+                product_data: {
+                  name: `GCC Startup — ${params.companyName}`,
+                },
+                unit_amount: params.amount,
+              },
+              quantity: 1,
             },
-            unit_amount: params.amount,
-          },
-          quantity: 1,
-        },
-      ],
+          ],
       mode: 'payment',
       customer_email: params.customerEmail,
       success_url: params.successUrl,

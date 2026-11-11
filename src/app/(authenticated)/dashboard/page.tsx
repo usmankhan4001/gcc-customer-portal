@@ -10,7 +10,10 @@ import EmptyState from '@/components/portal/EmptyState';
 import CopyButton from '@/components/portal/CopyButton';
 import { getServerSession } from '@/lib/session';
 import { db } from '@/lib/db';
-import { companies, notifications, promoBanners, users, documents, orders, renewals, referrals } from '@/lib/db/schema';
+import { catalogDocumentRequirements, companies, notifications, promoBanners, users, documents, orders, renewals, referrals } from '@/lib/db/schema';
+import DocumentChecklist from '@/components/portal/DocumentChecklist';
+import { buildChecklist, nextClientAction } from '@/lib/catalog/checklist';
+import { COMPANY_STAGES, STAGE_LABEL, type CompanyStage } from '@/lib/staff/stages';
 import { buildPayNowUrl } from '@/lib/dashboard/pay-now';
 import {
   Calculator,
@@ -43,19 +46,6 @@ const QUICK_SERVICES = [
   { title: 'Invoice generator', href: '/tools/invoice-generator', Icon: FileText },
   { title: 'More tools', href: '/tools', Icon: SquaresFour },
 ];
-
-const STAGE_LABELS = ['Onboarding', 'Official KYC', 'Government Filing', 'Bank Setup', 'Active'];
-
-const STATUS_TO_STEP: Record<string, number> = {
-  onboarding: 0,
-  official_kyc_pending: 1,
-  filing_in_progress: 2,
-  bank_opening: 3,
-  active: 4,
-  renewal_due: 4,
-  suspended: 4,
-  archived: 4,
-};
 
 function healthStatus(company: typeof companies.$inferSelect | undefined): { label: string; badge: string } {
   if (!company) return { label: 'No company', badge: 'badge-neutral' };
@@ -172,6 +162,42 @@ export default async function DashboardPage() {
       ).length
     : 0;
 
+  // The checklist comes from managed catalog data, not from anything hard-coded here.
+  const checklist = activeCompany?.package_key
+    ? buildChecklist(
+        activeCompany.package_key,
+        (
+          await db
+            .select()
+            .from(catalogDocumentRequirements)
+            .where(
+              and(
+                eq(catalogDocumentRequirements.jurisdiction, activeCompany.jurisdiction),
+                eq(catalogDocumentRequirements.active, true),
+              ),
+            )
+        ).map((r) => ({ key: r.key, label: r.label, help: r.help, required: r.required, package_key: r.package_key, sort: r.sort })),
+        await db
+          .select({
+            id: documents.id,
+            requirement_key: documents.requirement_key,
+            review_status: documents.review_status,
+            rejection_reason: documents.rejection_reason,
+            created_at: documents.created_at,
+          })
+          .from(documents)
+          .where(
+            and(
+              eq(documents.company_id, activeCompany.id),
+              eq(documents.kind, 'client_upload'),
+              eq(documents.status, 'active'),
+            ),
+          ),
+      )
+    : [];
+  const nextAction = nextClientAction(checklist);
+  const stageStep = activeCompany ? COMPANY_STAGES.indexOf(activeCompany.stage as CompanyStage) : -1;
+
   const now = new Date();
   const activeBanners = session
     ? await db
@@ -250,12 +276,45 @@ export default async function DashboardPage() {
         </section>
 
         {/* Pipeline progress */}
+        {activeCompany && nextAction && (
+          <section className="card" role="status">
+            <div className={s.head}>
+              <h2>
+                <WarningCircle size={20} />
+                Action needed
+              </h2>
+            </div>
+            <p style={{ margin: 0 }}>
+              {nextAction.status === 'rejected'
+                ? `Please upload "${nextAction.label}" again${nextAction.reason ? `: ${nextAction.reason}` : '.'}`
+                : `Please upload "${nextAction.label}" so we can continue your application.`}
+            </p>
+          </section>
+        )}
+
         {activeCompany && (
           <section className="card">
             <div className={s.head}>
               <h2>Application progress</h2>
+              {activeCompany.on_hold && <span className="badge badge-accent">On hold</span>}
             </div>
-            <PipelineStepTracker steps={STAGE_LABELS} currentStep={STATUS_TO_STEP[activeCompany.status] ?? 0} />
+            {stageStep < 0 ? (
+              <p style={{ margin: 0 }}>This application is {STAGE_LABEL[activeCompany.stage].toLowerCase()}.</p>
+            ) : (
+              <PipelineStepTracker steps={COMPANY_STAGES.map((st) => STAGE_LABEL[st])} currentStep={stageStep} />
+            )}
+          </section>
+        )}
+
+        {activeCompany && checklist.length > 0 && (
+          <section className="card">
+            <div className={s.head}>
+              <h2>
+                <FileText size={20} />
+                Documents we need
+              </h2>
+            </div>
+            <DocumentChecklist companyId={activeCompany.id} items={checklist} />
           </section>
         )}
 
