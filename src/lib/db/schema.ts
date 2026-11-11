@@ -8,6 +8,7 @@ import {
   integer,
   jsonb,
   index,
+  uniqueIndex,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
@@ -94,6 +95,8 @@ export const companies = pgTable('companies', {
   incorporation_date: timestamp('incorporation_date'),
   license_expiry_date: timestamp('license_expiry_date'),
   assigned_to: uuid('assigned_to').references((): any => users.id),
+  // Which catalog package was bought (catalog_packages.key); `tier` above is the nearest legacy value.
+  package_key: text('package_key'),
   annual_revenue_estimate: integer('annual_revenue_estimate'),
   fiscal_year_end: text('fiscal_year_end'), // "MM-DD"
   // Registration pipeline (src/lib/staff/stages.ts). `status` above is the older lifecycle field.
@@ -164,6 +167,8 @@ export const documents = pgTable('documents', {
   reviewed_by: uuid('reviewed_by').references(() => users.id),
   reviewed_at: timestamp('reviewed_at'),
   rejection_reason: text('rejection_reason'),
+  // Which document requirement (catalog_document_requirements.key) this file answers.
+  requirement_key: text('requirement_key'),
   mime_type: text('mime_type'),
   file_size_bytes: integer('file_size_bytes'),
   status: text('status', { enum: ['active', 'archived', 'superseded'] })
@@ -228,6 +233,85 @@ export const auditEvents = pgTable(
     index('audit_events_entity_idx').on(t.entity_type, t.entity_id),
   ],
 );
+
+// ---------------------------------------------------------------------------
+// Catalog: every price, package, add-on and document requirement the client sees comes from these tables
+// (managed at /admin/catalog). A null price means "not priced yet" and the item is not offered.
+// ---------------------------------------------------------------------------
+
+export const catalogPackages = pgTable(
+  'catalog_packages',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    jurisdiction: text('jurisdiction').notNull(), // hong-kong, uae, ...
+    key: text('key').notNull(), // self_ubo | nominee_director | hire_ubo
+    name: text('name').notNull(),
+    summary: text('summary'),
+    tier: text('tier', { enum: ['tier_1_self', 'tier_2_nominee', 'tier_3_shelf'] }).notNull(),
+    price_cents: integer('price_cents'),
+    currency: text('currency').default('usd').notNull(),
+    timeline_min_days: integer('timeline_min_days'),
+    timeline_max_days: integer('timeline_max_days'),
+    timeline_note: text('timeline_note'), // what the timeline depends on
+    recommended: boolean('recommended').default(false).notNull(),
+    active: boolean('active').default(false).notNull(),
+    sort: integer('sort').default(0).notNull(),
+    updated_at: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (t) => [uniqueIndex('catalog_packages_key_idx').on(t.jurisdiction, t.key)],
+);
+
+export const catalogAddons = pgTable(
+  'catalog_addons',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    key: text('key').notNull().unique(), // bank_account | bookkeeping_tax
+    name: text('name').notNull(),
+    summary: text('summary'),
+    price_cents: integer('price_cents'),
+    currency: text('currency').default('usd').notNull(),
+    max_quantity: integer('max_quantity').default(1).notNull(), // bank accounts: more than one allowed
+    jurisdictions: text('jurisdictions').array(), // null = every jurisdiction
+    package_keys: text('package_keys').array(), // null = every package
+    options: jsonb('options'), // e.g. bank providers: ["Airwallex","Stripe","Wise","Aspire"]
+    active: boolean('active').default(false).notNull(),
+    sort: integer('sort').default(0).notNull(),
+    updated_at: timestamp('updated_at').defaultNow().notNull(),
+  },
+);
+
+export const catalogDocumentRequirements = pgTable(
+  'catalog_document_requirements',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    jurisdiction: text('jurisdiction').notNull(),
+    package_key: text('package_key'), // null = required for every package
+    key: text('key').notNull(),
+    label: text('label').notNull(),
+    help: text('help'),
+    category: text('category').default('other').notNull(), // documents.category the upload is filed under
+    required: boolean('required').default(true).notNull(),
+    active: boolean('active').default(true).notNull(),
+    sort: integer('sort').default(0).notNull(),
+    updated_at: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (t) => [uniqueIndex('catalog_doc_req_idx').on(t.jurisdiction, t.package_key, t.key)],
+);
+
+// A quote is the visitor's choice (package + add-ons) saved before any account exists. The id is the only
+// handle; totals are recomputed from the catalog at checkout, so nothing stored here is trusted for price.
+export const quotes = pgTable('quotes', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  jurisdiction: text('jurisdiction').notNull(),
+  package_key: text('package_key').notNull(),
+  addons: jsonb('addons').notNull(), // [{ key, quantity, option? }]
+  total_cents: integer('total_cents').notNull(),
+  currency: text('currency').notNull(),
+  user_id: uuid('user_id'),
+  order_id: uuid('order_id'),
+  expires_at: timestamp('expires_at').notNull(),
+  created_at: timestamp('created_at').defaultNow().notNull(),
+});
 
 // ---------------------------------------------------------------------------
 // milestones (drives PipelineStepTracker)
@@ -346,11 +430,13 @@ export const notifications = pgTable('notifications', {
     .default('info')
     .notNull(),
   category: text('category', {
-    enum: ['kyc', 'payment', 'document', 'renewal', 'promo', 'system'],
+    enum: ['kyc', 'payment', 'document', 'renewal', 'promo', 'system', 'stage'],
   })
     .default('system')
     .notNull(),
   link_url: text('link_url'),
+  // One row per (event, company, moment): a unique key makes a repeated event a no-op instead of a second message.
+  dedupe_key: text('dedupe_key').unique(),
   is_read: boolean('is_read').default(false).notNull(),
   whatsapp_status: text('whatsapp_status', {
     enum: ['not_sent', 'sent', 'failed'],

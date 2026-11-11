@@ -5,6 +5,8 @@ import { companies, documents } from '@/lib/db/schema';
 import { requireStaff } from '@/lib/staff/session';
 import { recordAudit } from '@/lib/staff/audit';
 import { canOnClient } from '@/lib/staff/roles';
+import { stageMessage } from '@/lib/notify/events';
+import { deliverClientMessage, queueClientMessage } from '@/lib/notify/send';
 import {
   COMPANY_STAGES,
   validateHold,
@@ -158,9 +160,13 @@ export async function POST(request: NextRequest, { params }: Params) {
         ...(input.registrationNumber ? { registrationNumber: input.registrationNumber } : {}),
       },
     });
-    return { status: 200 as const, stage: to, onHold: false };
+    // The client's message is recorded in this same transaction, so a stage change and its one message commit together.
+    const message = stageMessage(to, { id, name: input.finalName ?? company.company_name }, now);
+    const delivery = message ? await queueClientMessage(tx, company.user_id, message) : null;
+    return { status: 200 as const, stage: to, onHold: false, delivery };
   });
 
+  if (result.status === 200 && 'delivery' in result && result.delivery) await deliverClientMessage(result.delivery);
   if (result.status === 200) return NextResponse.json({ stage: result.stage, onHold: result.onHold });
   return NextResponse.json({ error: result.error, code: 'code' in result ? result.code : undefined }, { status: result.status });
 }

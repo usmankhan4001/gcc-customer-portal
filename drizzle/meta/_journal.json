@@ -50,6 +50,13 @@
       "when": 1794416079040,
       "tag": "0006_phase1_admin_core",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1794420176894,
+      "tag": "0007_phase2_catalog",
+      "breakpoints": true
     }
   ]
 }

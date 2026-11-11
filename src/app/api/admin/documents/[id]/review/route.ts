@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { db } from '@/lib/db';
-import { companies, documents } from '@/lib/db/schema';
+import { catalogDocumentRequirements, companies, documents } from '@/lib/db/schema';
 import { requireStaff } from '@/lib/staff/session';
 import { recordAudit } from '@/lib/staff/audit';
 import { canOnClient } from '@/lib/staff/roles';
+import { documentRejectedMessage } from '@/lib/notify/events';
+import { deliverClientMessage, queueClientMessage, type PendingDelivery } from '@/lib/notify/send';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -37,7 +39,11 @@ export async function POST(request: NextRequest, { params }: Params) {
     if (!doc) return { status: 404 as const, error: 'Not found' };
 
     const [company] = doc.company_id
-      ? await tx.select({ assigned_to: companies.assigned_to }).from(companies).where(eq(companies.id, doc.company_id)).limit(1)
+      ? await tx
+          .select({ assigned_to: companies.assigned_to, name: companies.company_name, jurisdiction: companies.jurisdiction, user_id: companies.user_id })
+          .from(companies)
+          .where(eq(companies.id, doc.company_id))
+          .limit(1)
       : [];
     // A document with no company has no assignee, so only roles that see every client may review it.
     if (!canOnClient(staff.dbRole, 'documents.review', staff.userId, company?.assigned_to)) {
@@ -65,9 +71,24 @@ export async function POST(request: NextRequest, { params }: Params) {
       companyId: doc.company_id,
       details: { fileName: doc.file_name, category: doc.category, ...(accept ? {} : { reason }) },
     });
-    return { status: 200 as const, reviewStatus: accept ? 'accepted' : 'rejected' };
+
+    // A rejection tells the client why, once, in the same transaction.
+    let delivery: PendingDelivery | null = null;
+    if (!accept && company && doc.company_id) {
+      const [req] = doc.requirement_key
+        ? await tx
+            .select({ label: catalogDocumentRequirements.label })
+            .from(catalogDocumentRequirements)
+            .where(and(eq(catalogDocumentRequirements.jurisdiction, company.jurisdiction), eq(catalogDocumentRequirements.key, doc.requirement_key)))
+            .limit(1)
+        : [];
+      const message = documentRejectedMessage({ id: doc.company_id, name: company.name }, req?.label ?? doc.file_name, reason, id, now);
+      delivery = await queueClientMessage(tx, company.user_id, message);
+    }
+    return { status: 200 as const, reviewStatus: accept ? 'accepted' : 'rejected', delivery };
   });
 
+  if (result.status === 200 && result.delivery) await deliverClientMessage(result.delivery);
   if (result.status === 200) return NextResponse.json({ reviewStatus: result.reviewStatus });
   return NextResponse.json({ error: result.error }, { status: result.status });
 }

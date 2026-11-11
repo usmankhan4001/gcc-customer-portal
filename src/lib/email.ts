@@ -230,6 +230,30 @@ export async function sendRenewalReminder(
 const escapeHtml = (s: string) =>
   s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 
+/** One plain update email: a title, a short message and a button to the exact item. Used for every client notification. */
+export async function sendUpdateEmail(to: string, title: string, message: string, linkPath: string): Promise<boolean> {
+  const base = process.env.NEXT_PUBLIC_APP_URL || 'https://portal.gccstartup.com';
+  try {
+    await getResend().emails.send({
+      from: FROM_ADDRESS,
+      to,
+      subject: title,
+      html: `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#FFFFFF;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#0F172A;">
+<div style="max-width:560px;margin:32px auto;padding:0 16px;">
+<h1 style="font-size:22px;margin:0 0 12px 0;color:#0A142F;">${escapeHtml(title)}</h1>
+<p style="font-size:16px;line-height:1.6;color:#334155;margin:0 0 24px 0;">${escapeHtml(message)}</p>
+<a href="${escapeHtml(base + linkPath)}" style="display:inline-block;background:#F26522;color:#FFFFFF;padding:12px 28px;border-radius:9999px;text-decoration:none;font-weight:700;">Open in the portal</a>
+<p style="font-size:12px;color:#64748B;margin:32px 0 0 0;">GCC Startup</p>
+</div></body></html>`,
+    });
+    return true;
+  } catch (error) {
+    console.error('[Email] Failed to send update email:', error);
+    return false;
+  }
+}
+
 export async function sendToolResultEmail(
   to: string,
   title: string,

@@ -1,13 +1,21 @@
 import type { db } from '@/lib/db';
 import { auditEvents } from '@/lib/db/schema';
-import type { StaffSession } from './session';
 
 /** Either the database or an open transaction, so the audit row commits or rolls back with the change. */
 type Executor = Pick<typeof db, 'insert'>;
 
+/** Who did it: a staff member or client, or the system (userId null) for payments and automatic steps. */
+export interface AuditActor {
+  userId: string | null;
+  name: string | null;
+  role: string | null;
+}
+
+export const SYSTEM_ACTOR: AuditActor = { userId: null, name: 'System', role: 'system' };
+
 export interface AuditInput {
   action: string; // stage.changed, company.hold, document.accepted, document.rejected, document.viewed
-  entityType: 'company' | 'document' | 'user';
+  entityType: 'company' | 'document' | 'user' | 'order';
   entityId: string;
   companyId?: string | null;
   details?: Record<string, unknown>;
@@ -17,7 +25,7 @@ export interface AuditInput {
  * Append one row to the audit log. Always call this inside the same transaction as the change it records:
  * if the change rolls back, so does the row, and a change can never commit without its row.
  */
-export async function recordAudit(exec: Executor, actor: StaffSession, event: AuditInput) {
+export async function recordAudit(exec: Executor, actor: AuditActor, event: AuditInput) {
   await exec.insert(auditEvents).values({
     actor_id: actor.userId,
     actor_name: actor.name,
