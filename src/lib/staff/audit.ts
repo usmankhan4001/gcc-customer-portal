@@ -15,7 +15,7 @@ export const SYSTEM_ACTOR: AuditActor = { userId: null, name: 'System', role: 's
 
 export interface AuditInput {
   action: string; // stage.changed, company.hold, document.accepted, document.rejected, document.viewed
-  entityType: 'company' | 'document' | 'user' | 'order';
+  entityType: 'company' | 'document' | 'user' | 'order' | 'catalog';
   entityId: string;
   companyId?: string | null;
   details?: Record<string, unknown>;
