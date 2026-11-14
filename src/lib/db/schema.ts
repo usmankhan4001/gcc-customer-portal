@@ -491,6 +491,7 @@ export const leads = pgTable('leads', {
       'visa_estimator',
       'name_checker',
       'qfzp_eligibility',
+      'france_landing',
     ],
   }).notNull(),
   tool_input: jsonb('tool_input'),

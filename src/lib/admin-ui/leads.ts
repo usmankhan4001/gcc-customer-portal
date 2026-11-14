@@ -14,6 +14,7 @@ const SOURCE_LABELS: Record<string, string> = {
   visa_estimator: 'Visa Estimator',
   name_checker: 'Name Checker',
   qfzp_eligibility: 'QFZP Eligibility',
+  france_landing: 'France campaign page',
 };
 
 export function sourceBadge(tool: string): Badge {

@@ -19,6 +19,7 @@ export const SOURCE_TOOLS = [
   'visa_estimator',
   'name_checker',
   'qfzp_eligibility',
+  'france_landing', // /france/* campaign pages; not a micro-tool
 ] as const;
 
 export type SourceTool = (typeof SOURCE_TOOLS)[number];

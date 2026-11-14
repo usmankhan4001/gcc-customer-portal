@@ -11,7 +11,7 @@ import {
 } from './lead-capture';
 
 describe('lead-capture: schema validation (AC1)', () => {
-  it('accepts all 10 valid source_tool enums', () => {
+  it('accepts every valid source_tool enum', () => {
     for (const tool of SOURCE_TOOLS) {
       const res = captureRequestSchema.safeParse({
         source_tool: tool,
